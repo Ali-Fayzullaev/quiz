@@ -177,16 +177,49 @@ const createQuiz = asyncHandler(async (req, res) => {
     // Создание вопросов
     const createdQuestions = [];
     for (const questionData of questions) {
+        // Логируем входящие данные
+        logger.info('Question data received:', JSON.stringify(questionData));
+        
+        // Преобразуем options из строк в объекты
+        const formattedOptions = (questionData.options || []).map((opt, index) => {
+            const text = typeof opt === 'string' ? opt : (opt.text || opt);
+            return {
+                text: text || `Option ${index + 1}`,
+                isCorrect: index === (questionData.correctAnswer || 0),
+                order: index
+            };
+        }).filter(opt => opt.text && opt.text.trim() !== '');
+
+        // Проверяем, что есть хотя бы один вариант
+        if (formattedOptions.length === 0) {
+            logger.error('No valid options for question:', questionData.question);
+            continue;
+        }
+
+        // Определяем тип вопроса для модели
+        let questionType = 'single_choice';
+        if (questionData.type === 'multiple-choice') {
+            questionType = 'single_choice';
+        } else if (questionData.type === 'true-false') {
+            questionType = 'true_false';
+        }
+
         const question = new Question({
             quiz: quiz._id,
             question: questionData.question,
-            type: questionData.type || 'multiple-choice',
-            options: questionData.options || [],
-            correctAnswer: questionData.correctAnswer || 0,
-            explanation: questionData.explanation || '',
-            timeLimit: questionData.timeLimit || 30,
-            points: questionData.points || 10
+            questionType: questionType,
+            options: formattedOptions,
+            settings: {
+                points: questionData.points || 10,
+                timeLimit: questionData.timeLimit || 30
+            },
+            explanation: {
+                text: questionData.explanation || ''
+            },
+            createdBy: req.user.id
         });
+        
+        logger.info('Formatted options:', JSON.stringify(formattedOptions));
         
         await question.save();
         createdQuestions.push(question._id);

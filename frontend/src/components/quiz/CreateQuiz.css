@@ -38,6 +38,52 @@
   margin-bottom: 20px;
 }
 
+/* Предупреждение об авторизации */
+.auth-warning {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 1px solid #ffb74d;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-warning p {
+  font-size: 18px;
+  color: #e65100;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.auth-warning .login-btn,
+.auth-warning .register-btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 10px;
+  transition: all 0.3s ease;
+}
+
+.auth-warning .login-btn {
+  background: #4a90d9;
+  color: white;
+}
+
+.auth-warning .login-btn:hover {
+  background: #357abd;
+}
+
+.auth-warning .register-btn {
+  background: #5cb85c;
+  color: white;
+}
+
+.auth-warning .register-btn:hover {
+  background: #449d44;
+}
+
 /* Секции */
 .quiz-info-section,
 .questions-section {

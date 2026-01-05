@@ -55,19 +55,19 @@ const startGame = asyncHandler(async (req, res) => {
     
     // Перемешиваем вопросы если нужно
     let questions = quiz.questions;
-    if (quiz.settings.randomOrder) {
+    if (quiz.settings?.randomOrder) {
         questions = shuffleArray([...questions]);
     }
 
     // Убираем правильные ответы из вопросов для клиента
     const clientQuestions = questions.map(q => ({
         _id: q._id,
-        text: q.text,
-        type: q.type,
-        options: q.options.map(opt => ({ _id: opt._id, text: opt.text })),
+        text: q.question,  // В модели поле называется question
+        type: q.questionType || 'single_choice',
+        options: (q.options || []).map(opt => ({ _id: opt._id, text: opt.text })),
         media: q.media,
-        points: q.points,
-        timeLimit: q.timeLimit || quiz.settings.timeLimit
+        points: q.settings?.points || 10,
+        timeLimit: q.settings?.timeLimit || quiz.settings?.timeLimit || 30
     }));
 
     // Сохраняем сессию в памяти
@@ -84,15 +84,20 @@ const startGame = asyncHandler(async (req, res) => {
         status: 'active'
     });
 
+    // Вычисляем максимально возможный балл
+    const maxPossibleScore = questions.reduce((sum, q) => sum + (q.settings?.points || 10), 0);
+
     // Создаем запись результата в БД
     const result = new Result({
         _id: sessionId,
         user: userId,
         quiz: quizId,
         status: 'in_progress',
-        startedAt: startTime,
+        startTime: startTime,
         answers: [],
         score: 0,
+        maxPossibleScore: maxPossibleScore,
+        percentage: 0,
         totalQuestions: questions.length
     });
     
@@ -155,23 +160,27 @@ const submitAnswer = asyncHandler(async (req, res) => {
     let isCorrect = false;
     let points = 0;
     
-    if (currentQuestion.type === 'multiple-choice') {
+    const questionType = currentQuestion.questionType || currentQuestion.type || 'single_choice';
+    
+    if (questionType === 'single_choice' || questionType === 'multiple-choice' || questionType === 'multiple_choice') {
         const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
         isCorrect = correctOption && correctOption._id.toString() === answer;
-    } else if (currentQuestion.type === 'true-false') {
-        isCorrect = currentQuestion.correctAnswer === answer;
-    } else if (currentQuestion.type === 'text') {
+    } else if (questionType === 'true_false' || questionType === 'true-false') {
+        const correctOption = currentQuestion.options.find(opt => opt.isCorrect);
+        isCorrect = correctOption && correctOption._id.toString() === answer;
+    } else if (questionType === 'text_input' || questionType === 'text') {
         const correctAnswers = currentQuestion.correctAnswers || [];
         isCorrect = correctAnswers.some(correct => 
-            answer.toLowerCase().trim() === correct.toLowerCase().trim()
+            answer.toLowerCase().trim() === correct.text?.toLowerCase().trim()
         );
     }
 
     if (isCorrect) {
         // Начисляем очки с учетом времени
-        const maxTime = currentQuestion.timeLimit || 30;
+        const maxTime = currentQuestion.settings?.timeLimit || 30;
+        const questionPoints = currentQuestion.settings?.points || 10;
         const timeBonus = Math.max(0, (maxTime - (timeSpent || 0)) / maxTime);
-        points = Math.round(currentQuestion.points * (0.5 + 0.5 * timeBonus));
+        points = Math.round(questionPoints * (0.5 + 0.5 * timeBonus));
         session.score += points;
     }
 

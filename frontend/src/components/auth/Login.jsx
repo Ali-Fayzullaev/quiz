@@ -23,9 +23,10 @@ const Login = () => {
 
     try {
       const response = await authAPI.login(formData);
-      const { token, user } = response.data.data;
+      const { tokens, user } = response.data.data;
       
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
       
       // Перенаправляем на главную страницу

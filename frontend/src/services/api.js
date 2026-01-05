@@ -19,6 +19,8 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Для отладки - можно удалить после исправления
+    console.log('API Request:', config.method?.toUpperCase(), config.url, 'Token:', token ? 'есть' : 'нет');
     return config;
   },
   (error) => Promise.reject(error)
@@ -28,10 +30,22 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Только если токен истёк или невалиден И это не страница логина/регистрации
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      const isAuthRoute = error.config?.url?.includes('/auth/');
+      
+      // Не очищаем токен для auth роутов (login, register и т.д.)
+      if (!isAuthRoute) {
+        // Проверяем код ошибки от сервера
+        const errorCode = error.response?.data?.code;
+        
+        // Очищаем только если токен реально невалиден
+        if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || errorCode === 'TOKEN_REVOKED') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      }
     }
     return Promise.reject(error);
   }
@@ -60,11 +74,11 @@ export const quizAPI = {
 
 // Game API
 export const gameAPI = {
-  startGame: (quizId, gameType = 'solo') => api.post(`/games/start/${quizId}`, { gameType }),
+  startGame: (quizId, gameType = 'solo') => api.post(`/game/start/${quizId}`, { gameType }),
   submitAnswer: (gameId, questionId, answer) => 
-    api.post(`/games/${gameId}/answer`, { questionId, answer }),
-  getGameResult: (gameId) => api.get(`/games/${gameId}/result`),
-  getLeaderboard: (quizId) => api.get(`/games/leaderboard/${quizId}`),
+    api.post(`/game/answer`, { gameId, questionId, answer }),
+  getGameResult: (gameId) => api.get(`/game/results/${gameId}`),
+  getLeaderboard: (quizId) => api.get(`/game/leaderboard/${quizId}`),
 };
 
 // User API

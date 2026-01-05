@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { quizAPI } from '../../services/api';
 import './CreateQuiz.css';
 
 const CreateQuiz = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -25,6 +29,16 @@ const CreateQuiz = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Проверка авторизации при загрузке
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAuthenticated(false);
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,6 +64,8 @@ const CreateQuiz = () => {
   };
 
   const addQuestion = () => {
+    console.log('Adding question:', currentQuestion);
+    
     if (!currentQuestion.question.trim()) {
       setError('Введите текст вопроса');
       return;
@@ -60,10 +76,17 @@ const CreateQuiz = () => {
       return;
     }
 
-    setFormData(prev => ({
-      ...prev,
-      questions: [...prev.questions, { ...currentQuestion }]
-    }));
+    const newQuestion = { ...currentQuestion };
+    console.log('New question to add:', newQuestion);
+
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        questions: [...prev.questions, newQuestion]
+      };
+      console.log('Updated formData:', updated);
+      return updated;
+    });
 
     // Сброс текущего вопроса
     setCurrentQuestion({
@@ -76,6 +99,8 @@ const CreateQuiz = () => {
     });
 
     setError('');
+    setSuccess('Вопрос добавлен!');
+    setTimeout(() => setSuccess(''), 2000);
   };
 
   const removeQuestion = (index) => {
@@ -87,6 +112,9 @@ const CreateQuiz = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    console.log('Submitting quiz with formData:', formData);
+    console.log('Questions count:', formData.questions.length);
     
     if (!formData.title.trim()) {
       setError('Введите название квиза');
@@ -102,16 +130,32 @@ const CreateQuiz = () => {
     setError('');
     
     try {
+      console.log('Sending to API:', formData);
       const response = await quizAPI.createQuiz(formData);
       setSuccess('Квиз успешно создан!');
       
+      // Получаем ID квиза из ответа сервера
+      const quizId = response.data?.data?.quiz?._id || response.data?.quiz?._id;
+      
       // Перенаправляем на страницу квиза через 2 секунды
       setTimeout(() => {
-        window.location.href = `/quiz/${response.data.data.quiz._id}`;
+        if (quizId) {
+          window.location.href = `/quiz/${quizId}`;
+        } else {
+          window.location.href = '/quizzes';
+        }
       }, 2000);
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Ошибка при создании квиза');
+      console.error('Ошибка создания квиза:', err.response?.data || err);
+      
+      // Если 401 - пользователь не авторизован
+      if (err.response?.status === 401) {
+        setError('Сессия истекла. Пожалуйста, войдите снова.');
+        setIsAuthenticated(false);
+      } else {
+        setError(err.response?.data?.error || err.response?.data?.message || 'Ошибка при создании квиза');
+      }
     } finally {
       setLoading(false);
     }
@@ -141,9 +185,22 @@ const CreateQuiz = () => {
     <div className="create-quiz-container">
       <h1>Создать квиз</h1>
 
+      {!isAuthenticated && (
+        <div className="auth-warning">
+          <p>Для создания квиза необходимо войти в систему</p>
+          <button onClick={() => navigate('/login')} className="login-btn">
+            Войти
+          </button>
+          <button onClick={() => navigate('/register')} className="register-btn">
+            Зарегистрироваться
+          </button>
+        </div>
+      )}
+
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
+      {isAuthenticated && (
       <form onSubmit={handleSubmit} className="create-quiz-form">
         {/* Основная информация о квизе */}
         <div className="quiz-info-section">
@@ -401,6 +458,7 @@ const CreateQuiz = () => {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 };

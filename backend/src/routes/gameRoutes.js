@@ -1,51 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const { createResponse } = require('../middleware/errorHandler');
+const { authenticate } = require('../middleware/auth');
+const {
+    startGame,
+    submitAnswer,
+    completeGame,
+    getGameResults,
+    getQuizLeaderboard
+} = require('../controllers/gameController');
 
 // @route   POST /api/game/start/:quizId
 // @desc    Начать игру
 // @access  Private
-router.post('/start/:quizId', (req, res) => {
-    res.json(createResponse.success({ 
-        message: 'Start game endpoint - в разработке',
-        quizId: req.params.quizId 
-    }));
-});
+router.post('/start/:quizId', authenticate, startGame);
 
 // @route   POST /api/game/answer
 // @desc    Отправить ответ на вопрос
 // @access  Private
-router.post('/answer', (req, res) => {
-    res.json(createResponse.success({ message: 'Submit answer endpoint - в разработке' }));
-});
+router.post('/answer', authenticate, submitAnswer);
 
 // @route   POST /api/game/complete
 // @desc    Завершить игру
 // @access  Private
-router.post('/complete', (req, res) => {
-    res.json(createResponse.success({ message: 'Complete game endpoint - в разработке' }));
-});
+router.post('/complete', authenticate, completeGame);
 
 // @route   GET /api/game/results/:resultId
 // @desc    Получить результаты игры
 // @access  Private
-router.get('/results/:resultId', (req, res) => {
-    res.json(createResponse.success({ 
-        message: 'Get game results endpoint - в разработке',
-        resultId: req.params.resultId 
-    }));
-});
+router.get('/results/:resultId', authenticate, getGameResults);
 
 // @route   GET /api/game/leaderboard/:quizId
 // @desc    Получить лидерборд викторины
 // @access  Public
-router.get('/leaderboard/:quizId', (req, res) => {
-    res.json(createResponse.success({ 
-        message: 'Quiz leaderboard endpoint - в разработке',
-        quizId: req.params.quizId 
-    }));
-});
-
-module.exports = router;
+router.get('/leaderboard/:quizId', getQuizLeaderboard);
 
 module.exports = router;

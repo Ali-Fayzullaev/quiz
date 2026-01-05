@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { auth } = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 const { validate } = require('../middleware/errorHandler');
 const { quiz } = require('../utils/validation');
 const {
@@ -51,9 +51,9 @@ router.post('/test', (req, res) => {
 });
 
 // Приватные маршруты (требуют аутентификации)
-router.post('/', (req, res) => { res.json({ message: 'Create quiz - в разработке' }); });
-router.put('/:id', (req, res) => { res.json({ message: 'Update quiz - в разработке' }); });
-router.delete('/:id', (req, res) => { res.json({ message: 'Delete quiz - в разработке' }); });
-router.post('/:id/like', (req, res) => { res.json({ message: 'Like quiz - в разработке' }); });
+router.post('/', authenticate, upload.single('thumbnail'), createQuiz);
+router.put('/:id', authenticate, upload.single('thumbnail'), updateQuiz);
+router.delete('/:id', authenticate, deleteQuiz);
+router.post('/:id/toggle-like', authenticate, toggleQuizLike);
 
 module.exports = router;

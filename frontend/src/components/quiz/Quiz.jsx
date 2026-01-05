@@ -30,9 +30,11 @@ const Quiz = () => {
   const fetchQuiz = async () => {
     try {
       const response = await quizAPI.getQuizById(id);
-      setQuiz(response.data.data);
-      if (response.data.data.timeLimit) {
-        setTimeLeft(response.data.data.timeLimit * 60); // Convert to seconds
+      const quizData = response.data.data?.quiz || response.data.data;
+      console.log('Quiz data:', quizData); // Для отладки
+      setQuiz(quizData);
+      if (quizData?.timeLimit) {
+        setTimeLeft(quizData.timeLimit * 60); // Convert to seconds
       }
     } catch (err) {
       console.error('Ошибка загрузки викторины:', err);
@@ -126,13 +128,16 @@ const Quiz = () => {
   }
 
   if (!gameStarted) {
+    // Проверяем, что questions это массив
+    const questionsCount = Array.isArray(quiz.questions) ? quiz.questions.length : 0;
+    
     return (
       <div className="quiz-start">
         <h1>{quiz.title}</h1>
         <p>{quiz.description}</p>
         
         <div className="quiz-info">
-          <p>Вопросов: {quiz.questions.length}</p>
+          <p>Вопросов: {questionsCount}</p>
           <p>Категория: {quiz.category}</p>
           <p>Сложность: {quiz.difficulty}</p>
           {quiz.timeLimit && (
@@ -140,9 +145,13 @@ const Quiz = () => {
           )}
         </div>
 
-        <button className="start-game-btn" onClick={startGame}>
-          Начать викторину
-        </button>
+        {questionsCount > 0 ? (
+          <button className="start-game-btn" onClick={startGame}>
+            Начать викторину
+          </button>
+        ) : (
+          <p className="no-questions">В этой викторине пока нет вопросов</p>
+        )}
       </div>
     );
   }
@@ -163,7 +172,7 @@ const Quiz = () => {
       </div>
 
       <div className="question-container">
-        <h2>{question.question}</h2>
+        <h2>{question.text || question.question}</h2>
         
         {question.image && (
           <img src={question.image} alt="Question" className="question-image" />
@@ -172,11 +181,11 @@ const Quiz = () => {
         <div className="answers-container">
           {question.options.map((option, index) => (
             <button
-              key={index}
-              className={`answer-btn ${answers[currentQuestion] === option ? 'selected' : ''}`}
-              onClick={() => handleAnswerSelect(option)}
+              key={option._id || index}
+              className={`answer-btn ${answers[currentQuestion] === (option._id || index) ? 'selected' : ''}`}
+              onClick={() => handleAnswerSelect(option._id || index)}
             >
-              {option}
+              {option.text || option}
             </button>
           ))}
         </div>
