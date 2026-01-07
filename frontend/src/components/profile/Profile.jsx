@@ -121,8 +121,8 @@ const Profile = () => {
             {/* Avatar */}
             <div className="profile-avatar-wrap">
               <div className="profile-avatar">
-                {user.profile?.avatar ? (
-                  <img src={user.profile.avatar} alt={user.username} />
+                {user.profile?.avatar?.url ? (
+                  <img src={user.profile.avatar.url} alt={user.username} />
                 ) : (
                   <span>{user.username?.charAt(0).toUpperCase()}</span>
                 )}
@@ -130,7 +130,7 @@ const Profile = () => {
             </div>
 
             {/* Edit Button */}
-            <button className="profile-edit-btn" onClick={() => navigate('/settings')}>
+            <button className="profile-edit-btn" onClick={() => navigate('/profile/edit')}>
               <Edit2 />
               Редактировать
             </button>

@@ -10,6 +10,7 @@ import EditQuiz from './components/quiz/EditQuiz';
 import MyQuizzes from './components/quiz/MyQuizzes';
 import QuizStats from './components/quiz/QuizStats';
 import Profile from './components/profile/Profile';
+import ProfileEditor from './components/profile/ProfileEditor';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path="/my-quizzes" element={<MyQuizzes />} />
             <Route path="/quiz/:id/stats" element={<QuizStats />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<ProfileEditor />} />
           </Routes>
         </main>
       </div>

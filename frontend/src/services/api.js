@@ -97,9 +97,13 @@ export const userAPI = {
   updateProfile: (profileData) => api.put('/users/profile', profileData),
   getUserStats: () => api.get('/users/stats'),
   getAchievements: () => api.get('/users/achievements'),
+  getUserQuizzes: () => api.get('/users/quizzes'),
+  getUserResults: () => api.get('/users/results'),
   uploadAvatar: (formData) => api.post('/users/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  deleteAvatar: () => api.delete('/users/avatar'),
+  changePassword: (passwordData) => api.put('/users/password', passwordData),
 };
 
 export default api;
