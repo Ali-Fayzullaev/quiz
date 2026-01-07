@@ -7,15 +7,29 @@ import {
   X, 
   Loader2, 
   Mail, 
-  MapPin, 
   Calendar,
   FileText,
-  ArrowLeft,
   Trash2,
   Check,
-  AlertCircle
+  AlertCircle,
+  Shield,
+  Bell,
+  Globe
 } from 'lucide-react';
 import { userAPI } from '../../services/api';
+
+const getAvatarColor = (username) => {
+  const colors = [
+    'from-pink-500 to-rose-500',
+    'from-violet-500 to-purple-500',
+    'from-blue-500 to-cyan-500',
+    'from-emerald-500 to-teal-500',
+    'from-amber-500 to-orange-500',
+  ];
+  if (!username) return colors[0];
+  const index = username.charCodeAt(0) % colors.length;
+  return colors[index];
+};
 
 const ProfileEditor = () => {
   const navigate = useNavigate();
@@ -26,6 +40,7 @@ const ProfileEditor = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [activeTab, setActiveTab] = useState('profile');
   
   const [profile, setProfile] = useState({
     username: '',
@@ -89,27 +104,23 @@ const ProfileEditor = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Проверка типа файла
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       setError('Разрешены только изображения (jpeg, jpg, png, gif, webp)');
       return;
     }
     
-    // Проверка размера (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Размер файла не должен превышать 5MB');
       return;
     }
     
-    // Показываем превью
     const reader = new FileReader();
     reader.onloadend = () => {
       setAvatarPreview(reader.result);
     };
     reader.readAsDataURL(file);
     
-    // Загружаем на сервер
     try {
       setUploadingAvatar(true);
       setError('');
@@ -130,7 +141,6 @@ const ProfileEditor = () => {
     } catch (err) {
       console.error('Error uploading avatar:', err);
       setError(err.response?.data?.message || 'Ошибка загрузки аватара');
-      // Возвращаем старое превью
       setAvatarPreview(profile.avatar?.url || '');
     } finally {
       setUploadingAvatar(false);
@@ -139,7 +149,6 @@ const ProfileEditor = () => {
 
   const handleDeleteAvatar = async () => {
     if (!profile.avatar?.cloudinaryId) return;
-    
     if (!confirm('Вы уверены, что хотите удалить аватар?')) return;
     
     try {
@@ -194,261 +203,349 @@ const ProfileEditor = () => {
     }
   };
 
+  const tabs = [
+    { id: 'profile', label: 'Профиль', icon: User },
+    { id: 'security', label: 'Безопасность', icon: Shield },
+    { id: 'notifications', label: 'Уведомления', icon: Bell },
+  ];
+
   if (loading) {
     return (
-      <div className="profile-editor-page">
-        <div className="profile-editor-loading">
-          <Loader2 className="animate-spin" size={48} />
-          <p>Загрузка профиля...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+        <span className="ml-3 text-gray-400">Загрузка профиля...</span>
       </div>
     );
   }
 
   return (
-    <div className="profile-editor-page">
-      <div className="profile-editor-container">
-        {/* Header */}
-        <div className="profile-editor-header">
-          <button 
-            className="profile-editor-back"
-            onClick={() => navigate('/profile')}
-          >
-            <ArrowLeft size={20} />
-            <span>Назад к профилю</span>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white">Настройки</h1>
+        <p className="text-gray-400 mt-1">Управляйте своим профилем и настройками аккаунта</p>
+      </div>
+
+      {/* Messages */}
+      {error && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+          <AlertCircle size={20} />
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError('')} className="hover:text-red-300">
+            <X size={18} />
           </button>
-          <h1>Редактирование профиля</h1>
+        </div>
+      )}
+      
+      {success && (
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
+          <Check size={20} />
+          <span className="flex-1">{success}</span>
+          <button onClick={() => setSuccess('')} className="hover:text-green-300">
+            <X size={18} />
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sidebar Tabs */}
+        <div className="lg:w-64 flex-shrink-0">
+          <div className="p-2 rounded-2xl bg-white/5 border border-white/10">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-purple-500/20 text-purple-400'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  <Icon size={20} />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Messages */}
-        {error && (
-          <div className="profile-editor-message error">
-            <AlertCircle size={20} />
-            <span>{error}</span>
-            <button onClick={() => setError('')}>
-              <X size={18} />
-            </button>
-          </div>
-        )}
-        
-        {success && (
-          <div className="profile-editor-message success">
-            <Check size={20} />
-            <span>{success}</span>
-            <button onClick={() => setSuccess('')}>
-              <X size={18} />
-            </button>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="profile-editor-form">
-          {/* Avatar Section */}
-          <div className="profile-editor-avatar-section">
-            <div className="profile-editor-avatar-wrapper">
-              <div 
-                className="profile-editor-avatar"
-                onClick={handleAvatarClick}
-              >
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" />
-                ) : (
-                  <div className="profile-editor-avatar-placeholder">
-                    <User size={48} />
-                  </div>
-                )}
+        {/* Content */}
+        <div className="flex-1">
+          {activeTab === 'profile' && (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Avatar Section */}
+              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                <h2 className="text-lg font-semibold text-white mb-4">Фото профиля</h2>
                 
-                {uploadingAvatar && (
-                  <div className="profile-editor-avatar-loading">
-                    <Loader2 className="animate-spin" size={32} />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <div className="relative">
+                    <div 
+                      onClick={handleAvatarClick}
+                      className={`w-28 h-28 rounded-2xl bg-gradient-to-br ${getAvatarColor(profile.username)} 
+                                flex items-center justify-center cursor-pointer overflow-hidden
+                                ring-4 ring-white/10 hover:ring-purple-500/50 transition-all`}
+                    >
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white text-4xl font-bold">
+                          {profile.username?.charAt(0).toUpperCase() || 'U'}
+                        </span>
+                      )}
+                      
+                      {uploadingAvatar && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <Loader2 className="w-8 h-8 animate-spin text-white" />
+                        </div>
+                      )}
+                      
+                      <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera className="text-white" size={28} />
+                      </div>
+                    </div>
+                    
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
                   </div>
-                )}
-                
-                <div className="profile-editor-avatar-overlay">
-                  <Camera size={24} />
-                  <span>Изменить</span>
+                  
+                  <div className="space-y-3">
+                    <p className="text-gray-400 text-sm">JPG, PNG, GIF или WebP. Максимум 5MB.</p>
+                    <div className="flex gap-3">
+                      <button 
+                        type="button" 
+                        onClick={handleAvatarClick}
+                        disabled={uploadingAvatar}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 
+                                 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
+                      >
+                        <Camera size={16} />
+                        Загрузить
+                      </button>
+                      {profile.avatar?.url && (
+                        <button 
+                          type="button" 
+                          onClick={handleDeleteAvatar}
+                          disabled={uploadingAvatar}
+                          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 
+                                   text-red-400 text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 size={16} />
+                          Удалить
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                onChange={handleAvatarChange}
-                style={{ display: 'none' }}
-              />
-            </div>
-            
-            <div className="profile-editor-avatar-info">
-              <h3>Фото профиля</h3>
-              <p>JPG, PNG, GIF или WebP. Максимум 5MB.</p>
-              <div className="profile-editor-avatar-buttons">
+
+              {/* Basic Info */}
+              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                <h2 className="text-lg font-semibold text-white mb-4">Основная информация</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <User size={16} />
+                      Имя пользователя
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={profile.username}
+                      onChange={handleInputChange}
+                      placeholder="Введите имя пользователя"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white placeholder:text-gray-500 outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <Mail size={16} />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={profile.email}
+                      onChange={handleInputChange}
+                      placeholder="Введите email"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white placeholder:text-gray-500 outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <User size={16} />
+                      Имя
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={profile.firstName}
+                      onChange={handleInputChange}
+                      placeholder="Введите имя"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white placeholder:text-gray-500 outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <User size={16} />
+                      Фамилия
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={profile.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Введите фамилию"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white placeholder:text-gray-500 outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <Globe size={16} />
+                      Страна
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={profile.country}
+                      onChange={handleInputChange}
+                      placeholder="Введите страну"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white placeholder:text-gray-500 outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                      <Calendar size={16} />
+                      Дата рождения
+                    </label>
+                    <input
+                      type="date"
+                      name="dateOfBirth"
+                      value={profile.dateOfBirth}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                               text-white outline-none
+                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    />
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <FileText size={16} />
+                    О себе
+                  </label>
+                  <textarea
+                    name="bio"
+                    value={profile.bio}
+                    onChange={handleInputChange}
+                    placeholder="Расскажите немного о себе..."
+                    rows={4}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
+                             text-white placeholder:text-gray-500 outline-none resize-none
+                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  />
+                  <p className="text-right text-sm text-gray-500 mt-1">{profile.bio.length} / 500</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-4">
                 <button 
                   type="button" 
-                  className="btn-upload"
-                  onClick={handleAvatarClick}
-                  disabled={uploadingAvatar}
+                  onClick={() => navigate('/profile')}
+                  className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 
+                           text-white font-medium rounded-xl transition-colors"
                 >
-                  <Camera size={18} />
-                  Загрузить фото
+                  <X size={18} />
+                  Отмена
                 </button>
-                {profile.avatar?.url && (
-                  <button 
-                    type="button" 
-                    className="btn-delete-avatar"
-                    onClick={handleDeleteAvatar}
-                    disabled={uploadingAvatar}
-                  >
-                    <Trash2 size={18} />
-                    Удалить
-                  </button>
-                )}
+                <button 
+                  type="submit" 
+                  disabled={saving}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 
+                           hover:opacity-90 text-white font-medium rounded-xl transition-opacity disabled:opacity-50"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Сохранение...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} />
+                      Сохранить
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
-          </div>
+            </form>
+          )}
 
-          {/* Form Fields */}
-          <div className="profile-editor-fields">
-            <div className="profile-editor-row">
-              <div className="profile-editor-field">
-                <label htmlFor="username">
-                  <User size={16} />
-                  Имя пользователя
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={profile.username}
-                  onChange={handleInputChange}
-                  placeholder="Введите имя пользователя"
-                />
-              </div>
+          {activeTab === 'security' && (
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+              <h2 className="text-lg font-semibold text-white mb-4">Безопасность</h2>
+              <p className="text-gray-400">Настройки безопасности будут доступны в ближайшее время.</p>
               
-              <div className="profile-editor-field">
-                <label htmlFor="email">
-                  <Mail size={16} />
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={profile.email}
-                  onChange={handleInputChange}
-                  placeholder="Введите email"
-                />
+              <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-yellow-400 text-sm">🔒 Функция смены пароля скоро будет добавлена</p>
               </div>
             </div>
+          )}
 
-            <div className="profile-editor-row">
-              <div className="profile-editor-field">
-                <label htmlFor="firstName">
-                  <User size={16} />
-                  Имя
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={profile.firstName}
-                  onChange={handleInputChange}
-                  placeholder="Введите имя"
-                />
-              </div>
+          {activeTab === 'notifications' && (
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+              <h2 className="text-lg font-semibold text-white mb-4">Уведомления</h2>
+              <p className="text-gray-400 mb-6">Настройте, какие уведомления вы хотите получать.</p>
               
-              <div className="profile-editor-field">
-                <label htmlFor="lastName">
-                  <User size={16} />
-                  Фамилия
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={profile.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Введите фамилию"
-                />
+              <div className="space-y-4">
+                {[
+                  { label: 'Email уведомления', desc: 'Получать уведомления на email' },
+                  { label: 'Новые комментарии', desc: 'Когда кто-то комментирует ваш квиз' },
+                  { label: 'Новые лайки', desc: 'Когда кто-то ставит лайк вашему квизу' },
+                  { label: 'Результаты', desc: 'Когда кто-то проходит ваш квиз' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                    <div>
+                      <p className="text-white font-medium">{item.label}</p>
+                      <p className="text-gray-400 text-sm">{item.desc}</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" defaultChecked={i < 2} />
+                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer 
+                                    peer-checked:after:translate-x-full peer-checked:bg-purple-500
+                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
+                      </div>
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <div className="profile-editor-row">
-              <div className="profile-editor-field">
-                <label htmlFor="country">
-                  <MapPin size={16} />
-                  Страна
-                </label>
-                <input
-                  type="text"
-                  id="country"
-                  name="country"
-                  value={profile.country}
-                  onChange={handleInputChange}
-                  placeholder="Введите страну"
-                />
-              </div>
-              
-              <div className="profile-editor-field">
-                <label htmlFor="dateOfBirth">
-                  <Calendar size={16} />
-                  Дата рождения
-                </label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  name="dateOfBirth"
-                  value={profile.dateOfBirth}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            <div className="profile-editor-field full-width">
-              <label htmlFor="bio">
-                <FileText size={16} />
-                О себе
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                value={profile.bio}
-                onChange={handleInputChange}
-                placeholder="Расскажите немного о себе..."
-                rows={4}
-              />
-              <span className="char-count">{profile.bio.length} / 500</span>
-            </div>
-          </div>
-
-          {/* Submit Buttons */}
-          <div className="profile-editor-actions">
-            <button 
-              type="button" 
-              className="btn-cancel"
-              onClick={() => navigate('/profile')}
-            >
-              <X size={18} />
-              Отмена
-            </button>
-            <button 
-              type="submit" 
-              className="btn-save"
-              disabled={saving}
-            >
-              {saving ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  Сохранение...
-                </>
-              ) : (
-                <>
-                  <Save size={18} />
-                  Сохранить изменения
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+          )}
+        </div>
       </div>
     </div>
   );

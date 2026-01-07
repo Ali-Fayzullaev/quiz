@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizAPI, gameAPI } from '../../services/api';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
-import { Progress } from '../ui/Progress';
-import { Badge } from '../ui/Badge';
-import { cn } from '../../lib/utils';
 import Comments from './Comments';
 import {
   Clock,
@@ -31,7 +26,8 @@ import {
   ChevronLeft,
   Calendar,
   Zap,
-  MessageCircle
+  MessageCircle,
+  Sparkles
 } from 'lucide-react';
 
 // Функция для генерации цвета на основе имени пользователя
@@ -269,9 +265,11 @@ const Quiz = () => {
   // Loading State
   if (loading) {
     return (
-      <div className="quiz-page-loading">
-        <Loader2 className="quiz-loading-spinner" />
-        <p>Загрузка викторины...</p>
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Загрузка викторины...</p>
+        </div>
       </div>
     );
   }
@@ -279,17 +277,20 @@ const Quiz = () => {
   // Error State
   if (!quiz) {
     return (
-      <div className="quiz-page-error">
-        <div className="quiz-error-card">
-          <div className="quiz-error-icon">
-            <XCircle />
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center max-w-md">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-8 h-8 text-red-400" />
           </div>
-          <h2>Викторина не найдена</h2>
-          <p>Возможно, она была удалена или перемещена</p>
-          <Button onClick={() => navigate('/quizzes')} className="quiz-error-btn">
-            <Home className="btn-icon" />
+          <h2 className="text-xl font-bold text-white mb-2">Викторина не найдена</h2>
+          <p className="text-white/60 mb-6">Возможно, она была удалена или перемещена</p>
+          <button 
+            onClick={() => navigate('/quizzes')} 
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
+          >
+            <Home className="w-4 h-4" />
             К списку викторин
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -300,80 +301,91 @@ const Quiz = () => {
     const isPassed = results.passed;
     
     return (
-      <div className="quiz-page-results">
-        <div className="quiz-results-card">
-          <div className={`quiz-results-bar ${isPassed ? 'passed' : 'failed'}`} />
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
+        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden max-w-lg w-full">
+          {/* Top bar */}
+          <div className={`h-2 ${isPassed ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`} />
           
-          <div className="quiz-results-content">
+          <div className="p-8 text-center">
             {/* Icon */}
-            <div className="quiz-results-icon-wrap">
+            <div className="mb-4">
               {isPassed ? (
-                <div className="quiz-results-icon passed">
-                  <Trophy />
+                <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <Trophy className="w-10 h-10 text-emerald-400" />
                 </div>
               ) : (
-                <div className="quiz-results-icon failed">
-                  <Target />
+                <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
+                  <Target className="w-10 h-10 text-red-400" />
                 </div>
               )}
             </div>
 
             {/* Title */}
-            <h1 className="quiz-results-title">
+            <h1 className="text-2xl font-bold text-white mb-1">
               {isPassed ? 'Поздравляем!' : 'Попробуйте ещё раз'}
             </h1>
-            <p className="quiz-results-subtitle">{quiz.title}</p>
+            <p className="text-white/60 mb-6">{quiz.title}</p>
 
             {/* Score Circle */}
-            <div className={`quiz-score-circle ${isPassed ? 'passed' : 'failed'}`}>
-              <div className="quiz-score-value">{results.percentage}%</div>
-              <div className="quiz-score-label">результат</div>
+            <div className={`w-32 h-32 rounded-full mx-auto mb-6 flex flex-col items-center justify-center ${
+              isPassed 
+                ? 'bg-gradient-to-br from-emerald-500/20 to-green-500/20 border-2 border-emerald-500/50' 
+                : 'bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-red-500/50'
+            }`}>
+              <div className={`text-3xl font-bold ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
+                {results.percentage}%
+              </div>
+              <div className="text-white/40 text-sm">результат</div>
             </div>
 
             {/* Stats Grid */}
-            <div className="quiz-results-stats">
-              <div className="quiz-results-stat">
-                <CheckCircle2 className="stat-icon correct" />
-                <div className="stat-value">{results.correctAnswers}</div>
-                <div className="stat-label">Правильных</div>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-white/5 rounded-xl p-4 text-center">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
+                <div className="text-xl font-bold text-white">{results.correctAnswers}</div>
+                <div className="text-xs text-white/40">Правильных</div>
               </div>
-              <div className="quiz-results-stat">
-                <BarChart3 className="stat-icon total" />
-                <div className="stat-value">{results.totalQuestions}</div>
-                <div className="stat-label">Всего</div>
+              <div className="bg-white/5 rounded-xl p-4 text-center">
+                <BarChart3 className="w-5 h-5 text-purple-400 mx-auto mb-2" />
+                <div className="text-xl font-bold text-white">{results.totalQuestions}</div>
+                <div className="text-xs text-white/40">Всего</div>
               </div>
-              <div className="quiz-results-stat">
-                <Timer className="stat-icon time" />
-                <div className="stat-value">{results.timeSpent}с</div>
-                <div className="stat-label">Время</div>
+              <div className="bg-white/5 rounded-xl p-4 text-center">
+                <Timer className="w-5 h-5 text-amber-400 mx-auto mb-2" />
+                <div className="text-xl font-bold text-white">{results.timeSpent}с</div>
+                <div className="text-xs text-white/40">Время</div>
               </div>
             </div>
 
             {/* Points */}
-            <div className="quiz-results-points">
-              <div className="points-info">
-                <div className="points-icon">
-                  <Award />
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4 flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
+                  <Award className="w-5 h-5 text-purple-400" />
                 </div>
-                <div className="points-text">
-                  <span className="points-label">Заработано очков</span>
-                  <span className="points-value">{results.score}</span>
+                <div>
+                  <div className="text-white/60 text-sm">Заработано очков</div>
+                  <div className="text-xl font-bold text-white">{results.score}</div>
                 </div>
               </div>
-              <Zap className="points-decoration" />
+              <Zap className="w-6 h-6 text-yellow-400" />
             </div>
 
             {/* Status */}
-            <div className="quiz-results-status">
-              <span className={`status-badge ${isPassed ? 'passed' : 'failed'}`}>
+            <div className="mb-6">
+              <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                isPassed 
+                  ? 'bg-emerald-500/20 text-emerald-400' 
+                  : 'bg-red-500/20 text-red-400'
+              }`}>
                 {isPassed ? (
                   <>
-                    <CheckCircle2 />
+                    <CheckCircle2 className="w-4 h-4" />
                     Тест пройден
                   </>
                 ) : (
                   <>
-                    <XCircle />
+                    <XCircle className="w-4 h-4" />
                     Тест не пройден
                   </>
                 )}
@@ -381,22 +393,21 @@ const Quiz = () => {
             </div>
 
             {/* Actions */}
-            <div className="quiz-results-actions">
-              <Button 
-                variant="outline" 
-                className="results-btn outline"
+            <div className="flex gap-3">
+              <button 
                 onClick={() => navigate('/quizzes')}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-medium hover:bg-white/10 transition-colors"
               >
-                <Home className="btn-icon" />
+                <Home className="w-4 h-4" />
                 К викторинам
-              </Button>
-              <Button 
-                className="results-btn primary"
+              </button>
+              <button 
                 onClick={() => window.location.reload()}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
               >
-                <RotateCcw className="btn-icon" />
+                <RotateCcw className="w-4 h-4" />
                 Пройти снова
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -411,192 +422,205 @@ const Quiz = () => {
     const difficulty = getDifficultyData(quiz.difficulty);
     
     return (
-      <div className="quiz-page-start">
+      <div className="min-h-screen bg-[#0a0a0f]">
         {/* Header */}
-        <div className="quiz-page-header">
-          <div className="quiz-header-content">
+        <div className="border-b border-white/10 bg-white/5 backdrop-blur-sm sticky top-0 z-10">
+          <div className="max-w-5xl mx-auto px-4 py-4">
             <button 
               onClick={() => navigate('/quizzes')}
-              className="quiz-back-btn"
+              className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
             >
-              <ChevronLeft />
+              <ChevronLeft className="w-5 h-5" />
               <span>Назад к викторинам</span>
             </button>
           </div>
         </div>
 
-        <div className="quiz-start-container">
-          {/* Main Card */}
-          <div className="quiz-main-card">
-            {/* Thumbnail */}
-            {quiz.thumbnail?.url ? (
-              <div className="quiz-thumbnail">
-                <img src={quiz.thumbnail.url} alt={quiz.title} />
-                <div className="quiz-thumbnail-overlay" />
-                <div className="quiz-category-badge">
-                  <BookOpen />
-                  {getCategoryText(quiz.category)}
-                </div>
-              </div>
-            ) : (
-              <div className="quiz-thumbnail-placeholder">
-                <Brain className="placeholder-icon" />
-                <div className="quiz-category-badge">
-                  <BookOpen />
-                  {getCategoryText(quiz.category)}
-                </div>
-              </div>
-            )}
-
-            <div className="quiz-card-content">
-              {/* Badges */}
-              <div className="quiz-badges">
-                <span className={`quiz-difficulty-badge ${difficulty.color}`}>
-                  <span className={`difficulty-dot ${difficulty.dot}`} />
-                  {difficulty.text}
-                </span>
-                {quiz.stats?.averageScore > 0 && (
-                  <span className="quiz-rating-badge">
-                    <Star className="star-icon" />
-                    {Math.round(quiz.stats.averageScore)}% средний балл
-                  </span>
-                )}
-              </div>
-
-              {/* Title */}
-              <h1 className="quiz-title">{quiz.title}</h1>
-
-              {/* Description */}
-              {quiz.description && (
-                <p className="quiz-description">{quiz.description}</p>
-              )}
-
-              {/* Creator & Date */}
-              <div className="quiz-meta-info">
-                {creator.username && (
-                  <div className="quiz-creator">
-                    <div 
-                      className="creator-avatar"
-                      style={!creator.profile?.avatar?.url ? { backgroundColor: getAvatarColor(creator.username) } : {}}
-                    >
-                      {creator.profile?.avatar?.url ? (
-                        <img src={creator.profile.avatar.url} alt="" />
-                      ) : (
-                        <span>{creator.username?.charAt(0).toUpperCase()}</span>
-                      )}
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Main Card */}
+            <div className="lg:col-span-2">
+              <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                {/* Thumbnail */}
+                {quiz.thumbnail?.url ? (
+                  <div className="relative h-64 overflow-hidden">
+                    <img src={quiz.thumbnail.url} alt={quiz.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full">
+                      <BookOpen className="w-4 h-4 text-purple-400" />
+                      <span className="text-white text-sm">{getCategoryText(quiz.category)}</span>
                     </div>
-                    <div className="creator-info">
-                      <span className="creator-name">{creator.username}</span>
-                      <span className="creator-role">Автор</span>
+                  </div>
+                ) : (
+                  <div className="relative h-48 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                    <Brain className="w-16 h-16 text-purple-400/50" />
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full">
+                      <BookOpen className="w-4 h-4 text-purple-400" />
+                      <span className="text-white text-sm">{getCategoryText(quiz.category)}</span>
                     </div>
                   </div>
                 )}
-                
-                {quiz.createdAt && (
-                  <div className="quiz-date">
-                    <Calendar />
-                    <span>{formatDate(quiz.createdAt)}</span>
-                  </div>
-                )}
-              </div>
 
-              {/* Stats Grid */}
-              <div className="quiz-stats-grid">
-                <div className="quiz-stat-item">
-                  <div className="stat-icon-wrap blue">
-                    <Target />
+                <div className="p-6">
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${difficulty.color}`}>
+                      <span className={`w-2 h-2 rounded-full ${difficulty.dot}`} />
+                      {difficulty.text}
+                    </span>
+                    {quiz.stats?.averageScore > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-sm">
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                        {Math.round(quiz.stats.averageScore)}% средний балл
+                      </span>
+                    )}
                   </div>
-                  <div className="stat-value">{questionsCount}</div>
-                  <div className="stat-label">Вопросов</div>
-                </div>
-                
-                <div className="quiz-stat-item">
-                  <div className="stat-icon-wrap green">
-                    <Users />
+
+                  {/* Title */}
+                  <h1 className="text-2xl font-bold text-white mb-3">{quiz.title}</h1>
+
+                  {/* Description */}
+                  {quiz.description && (
+                    <p className="text-white/60 mb-6 leading-relaxed">{quiz.description}</p>
+                  )}
+
+                  {/* Creator & Date */}
+                  <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-white/10">
+                    {creator.username && (
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+                          style={!creator.profile?.avatar?.url ? { backgroundColor: getAvatarColor(creator.username) } : {}}
+                        >
+                          {creator.profile?.avatar?.url ? (
+                            <img src={creator.profile.avatar.url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-white font-medium">{creator.username?.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-white font-medium">{creator.username}</div>
+                          <div className="text-white/40 text-sm">Автор</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {quiz.createdAt && (
+                      <div className="flex items-center gap-2 text-white/40 text-sm">
+                        <Calendar className="w-4 h-4" />
+                        <span>{formatDate(quiz.createdAt)}</span>
+                      </div>
+                    )}
                   </div>
-                  <div className="stat-value">{quiz.stats?.plays || 0}</div>
-                  <div className="stat-label">Прошли</div>
-                </div>
-                
-                <div className="quiz-stat-item">
-                  <div className="stat-icon-wrap amber">
-                    <Trophy />
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Target className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div className="text-xl font-bold text-white">{questionsCount}</div>
+                      <div className="text-xs text-white/40">Вопросов</div>
+                    </div>
+                    
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Users className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <div className="text-xl font-bold text-white">{quiz.stats?.plays || 0}</div>
+                      <div className="text-xs text-white/40">Прошли</div>
+                    </div>
+                    
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Trophy className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div className="text-xl font-bold text-white">{quiz.settings?.passingScore || 70}%</div>
+                      <div className="text-xs text-white/40">Проходной</div>
+                    </div>
+                    
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
+                        <Clock className="w-5 h-5 text-rose-400" />
+                      </div>
+                      <div className="text-xl font-bold text-white">
+                        {quiz.timeLimit ? `${quiz.timeLimit}` : '∞'}
+                      </div>
+                      <div className="text-xs text-white/40">
+                        {quiz.timeLimit ? 'Минут' : 'Без лимита'}
+                      </div>
+                    </div>
                   </div>
-                  <div className="stat-value">{quiz.settings?.passingScore || 70}%</div>
-                  <div className="stat-label">Проходной</div>
-                </div>
-                
-                <div className="quiz-stat-item">
-                  <div className="stat-icon-wrap rose">
-                    <Clock />
+
+                  {/* Social Stats */}
+                  <div className="flex items-center gap-4 text-white/40 text-sm mb-6">
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="w-4 h-4" />
+                      <span>{quiz.stats?.views || 0} просмотров</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Heart className={`w-4 h-4 ${isLiked ? 'text-pink-500 fill-current' : ''}`} />
+                      <span>{likesCount} нравится</span>
+                    </div>
                   </div>
-                  <div className="stat-value">
-                    {quiz.timeLimit ? `${quiz.timeLimit}` : '∞'}
-                  </div>
-                  <div className="stat-label">
-                    {quiz.timeLimit ? 'Минут' : 'Без лимита'}
-                  </div>
+
+                  {/* Actions */}
+                  {questionsCount > 0 ? (
+                    <div className="space-y-4">
+                      <button 
+                        onClick={startGame}
+                        className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity group"
+                      >
+                        <Play className="w-6 h-6" />
+                        Начать викторину
+                        <Sparkles className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                      
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={handleShare} 
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-colors"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          <span>Поделиться</span>
+                        </button>
+                        <button 
+                          onClick={handleLike}
+                          disabled={likeLoading}
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-colors ${
+                            isLiked 
+                              ? 'bg-pink-500/20 border border-pink-500/50 text-pink-400' 
+                              : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+                          }`}
+                        >
+                          <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                          <span>Нравится</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white/5 rounded-xl p-6 text-center">
+                      <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <XCircle className="w-6 h-6 text-amber-400" />
+                      </div>
+                      <p className="text-white font-medium mb-1">В этой викторине пока нет вопросов</p>
+                      <span className="text-white/40 text-sm">Автор скоро добавит их</span>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Social Stats */}
-              <div className="quiz-social-stats">
-                <div className="social-stat">
-                  <Eye />
-                  <span>{quiz.stats?.views || 0} просмотров</span>
-                </div>
-                <div className="social-stat">
-                  <Heart className={isLiked ? 'liked' : ''} />
-                  <span>{likesCount} нравится</span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              {questionsCount > 0 ? (
-                <div className="quiz-actions">
-                  <Button 
-                    size="lg" 
-                    className="quiz-start-btn"
-                    onClick={startGame}
-                  >
-                    <Play />
-                    Начать викторину
-                  </Button>
-                  
-                  <div className="quiz-secondary-actions">
-                    <button onClick={handleShare} className="secondary-action-btn">
-                      <Share2 />
-                      <span>Поделиться</span>
-                    </button>
-                    <button 
-                      onClick={handleLike}
-                      disabled={likeLoading}
-                      className={`secondary-action-btn ${isLiked ? 'liked' : ''}`}
-                    >
-                      <Heart className={isLiked ? 'filled' : ''} />
-                      <span>Нравится</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="quiz-no-questions">
-                  <div className="no-questions-icon">
-                    <XCircle />
-                  </div>
-                  <p>В этой викторине пока нет вопросов</p>
-                  <span>Автор скоро добавит их</span>
-                </div>
-              )}
             </div>
-          </div>
 
-          {/* Comments Section */}
-          <div className="quiz-comments-section">
-            <div className="comments-header">
-              <MessageCircle />
-              <h2>Комментарии</h2>
+            {/* Sidebar - Comments */}
+            <div className="lg:col-span-1">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sticky top-24">
+                <div className="flex items-center gap-2 mb-4">
+                  <MessageCircle className="w-5 h-5 text-purple-400" />
+                  <h2 className="text-lg font-semibold text-white">Комментарии</h2>
+                </div>
+                <Comments quizId={id} />
+              </div>
             </div>
-            <Comments quizId={id} />
           </div>
         </div>
       </div>
@@ -609,92 +633,107 @@ const Quiz = () => {
   const isTimeLow = timeLeft !== null && timeLeft < 30;
 
   return (
-    <div className="quiz-page-game">
-      <div className="quiz-game-container">
-        {/* Header */}
-        <div className="quiz-game-header">
-          <span className="question-counter">
-            Вопрос {currentQuestion + 1} из {quiz.questions.length}
+    <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-white/5 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+          <span className="text-white font-medium">
+            Вопрос <span className="text-purple-400">{currentQuestion + 1}</span> из {quiz.questions.length}
           </span>
           
           {timeLeft !== null && (
-            <span className={`quiz-timer ${isTimeLow ? 'low' : ''}`}>
-              <Clock />
+            <span className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+              isTimeLow 
+                ? 'bg-red-500/20 text-red-400 animate-pulse' 
+                : 'bg-white/10 text-white'
+            }`}>
+              <Clock className="w-4 h-4" />
               {formatTime(timeLeft)}
             </span>
           )}
         </div>
         
         {/* Progress bar */}
-        <div className="quiz-progress-bar">
+        <div className="h-1 bg-white/10">
           <div 
-            className="quiz-progress-fill"
+            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
+      </div>
 
-        {/* Question Card */}
-        <div className="quiz-question-card">
-          <h2 className="quiz-question-text">
-            {question.text || question.question}
-          </h2>
+      {/* Question Card */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-3xl">
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-6 text-center">
+              {question.text || question.question}
+            </h2>
 
-          {question.image && (
-            <img 
-              src={question.image} 
-              alt="Question" 
-              className="quiz-question-image" 
-            />
-          )}
+            {question.image && (
+              <img 
+                src={question.image} 
+                alt="Question" 
+                className="max-w-full max-h-64 object-contain mx-auto rounded-xl mb-6" 
+              />
+            )}
 
-          {/* Answer Options */}
-          <div className="quiz-answers">
-            {question.options.map((option, index) => {
-              const isSelected = answers[currentQuestion] === (option._id || index);
-              const letter = String.fromCharCode(65 + index);
-              
-              return (
-                <button
-                  key={option._id || index}
-                  onClick={() => handleAnswerSelect(option._id || index)}
-                  className={`quiz-answer-btn ${isSelected ? 'selected' : ''}`}
+            {/* Answer Options */}
+            <div className="space-y-3">
+              {question.options.map((option, index) => {
+                const isSelected = answers[currentQuestion] === (option._id || index);
+                const letter = String.fromCharCode(65 + index);
+                
+                return (
+                  <button
+                    key={option._id || index}
+                    onClick={() => handleAnswerSelect(option._id || index)}
+                    className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
+                      isSelected 
+                        ? 'bg-purple-500/20 border-2 border-purple-500' 
+                        : 'bg-white/5 border-2 border-transparent hover:bg-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shrink-0 ${
+                      isSelected 
+                        ? 'bg-purple-500 text-white' 
+                        : 'bg-white/10 text-white/60'
+                    }`}>
+                      {letter}
+                    </span>
+                    <span className="text-white text-left flex-1">
+                      {option.text || option}
+                    </span>
+                    {isSelected && (
+                      <CheckCircle2 className="w-6 h-6 text-purple-400 shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next Button */}
+            {answers[currentQuestion] !== undefined && (
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={nextQuestion}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
                 >
-                  <span className={`answer-letter ${isSelected ? 'selected' : ''}`}>
-                    {letter}
-                  </span>
-                  <span className="answer-text">
-                    {option.text || option}
-                  </span>
-                  {isSelected && (
-                    <CheckCircle2 className="answer-check" />
+                  {currentQuestion < quiz.questions.length - 1 ? (
+                    <>
+                      Следующий вопрос
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-5 h-5" />
+                      Завершить
+                    </>
                   )}
                 </button>
-              );
-            })}
+              </div>
+            )}
           </div>
-
-          {/* Next Button */}
-          {answers[currentQuestion] !== undefined && (
-            <div className="quiz-next-action">
-              <Button 
-                size="lg" 
-                className="quiz-next-btn"
-                onClick={nextQuestion}
-              >
-                {currentQuestion < quiz.questions.length - 1 ? (
-                  <>
-                    Следующий вопрос
-                    <ArrowRight />
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 />
-                    Завершить
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </div>

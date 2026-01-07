@@ -24,9 +24,9 @@ const StatsCards = ({
       change: '+12%',
       positive: true,
       icon: BookOpen,
-      color: 'from-blue-500 to-indigo-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-      textColor: 'text-blue-600 dark:text-blue-400'
+      color: 'from-blue-500 to-cyan-500',
+      iconBg: 'bg-blue-500/20',
+      iconColor: 'text-blue-400'
     },
     {
       label: 'Пройдено',
@@ -34,9 +34,9 @@ const StatsCards = ({
       change: '+8%',
       positive: true,
       icon: Target,
-      color: 'from-emerald-500 to-teal-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-      textColor: 'text-emerald-600 dark:text-emerald-400'
+      color: 'from-emerald-500 to-teal-500',
+      iconBg: 'bg-emerald-500/20',
+      iconColor: 'text-emerald-400'
     },
     {
       label: 'Очков',
@@ -44,9 +44,9 @@ const StatsCards = ({
       change: '+24%',
       positive: true,
       icon: Trophy,
-      color: 'from-amber-500 to-orange-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-900/20',
-      textColor: 'text-amber-600 dark:text-amber-400'
+      color: 'from-amber-500 to-orange-500',
+      iconBg: 'bg-amber-500/20',
+      iconColor: 'text-amber-400'
     },
     {
       label: 'В избранном',
@@ -54,9 +54,9 @@ const StatsCards = ({
       change: '+5%',
       positive: true,
       icon: Heart,
-      color: 'from-pink-500 to-rose-600',
-      bgColor: 'bg-pink-50 dark:bg-pink-900/20',
-      textColor: 'text-pink-600 dark:text-pink-400'
+      color: 'from-pink-500 to-rose-500',
+      iconBg: 'bg-pink-500/20',
+      iconColor: 'text-pink-400'
     }
   ];
 
@@ -67,14 +67,14 @@ const StatsCards = ({
         return (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
+            className="rounded-2xl p-5 bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className={`p-2.5 rounded-xl ${stat.bgColor}`}>
-                <Icon className={`w-5 h-5 ${stat.textColor}`} />
+              <div className={`p-2.5 rounded-xl ${stat.iconBg}`}>
+                <Icon className={`w-5 h-5 ${stat.iconColor}`} />
               </div>
               <div className={`flex items-center gap-1 text-xs font-medium ${
-                stat.positive ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                stat.positive ? 'text-emerald-400' : 'text-red-400'
               }`}>
                 {stat.positive ? (
                   <TrendingUp className="w-3 h-3" />
@@ -85,8 +85,8 @@ const StatsCards = ({
               </div>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stat.label}</p>
+              <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
+              <p className="text-sm text-gray-400 mt-1">{stat.label}</p>
             </div>
           </div>
         );

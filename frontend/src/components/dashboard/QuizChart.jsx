@@ -20,7 +20,6 @@ const QuizChart = ({ data, quizzes }) => {
   const [activeTab, setActiveTab] = useState('activity');
   const [chartPeriod, setChartPeriod] = useState('week');
 
-  // Данные по категориям
   const categoryData = quizzes.reduce((acc, quiz) => {
     const category = quiz.category || 'other';
     const existing = acc.find(item => item.name === category);
@@ -32,7 +31,7 @@ const QuizChart = ({ data, quizzes }) => {
     return acc;
   }, []);
 
-  const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
+  const COLORS = ['#a855f7', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#6366f1'];
 
   const categoryNames = {
     general: 'Общие',
@@ -45,20 +44,19 @@ const QuizChart = ({ data, quizzes }) => {
     other: 'Другое'
   };
 
-  // Данные для графика по устройствам (моковые)
   const deviceData = [
-    { name: 'Desktop', value: 45, color: '#6366f1' },
-    { name: 'Mobile', value: 35, color: '#8b5cf6' },
-    { name: 'Tablet', value: 20, color: '#ec4899' }
+    { name: 'Desktop', value: 45, color: '#a855f7' },
+    { name: 'Mobile', value: 35, color: '#ec4899' },
+    { name: 'Tablet', value: 20, color: '#06b6d4' }
   ];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-          <p className="text-sm font-medium text-gray-900 dark:text-white">{label}</p>
+        <div className="bg-[#1a1a2e] shadow-xl rounded-xl p-3 border border-white/10">
+          <p className="text-sm font-medium text-white">{label}</p>
           {payload.map((item, index) => (
-            <p key={index} className="text-sm text-gray-600 dark:text-gray-400">
+            <p key={index} className="text-sm text-gray-400">
               {item.name}: <span className="font-semibold" style={{ color: item.color }}>{item.value}</span>
             </p>
           ))}
@@ -69,24 +67,24 @@ const QuizChart = ({ data, quizzes }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6">
+    <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Статистика активности</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Ваша активность за последний период</p>
+          <h3 className="text-lg font-semibold text-white">Статистика активности</h3>
+          <p className="text-sm text-gray-400">Ваша активность за последний период</p>
         </div>
         
         {/* Tabs */}
-        <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+        <div className="flex bg-white/5 rounded-xl p-1">
           {['activity', 'categories'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === tab
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-purple-500/20 text-purple-400'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               {tab === 'activity' ? 'Активность' : 'Категории'}
@@ -104,8 +102,8 @@ const QuizChart = ({ data, quizzes }) => {
               onClick={() => setChartPeriod(period)}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                 chartPeriod === period
-                  ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-purple-500/20 text-purple-400'
+                  : 'text-gray-500 hover:bg-white/5 hover:text-white'
               }`}
             >
               {period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'}
@@ -129,28 +127,28 @@ const QuizChart = ({ data, quizzes }) => {
             ]}>
               <defs>
                 <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:opacity-20" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" opacity={0.05} />
               <XAxis 
                 dataKey="name" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: '#6b7280', fontSize: 12 }}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
+                tick={{ fill: '#6b7280', fontSize: 12 }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
                 type="monotone"
                 dataKey="score"
                 name="Результат"
-                stroke="#6366f1"
+                stroke="#a855f7"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorScore)"
@@ -190,11 +188,11 @@ const QuizChart = ({ data, quizzes }) => {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-sm text-gray-400">
                       {categoryNames[item.name] || item.name}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  <span className="text-sm font-medium text-white">
                     {item.value}
                   </span>
                 </div>
