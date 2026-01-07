@@ -99,6 +99,7 @@ export const userAPI = {
   getAchievements: () => api.get('/users/achievements'),
   getUserQuizzes: () => api.get('/users/quizzes'),
   getUserResults: () => api.get('/users/results'),
+  getLikedQuizzes: () => api.get('/users/liked-quizzes'),
   uploadAvatar: (formData) => api.post('/users/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),

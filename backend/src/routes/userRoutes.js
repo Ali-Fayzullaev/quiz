@@ -444,6 +444,34 @@ router.put('/password', protect, async (req, res) => {
   }
 });
 
+// @desc    Получить лайкнутые викторины
+// @route   GET /api/users/liked-quizzes
+// @access  Private
+router.get('/liked-quizzes', protect, async (req, res) => {
+  try {
+    const likedQuizzes = await Quiz.find({
+      'social.likes.user': req.user._id
+    })
+      .populate('creator', 'username profile.avatar')
+      .sort({ 'social.likes.createdAt': -1 })
+      .select('title description thumbnail category difficulty stats social questions createdAt');
+    
+    res.json({
+      success: true,
+      data: {
+        quizzes: likedQuizzes,
+        total: likedQuizzes.length
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching liked quizzes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении избранных викторин'
+    });
+  }
+});
+
 // @desc    Получить публичный профиль пользователя
 // @route   GET /api/users/:id
 // @access  Public
