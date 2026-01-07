@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { quizAPI } from '../../services/api';
 import QuizCard from './QuizCard';
 
@@ -11,37 +11,82 @@ const QuizList = () => {
     category: 'all',
     difficulty: 'all',
   });
+  const [searchInput, setSearchInput] = useState('');
 
-  useEffect(() => {
-    fetchQuizzes();
+  // Функция для подготовки параметров запроса
+  const prepareQueryParams = useCallback(() => {
+    const params = {};
+    
+    // Добавляем только непустые параметры и не 'all'
+    if (filters.search && filters.search.trim()) {
+      params.search = filters.search.trim();
+    }
+    if (filters.category && filters.category !== 'all') {
+      params.category = filters.category;
+    }
+    if (filters.difficulty && filters.difficulty !== 'all') {
+      params.difficulty = filters.difficulty;
+    }
+    
+    return params;
   }, [filters]);
 
-  const fetchQuizzes = async () => {
+  const fetchQuizzes = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
-      const response = await quizAPI.getQuizzes(filters);
-      setQuizzes(response.data.data.quizzes);
+      const params = prepareQueryParams();
+      console.log('Fetching quizzes with params:', params);
+      const response = await quizAPI.getQuizzes(params);
+      const data = response.data.data;
+      setQuizzes(data.quizzes || []);
     } catch (err) {
       setError('Ошибка загрузки викторин');
-      console.error(err);
+      console.error('Quiz fetch error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [prepareQueryParams]);
+
+  // Загружаем квизы при изменении любого фильтра
+  useEffect(() => {
+    fetchQuizzes();
+  }, [filters.category, filters.difficulty, filters.search, fetchQuizzes]);
+
+  // Дебаунс для поиска - не запускаем запрос при каждом нажатии клавиши
+  useEffect(() => {
+    // Устанавливаем таймер для поиска
+    const timer = setTimeout(() => {
+      setFilters(prev => {
+        if (prev.search !== searchInput) {
+          return { ...prev, search: searchInput };
+        }
+        return prev;
+      });
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    
+    if (name === 'search') {
+      setSearchInput(value);
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchQuizzes();
+    // Сразу применяем поиск
+    setFilters(prev => ({ ...prev, search: searchInput }));
   };
 
-  if (loading) return <div className="loading">Загружаем викторины...</div>;
   if (error) return <div className="error">{error}</div>;
 
   return (
@@ -55,7 +100,7 @@ const QuizList = () => {
             type="text"
             name="search"
             placeholder="Поиск викторин..."
-            value={filters.search}
+            value={searchInput}
             onChange={handleFilterChange}
           />
           <button type="submit">Поиск</button>
@@ -64,22 +109,40 @@ const QuizList = () => {
         <div className="filter-controls">
           <select name="category" value={filters.category} onChange={handleFilterChange}>
             <option value="all">Все категории</option>
+            <option value="general">Общие</option>
             <option value="science">Наука</option>
             <option value="history">История</option>
+            <option value="geography">География</option>
             <option value="sports">Спорт</option>
             <option value="entertainment">Развлечения</option>
-            <option value="geography">География</option>
+            <option value="art">Искусство</option>
             <option value="literature">Литература</option>
+            <option value="music">Музыка</option>
+            <option value="movies">Кино</option>
+            <option value="technology">Технологии</option>
+            <option value="nature">Природа</option>
+            <option value="food">Еда</option>
+            <option value="travel">Путешествия</option>
+            <option value="languages">Языки</option>
+            <option value="mathematics">Математика</option>
+            <option value="business">Бизнес</option>
+            <option value="gaming">Игры</option>
+            <option value="anime">Аниме</option>
+            <option value="custom">Другое</option>
           </select>
 
           <select name="difficulty" value={filters.difficulty} onChange={handleFilterChange}>
             <option value="all">Любая сложность</option>
-            <option value="easy">Легкая</option>
-            <option value="medium">Средняя</option>
-            <option value="hard">Сложная</option>
+            <option value="beginner">Начинающий</option>
+            <option value="intermediate">Средний</option>
+            <option value="advanced">Продвинутый</option>
+            <option value="expert">Эксперт</option>
           </select>
         </div>
       </div>
+
+      {/* Индикатор загрузки при фильтрации */}
+      {loading && <div className="loading-overlay">Загружаем...</div>}
 
       {/* Список викторин */}
       <div className="quiz-grid">

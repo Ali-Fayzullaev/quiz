@@ -354,6 +354,16 @@ body {
   gap: 1.5rem;
 }
 
+.loading-overlay {
+  text-align: center;
+  padding: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
 .quiz-card {
   background: white;
   border-radius: 8px;
