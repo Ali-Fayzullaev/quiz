@@ -207,6 +207,12 @@ const MyQuizzes = () => {
                   👁️ Смотреть
                 </button>
                 <button 
+                  className="action-btn stats-btn"
+                  onClick={() => navigate(`/quiz/${quiz._id}/stats`)}
+                >
+                  📊 Статистика
+                </button>
+                <button 
                   className="action-btn edit-btn"
                   onClick={() => handleEdit(quiz._id)}
                 >

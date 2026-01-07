@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui
 import { Progress } from '../ui/Progress';
 import { Badge } from '../ui/Badge';
 import { cn } from '../../lib/utils';
+import Comments from './Comments';
 import {
   Clock,
   Trophy,
@@ -314,19 +315,20 @@ const Quiz = () => {
     const questionsCount = Array.isArray(quiz.questions) ? quiz.questions.length : 0;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-lg bg-white/10 backdrop-blur-lg border-white/20 overflow-hidden">
-          <div className="h-2 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
-          
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-violet-500/20 to-purple-600/20 rounded-2xl w-fit">
-              <Brain className="h-16 w-16 text-purple-400" />
-            </div>
-            <CardTitle className="text-3xl text-white mb-3">{quiz.title}</CardTitle>
-            <CardDescription className="text-white/70 text-base">
-              {quiz.description}
-            </CardDescription>
-          </CardHeader>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+        <div className="max-w-lg mx-auto">
+          <Card className="w-full bg-white/10 backdrop-blur-lg border-white/20 overflow-hidden">
+            <div className="h-2 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
+            
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-violet-500/20 to-purple-600/20 rounded-2xl w-fit">
+                <Brain className="h-16 w-16 text-purple-400" />
+              </div>
+              <CardTitle className="text-3xl text-white mb-3">{quiz.title}</CardTitle>
+              <CardDescription className="text-white/70 text-base">
+                {quiz.description}
+              </CardDescription>
+            </CardHeader>
           
           <CardContent className="space-y-6">
             {/* Quiz Info */}
@@ -395,6 +397,16 @@ const Quiz = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Секция комментариев */}
+        <div className="mt-6">
+          <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+            <CardContent className="pt-6">
+              <Comments quizId={id} />
+            </CardContent>
+          </Card>
+        </div>
+        </div>
       </div>
     );
   }

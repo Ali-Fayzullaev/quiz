@@ -20,6 +20,7 @@ const quizRoutes = require('./routes/quizRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const socialRoutes = require('./routes/socialRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 // Импорт middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -146,6 +147,7 @@ class QuizApp {
         this.app.use('/api/auth', authRoutes);
         this.app.use('/api/users', userRoutes);
         this.app.use('/api/quizzes', quizRoutes);
+        this.app.use('/api/quizzes', commentRoutes); // Комментарии и статистика
         this.app.use('/api/game', gameRoutes);
         this.app.use('/api/social', socialRoutes);
         this.app.use('/api/admin', adminRoutes);

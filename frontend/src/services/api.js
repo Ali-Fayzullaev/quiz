@@ -70,6 +70,16 @@ export const quizAPI = {
   deleteQuiz: (id) => api.delete(`/quizzes/${id}`),
   toggleLike: (id) => api.post(`/quizzes/${id}/toggle-like`),
   getPopular: () => api.get('/quizzes/popular'),
+  getStats: (id) => api.get(`/quizzes/${id}/stats`),
+};
+
+// Comment API
+export const commentAPI = {
+  getComments: (quizId, page = 1) => api.get(`/quizzes/${quizId}/comments`, { params: { page } }),
+  addComment: (quizId, data) => api.post(`/quizzes/${quizId}/comments`, data),
+  updateComment: (quizId, commentId, data) => api.put(`/quizzes/${quizId}/comments/${commentId}`, data),
+  deleteComment: (quizId, commentId) => api.delete(`/quizzes/${quizId}/comments/${commentId}`),
+  toggleLike: (quizId, commentId) => api.post(`/quizzes/${quizId}/comments/${commentId}/like`),
 };
 
 // Game API
