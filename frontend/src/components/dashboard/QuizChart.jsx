@@ -16,7 +16,7 @@ import {
   Cell
 } from 'recharts';
 
-const QuizChart = ({ data, quizzes }) => {
+const QuizChart = ({ data, quizzes, darkMode }) => {
   const [activeTab, setActiveTab] = useState('activity');
   const [chartPeriod, setChartPeriod] = useState('week');
 
@@ -53,10 +53,14 @@ const QuizChart = ({ data, quizzes }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#1a1a2e] shadow-xl rounded-xl p-3 border border-white/10">
-          <p className="text-sm font-medium text-white">{label}</p>
+        <div className={`shadow-xl rounded-xl p-3 border ${
+          darkMode 
+            ? 'bg-[#1a1a2e] border-white/10' 
+            : 'bg-white border-gray-200'
+        }`}>
+          <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{label}</p>
           {payload.map((item, index) => (
-            <p key={index} className="text-sm text-gray-400">
+            <p key={index} className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               {item.name}: <span className="font-semibold" style={{ color: item.color }}>{item.value}</span>
             </p>
           ))}
@@ -67,24 +71,28 @@ const QuizChart = ({ data, quizzes }) => {
   };
 
   return (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
+    <div className={`rounded-2xl p-6 transition-colors ${
+      darkMode 
+        ? 'bg-white/5 border border-white/10' 
+        : 'bg-white border border-gray-200'
+    }`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Статистика активности</h3>
-          <p className="text-sm text-gray-400">Ваша активность за последний период</p>
+          <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Статистика активности</h3>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ваша активность за последний период</p>
         </div>
         
         {/* Tabs */}
-        <div className="flex bg-white/5 rounded-xl p-1">
+        <div className={`flex rounded-xl p-1 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
           {['activity', 'categories'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === tab
-                  ? 'bg-purple-500/20 text-purple-400'
-                  : 'text-gray-400 hover:text-white'
+                  ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-white text-purple-600 shadow-sm'
+                  : darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab === 'activity' ? 'Активность' : 'Категории'}
@@ -102,8 +110,8 @@ const QuizChart = ({ data, quizzes }) => {
               onClick={() => setChartPeriod(period)}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                 chartPeriod === period
-                  ? 'bg-purple-500/20 text-purple-400'
-                  : 'text-gray-500 hover:bg-white/5 hover:text-white'
+                  ? darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600'
+                  : darkMode ? 'text-gray-500 hover:bg-white/5 hover:text-white' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
               }`}
             >
               {period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'}
@@ -188,11 +196,11 @@ const QuizChart = ({ data, quizzes }) => {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="text-sm text-gray-400">
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {categoryNames[item.name] || item.name}
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-white">
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {item.value}
                   </span>
                 </div>

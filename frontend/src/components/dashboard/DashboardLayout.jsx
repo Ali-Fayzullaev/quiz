@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import { 
   Sun, 
@@ -11,10 +12,7 @@ import {
 } from 'lucide-react';
 
 const DashboardLayout = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : true;
-  });
+  const { darkMode, toggleTheme } = useTheme();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,15 +27,6 @@ const DashboardLayout = ({ children }) => {
   const location = useLocation();
   
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   // Закрыть мобильное меню при изменении маршрута
   useEffect(() => {
@@ -147,7 +136,7 @@ const DashboardLayout = ({ children }) => {
             <div className="flex items-center gap-2 lg:gap-4">
               {/* Theme Toggle */}
               <button
-                onClick={() => setDarkMode(!darkMode)}
+                onClick={toggleTheme}
                 className={`
                   p-2.5 rounded-xl transition-all duration-300
                   ${darkMode 

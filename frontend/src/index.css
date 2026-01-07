@@ -53,8 +53,32 @@
   * {
     @apply border-border;
   }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply antialiased transition-colors duration-300;
     font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Dark mode */
+  html.dark body {
+    @apply bg-[#0a0a0f] text-white;
+  }
+
+  /* Light mode */
+  html:not(.dark) body {
+    @apply bg-gray-50 text-gray-900;
   }
 }

@@ -42,7 +42,7 @@ const AppContent = () => {
   const location = useLocation();
 
   return (
-    <div className="App">
+    <div className="App min-h-screen bg-[#0a0a0f] text-white">
       <Routes>
         {/* Публичные маршруты с Header */}
         <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />

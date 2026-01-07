@@ -8,7 +8,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-const QuickActions = ({ likedQuizzes }) => {
+const QuickActions = ({ likedQuizzes, darkMode }) => {
   const actions = [
     {
       icon: Plus,
@@ -41,10 +41,14 @@ const QuickActions = ({ likedQuizzes }) => {
   ];
 
   return (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-6">
+    <div className={`rounded-2xl p-6 transition-colors ${
+      darkMode 
+        ? 'bg-white/5 border border-white/10' 
+        : 'bg-white border border-gray-200'
+    }`}>
       <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="w-5 h-5 text-amber-400" />
-        <h3 className="text-lg font-semibold text-white">Быстрые действия</h3>
+        <Sparkles className="w-5 h-5 text-amber-500" />
+        <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Быстрые действия</h3>
       </div>
 
       <div className="space-y-3">
@@ -54,16 +58,20 @@ const QuickActions = ({ likedQuizzes }) => {
             <Link
               key={index}
               to={action.path}
-              className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group"
+              className={`flex items-center gap-4 p-3 rounded-xl transition-colors group ${
+                darkMode ? 'hover:bg-white/5' : 'hover:bg-gray-50'
+              }`}
             >
               <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center`}>
                 <Icon className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-white">{action.label}</p>
-                <p className="text-sm text-gray-400">{action.description}</p>
+                <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{action.label}</p>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{action.description}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              <ArrowRight className={`w-5 h-5 group-hover:translate-x-1 transition-all ${
+                darkMode ? 'text-gray-500 group-hover:text-white' : 'text-gray-400 group-hover:text-gray-900'
+              }`} />
             </Link>
           );
         })}

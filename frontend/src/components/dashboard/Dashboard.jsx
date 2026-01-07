@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import { userAPI } from '../../services/api';
 import StatsCards from './StatsCards';
 import QuizChart from './QuizChart';
@@ -9,6 +10,7 @@ import TopQuizzes from './TopQuizzes';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
@@ -62,7 +64,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-400">Загрузка...</p>
+          <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Загрузка...</p>
         </div>
       </div>
     );
@@ -85,8 +87,8 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold">Обзор</h1>
-        <p className="text-gray-400 mt-1">Добро пожаловать, {displayName}! 👋</p>
+        <h1 className={`text-2xl lg:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Обзор</h1>
+        <p className={`mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Добро пожаловать, {displayName}! 👋</p>
       </div>
 
       {/* Stats Cards */}
@@ -97,18 +99,19 @@ const Dashboard = () => {
         likedCount={likedQuizzes.length}
         totalViews={totalViews}
         totalPlays={totalPlays}
+        darkMode={darkMode}
       />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Main Chart */}
         <div className="xl:col-span-2">
-          <QuizChart data={chartData} quizzes={quizzes} />
+          <QuizChart data={chartData} quizzes={quizzes} darkMode={darkMode} />
         </div>
 
         {/* Top Quizzes */}
         <div>
-          <TopQuizzes quizzes={quizzes} />
+          <TopQuizzes quizzes={quizzes} darkMode={darkMode} />
         </div>
       </div>
 
@@ -116,12 +119,12 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Activity */}
         <div className="xl:col-span-2">
-          <RecentActivity results={recentResults} />
+          <RecentActivity results={recentResults} darkMode={darkMode} />
         </div>
 
         {/* Quick Actions */}
         <div>
-          <QuickActions likedQuizzes={likedQuizzes} />
+          <QuickActions likedQuizzes={likedQuizzes} darkMode={darkMode} />
         </div>
       </div>
     </div>
