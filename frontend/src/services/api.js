@@ -75,9 +75,9 @@ export const quizAPI = {
 // Game API
 export const gameAPI = {
   startGame: (quizId, gameType = 'solo') => api.post(`/game/start/${quizId}`, { gameType }),
-  submitAnswer: (gameId, questionId, answer) => 
-    api.post(`/game/answer`, { gameId, questionId, answer }),
-  getGameResult: (gameId) => api.get(`/game/results/${gameId}`),
+  submitAnswer: (sessionId, questionId, answer) => 
+    api.post(`/game/answer`, { sessionId, questionId, answer }),
+  getGameResult: (resultId) => api.get(`/game/results/${resultId}`),
   getLeaderboard: (quizId) => api.get(`/game/leaderboard/${quizId}`),
 };
 

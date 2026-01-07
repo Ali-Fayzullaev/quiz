@@ -35,7 +35,9 @@ const startGame = asyncHandler(async (req, res) => {
     }
 
     // Проверяем, можно ли повторно проходить викторину
-    if (!quiz.settings.allowRetake) {
+    const allowRetake = quiz.settings?.allowRetake !== false; // По умолчанию разрешаем
+    
+    if (!allowRetake) {
         const existingResult = await Result.findOne({ 
             user: userId, 
             quiz: quizId,
@@ -49,13 +51,31 @@ const startGame = asyncHandler(async (req, res) => {
         }
     }
 
+    // Проверяем, есть ли у пользователя незавершенная игра для этой викторины
+    const existingInProgressResult = await Result.findOne({
+        user: userId,
+        quiz: quizId,
+        status: 'in_progress'
+    });
+
+    if (existingInProgressResult) {
+        // Завершаем предыдущую игру как "abandoned"
+        existingInProgressResult.status = 'abandoned';
+        existingInProgressResult.endTime = new Date();
+        existingInProgressResult.timeSpent = Math.floor((new Date() - existingInProgressResult.startTime) / 1000);
+        await existingInProgressResult.save();
+
+        // Удаляем из активных сессий если есть
+        activeSessions.delete(existingInProgressResult._id.toString());
+    }
+
     // Создаем игровую сессию
     const sessionId = new mongoose.Types.ObjectId();
     const startTime = new Date();
     
     // Перемешиваем вопросы если нужно
     let questions = quiz.questions;
-    if (quiz.settings?.randomOrder) {
+    if (quiz.settings?.shuffleQuestions) {
         questions = shuffleArray([...questions]);
     }
 
@@ -287,20 +307,39 @@ const completeGameSession = async (session, res) => {
 
     // Обновляем статистику пользователя
     const user = await User.findById(session.userId);
-    user.stats.gamesPlayed += 1;
-    user.stats.totalScore += session.score;
-    
-    if (passed) {
-        user.stats.gamesWon += 1;
-        user.stats.averageScore = Math.round(user.stats.totalScore / user.stats.gamesWon);
+    if (user) {
+        // Инициализируем gameStats если не существует
+        if (!user.gameStats) {
+            user.gameStats = {
+                gamesPlayed: 0,
+                gamesWon: 0,
+                totalScore: 0,
+                averageScore: 0,
+                experience: 0,
+                totalPoints: 0,
+                level: 1
+            };
+        }
         
-        // Добавляем опыт и очки
-        const expGained = Math.round(session.score * 0.1);
-        user.gamification.experience += expGained;
-        user.gamification.points += session.score;
+        user.gameStats.gamesPlayed = (user.gameStats.gamesPlayed || 0) + 1;
+        user.gameStats.totalScore = (user.gameStats.totalScore || 0) + session.score;
         
-        // Проверяем повышение уровня
-        checkLevelUp(user);
+        if (passed) {
+            user.gameStats.gamesWon = (user.gameStats.gamesWon || 0) + 1;
+            
+            // Безопасный расчёт среднего балла
+            const gamesWon = user.gameStats.gamesWon || 1;
+            const totalScore = user.gameStats.totalScore || 0;
+            user.gameStats.averageScore = Math.round(totalScore / gamesWon) || 0;
+            
+            // Добавляем опыт и очки
+            const expGained = Math.round(session.score * 0.1) || 0;
+            user.gameStats.experience = (user.gameStats.experience || 0) + expGained;
+            user.gameStats.totalPoints = (user.gameStats.totalPoints || 0) + session.score;
+        
+            // Проверяем повышение уровня
+            checkLevelUp(user);
+        }
     }
 
     await user.save();
@@ -325,12 +364,12 @@ const completeGameSession = async (session, res) => {
             quiz: result.quiz
         },
         userStats: {
-            gamesPlayed: user.stats.gamesPlayed,
-            gamesWon: user.stats.gamesWon,
-            averageScore: user.stats.averageScore,
-            level: user.gamification.level,
-            experience: user.gamification.experience,
-            points: user.gamification.points
+            gamesPlayed: user.gameStats?.gamesPlayed || 0,
+            gamesWon: user.gameStats?.gamesWon || 0,
+            averageScore: user.gameStats?.averageScore || 0,
+            level: user.gameStats?.level || 1,
+            experience: user.gameStats?.experience || 0,
+            totalPoints: user.gameStats?.totalPoints || 0
         },
         message: passed ? 'Поздравляем! Вы успешно прошли викторину!' : 'Викторина не пройдена. Попробуйте еще раз!'
     }));
@@ -404,7 +443,7 @@ const getQuizLeaderboard = asyncHandler(async (req, res) => {
         passed: true,
         ...timeFilters
     })
-    .populate('user', 'username profile.firstName profile.lastName profile.avatar gamification.level')
+    .populate('user', 'username profile.firstName profile.lastName profile.avatar gameStats.level')
     .sort({ score: -1, timeSpent: 1 })
     .limit(limit)
     .lean();
@@ -433,55 +472,37 @@ const shuffleArray = (array) => {
 };
 
 const checkLevelUp = (user) => {
-    const currentLevel = user.gamification.level;
-    const newLevel = Math.floor(user.gamification.experience / 1000) + 1;
+    if (!user.gameStats) return;
+    
+    const currentLevel = user.gameStats.level || 1;
+    const newLevel = Math.floor((user.gameStats.experience || 0) / 1000) + 1;
     
     if (newLevel > currentLevel) {
-        user.gamification.level = newLevel;
-        user.gamification.points += newLevel * 100; // Бонус за повышение уровня
+        user.gameStats.level = newLevel;
+        user.gameStats.totalPoints = (user.gameStats.totalPoints || 0) + newLevel * 100; // Бонус за повышение уровня
         logger.info(`Пользователь ${user.username} повысился до уровня ${newLevel}`);
     }
 };
 
 const checkAchievements = async (userId, result, user) => {
-    const achievements = [];
-    
-    // Проверяем различные достижения
-    if (user.stats.gamesPlayed === 1) {
-        achievements.push('first_game');
-    }
-    
-    if (user.stats.gamesWon === 10) {
-        achievements.push('winner_10');
-    }
-    
-    if (result.percentage === 100) {
-        achievements.push('perfect_score');
-    }
-    
-    if (user.gamification.level >= 10) {
-        achievements.push('level_10');
-    }
-
-    // Сохраняем новые достижения
-    for (const achievementCode of achievements) {
-        const hasAchievement = user.gamification.achievements.some(
-            a => a.code === achievementCode
-        );
+    // Упрощенная система достижений
+    try {
+        const level = user.gameStats?.level || 1;
+        const gamesPlayed = user.gameStats?.gamesPlayed || 0;
         
-        if (!hasAchievement) {
-            const achievement = await Achievement.findOne({ code: achievementCode });
-            if (achievement) {
-                user.gamification.achievements.push({
-                    achievement: achievement._id,
-                    code: achievementCode,
-                    unlockedAt: new Date()
-                });
-                
-                user.gamification.points += achievement.points;
-                logger.info(`Пользователь ${user.username} получил достижение: ${achievement.name}`);
-            }
+        if (gamesPlayed === 1) {
+            logger.info(`Пользователь ${user.username} сыграл первую игру!`);
         }
+        
+        if (level >= 10) {
+            logger.info(`Пользователь ${user.username} достиг 10 уровня!`);
+        }
+        
+        if (result.percentage === 100) {
+            logger.info(`Пользователь ${user.username} набрал 100% в викторине!`);
+        }
+    } catch (error) {
+        logger.error('Ошибка проверки достижений:', error);
     }
 };
 

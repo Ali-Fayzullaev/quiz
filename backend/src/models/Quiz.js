@@ -105,6 +105,10 @@ const quizSchema = new mongoose.Schema({
         showProgress: {
             type: Boolean,
             default: true
+        },
+        allowRetake: {
+            type: Boolean,
+            default: true
         }
     },
 
@@ -292,28 +296,28 @@ quizSchema.index({
 
 // Виртуальные поля
 quizSchema.virtual('questionCount').get(function() {
-    return this.questions.length;
+    return this.questions?.length || 0;
 });
 
 quizSchema.virtual('likesCount').get(function() {
-    return this.social.likes.length;
+    return this.social?.likes?.length || 0;
 });
 
 quizSchema.virtual('dislikesCount').get(function() {
-    return this.social.dislikes.length;
+    return this.social?.dislikes?.length || 0;
 });
 
 quizSchema.virtual('favoritesCount').get(function() {
-    return this.social.favorites.length;
+    return this.social?.favorites?.length || 0;
 });
 
 quizSchema.virtual('commentsCount').get(function() {
-    return this.social.comments.length;
+    return this.social?.comments?.length || 0;
 });
 
 quizSchema.virtual('rating').get(function() {
-    const likes = this.social.likes.length;
-    const dislikes = this.social.dislikes.length;
+    const likes = this.social?.likes?.length || 0;
+    const dislikes = this.social?.dislikes?.length || 0;
     const total = likes + dislikes;
     
     if (total === 0) return 0;

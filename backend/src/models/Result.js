@@ -29,6 +29,11 @@ const resultSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
+    totalQuestions: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
     
     // Статус прохождения
     status: {
