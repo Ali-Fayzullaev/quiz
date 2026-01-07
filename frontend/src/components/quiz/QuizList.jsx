@@ -148,7 +148,13 @@ const QuizList = () => {
       <div className="quiz-grid">
         {quizzes.length > 0 ? (
           quizzes.map(quiz => (
-            <QuizCard key={quiz._id} quiz={quiz} />
+            <QuizCard 
+              key={quiz._id} 
+              quiz={quiz} 
+              onDelete={(deletedId) => {
+                setQuizzes(prev => prev.filter(q => q._id !== deletedId));
+              }}
+            />
           ))
         ) : (
           <p>Викторины не найдены</p>

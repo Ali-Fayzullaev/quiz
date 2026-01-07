@@ -260,7 +260,8 @@ const updateQuiz = asyncHandler(async (req, res) => {
         return res.status(403).json(createResponse.error('Нет прав для редактирования'));
     }
 
-    const updateData = { ...req.body };
+    const { questions, ...otherData } = req.body;
+    const updateData = { ...otherData };
     updateData.updatedAt = new Date();
 
     // Обновление изображения если есть
@@ -282,10 +283,73 @@ const updateQuiz = asyncHandler(async (req, res) => {
         }
     }
 
+    // Обработка вопросов если они были переданы
+    if (questions && Array.isArray(questions)) {
+        // Удаляем старые вопросы
+        await Question.deleteMany({ quiz: id });
+
+        // Создаём новые вопросы
+        const createdQuestions = [];
+        for (const questionData of questions) {
+            // Преобразуем options из строк в объекты
+            const formattedOptions = (questionData.options || []).map((opt, index) => {
+                const text = typeof opt === 'string' ? opt : (opt.text || opt);
+                return {
+                    text: text || `Option ${index + 1}`,
+                    isCorrect: index === (questionData.correctAnswer || 0),
+                    order: index
+                };
+            }).filter(opt => opt.text && opt.text.trim() !== '');
+
+            // Проверяем, что есть хотя бы один вариант
+            if (formattedOptions.length === 0) {
+                logger.error('No valid options for question:', questionData.question);
+                continue;
+            }
+
+            // Определяем тип вопроса для модели
+            let questionType = 'single_choice';
+            if (questionData.type === 'multiple-choice') {
+                questionType = 'single_choice';
+            } else if (questionData.type === 'true-false') {
+                questionType = 'true_false';
+            }
+
+            // Обрабатываем explanation - может быть строкой или объектом
+            let explanationText = '';
+            if (typeof questionData.explanation === 'string') {
+                explanationText = questionData.explanation;
+            } else if (questionData.explanation && typeof questionData.explanation === 'object') {
+                explanationText = questionData.explanation.text || '';
+            }
+
+            const question = new Question({
+                quiz: id,
+                question: questionData.question,
+                questionType: questionType,
+                options: formattedOptions,
+                settings: {
+                    points: questionData.points || 10,
+                    timeLimit: questionData.timeLimit || 30
+                },
+                explanation: {
+                    text: explanationText
+                },
+                createdBy: req.user.id
+            });
+
+            await question.save();
+            createdQuestions.push(question._id);
+        }
+
+        updateData.questions = createdQuestions;
+    }
+
     const updatedQuiz = await Quiz.findByIdAndUpdate(id, updateData, { 
         new: true, 
         runValidators: true 
-    }).populate('creator', 'username profile.firstName profile.lastName profile.avatar');
+    }).populate('creator', 'username profile.firstName profile.lastName profile.avatar')
+      .populate('questions');
 
     logger.info(`Обновлена викторина: ${updatedQuiz.title} (${id}) пользователем ${req.user.username}`);
 

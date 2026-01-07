@@ -26,6 +26,7 @@ const Header = () => {
 
         <div className="nav-links">
           <a href="/quizzes">Викторины</a>
+          {user && <a href="/my-quizzes">Мои викторины</a>}
           {user && <a href="/create-quiz">Создать викторину</a>}
           {user && <a href="/profile">Профиль</a>}
         </div>
