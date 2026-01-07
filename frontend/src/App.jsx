@@ -9,6 +9,7 @@ import CreateQuiz from './components/quiz/CreateQuiz';
 import EditQuiz from './components/quiz/EditQuiz';
 import MyQuizzes from './components/quiz/MyQuizzes';
 import QuizStats from './components/quiz/QuizStats';
+import Profile from './components/profile/Profile';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/edit-quiz/:id" element={<EditQuiz />} />
             <Route path="/my-quizzes" element={<MyQuizzes />} />
             <Route path="/quiz/:id/stats" element={<QuizStats />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
       </div>

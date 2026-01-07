@@ -106,7 +106,21 @@ const getQuizById = asyncHandler(async (req, res) => {
     // Увеличиваем счетчик просмотров
     await Quiz.findByIdAndUpdate(id, { $inc: { 'stats.views': 1 } });
 
-    res.json(createResponse.success({ quiz }));
+    // Добавляем счётчики для фронтенда
+    const likesCount = quiz.social?.likes?.length || 0;
+    
+    // Формируем ответ со статистикой
+    const quizWithStats = {
+        ...quiz,
+        stats: {
+            ...quiz.stats,
+            views: (quiz.stats?.views || 0) + 1, // +1 потому что мы только что увеличили
+            plays: quiz.stats?.plays || 0,
+            likes: likesCount
+        }
+    };
+
+    res.json(createResponse.success({ quiz: quizWithStats }));
 });
 
 // @desc    Создать новую викторину
@@ -417,24 +431,36 @@ const toggleQuizLike = asyncHandler(async (req, res) => {
         return res.status(404).json(createResponse.error('Викторина не найдена'));
     }
 
-    const isLiked = quiz.likes.includes(userId);
+    // Инициализируем social.likes если его нет
+    if (!quiz.social) {
+        quiz.social = { likes: [], dislikes: [], favorites: [], shares: 0, comments: [] };
+    }
+    if (!quiz.social.likes) {
+        quiz.social.likes = [];
+    }
+
+    // Проверяем, лайкнул ли уже пользователь
+    const likeIndex = quiz.social.likes.findIndex(
+        like => like.user && like.user.toString() === userId
+    );
     
-    if (isLiked) {
+    let isLiked;
+    if (likeIndex > -1) {
         // Убираем лайк
-        quiz.likes.pull(userId);
-        quiz.stats.likes = Math.max(0, quiz.stats.likes - 1);
+        quiz.social.likes.splice(likeIndex, 1);
+        isLiked = false;
     } else {
         // Добавляем лайк
-        quiz.likes.push(userId);
-        quiz.stats.likes += 1;
+        quiz.social.likes.push({ user: userId, createdAt: new Date() });
+        isLiked = true;
     }
 
     await quiz.save();
 
     res.json(createResponse.success({ 
-        isLiked: !isLiked,
-        totalLikes: quiz.stats.likes,
-        message: isLiked ? 'Лайк убран' : 'Лайк добавлен'
+        isLiked,
+        totalLikes: quiz.social.likes.length,
+        message: isLiked ? 'Лайк добавлен' : 'Лайк убран'
     }));
 });
 

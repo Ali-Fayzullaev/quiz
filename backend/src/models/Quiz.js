@@ -120,6 +120,14 @@ const quizSchema = new mongoose.Schema({
 
     // Статистика
     stats: {
+        views: {
+            type: Number,
+            default: 0
+        },
+        plays: {
+            type: Number,
+            default: 0
+        },
         totalAttempts: {
             type: Number,
             default: 0

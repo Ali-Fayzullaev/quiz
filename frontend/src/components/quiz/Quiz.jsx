@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizAPI, gameAPI } from '../../services/api';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
@@ -16,13 +16,22 @@ import {
   ArrowRight,
   RotateCcw,
   Home,
-  Sparkles,
   Brain,
-  Zap,
   Award,
   Timer,
   BarChart3,
-  Loader2
+  Loader2,
+  Users,
+  Star,
+  Play,
+  Eye,
+  Heart,
+  Share2,
+  BookOpen,
+  ChevronLeft,
+  Calendar,
+  Zap,
+  MessageCircle
 } from 'lucide-react';
 
 const Quiz = () => {
@@ -37,6 +46,9 @@ const Quiz = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [finished, setFinished] = useState(false);
   const [results, setResults] = useState(null);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [likeLoading, setLikeLoading] = useState(false);
 
   useEffect(() => {
     fetchQuiz();
@@ -56,6 +68,17 @@ const Quiz = () => {
       const response = await quizAPI.getQuizById(id);
       const quizData = response.data.data?.quiz || response.data.data;
       setQuiz(quizData);
+      setLikesCount(quizData.stats?.likes || quizData.likesCount || 0);
+      
+      // Проверяем, лайкнул ли текущий пользователь
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user._id && quizData.social?.likes) {
+        const userLiked = quizData.social.likes.some(like => 
+          like.user === user._id || like.user?._id === user._id
+        );
+        setIsLiked(userLiked);
+      }
+      
       if (quizData?.timeLimit) {
         setTimeLeft(quizData.timeLimit * 60);
       }
@@ -140,31 +163,103 @@ const Quiz = () => {
     }
   };
 
+  const handleLike = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    setLikeLoading(true);
+    try {
+      const response = await quizAPI.toggleLike(id);
+      const data = response.data.data;
+      setIsLiked(data.isLiked);
+      setLikesCount(data.totalLikes);
+    } catch (err) {
+      console.error('Ошибка лайка:', err);
+    } finally {
+      setLikeLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: quiz.title,
+          text: quiz.description,
+          url: url
+        });
+      } catch (err) {
+        console.log('Отменено');
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      alert('Ссылка скопирована!');
+    }
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getDifficultyColor = (difficulty) => {
-    const colors = {
-      easy: 'success',
-      medium: 'warning',
-      hard: 'destructive'
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const getDifficultyData = (difficulty) => {
+    const data = {
+      beginner: { text: 'Начинающий', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+      easy: { text: 'Лёгкий', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+      intermediate: { text: 'Средний', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+      medium: { text: 'Средний', color: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+      advanced: { text: 'Сложный', color: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500' },
+      hard: { text: 'Сложный', color: 'bg-rose-100 text-rose-700', dot: 'bg-rose-500' },
+      expert: { text: 'Эксперт', color: 'bg-purple-100 text-purple-700', dot: 'bg-purple-500' }
     };
-    return colors[difficulty] || 'secondary';
+    return data[difficulty] || { text: difficulty, color: 'bg-gray-100 text-gray-700', dot: 'bg-gray-500' };
+  };
+
+  const getCategoryText = (category) => {
+    const categories = {
+      general: 'Общие знания',
+      science: 'Наука',
+      history: 'История',
+      geography: 'География',
+      sports: 'Спорт',
+      entertainment: 'Развлечения',
+      technology: 'Технологии',
+      art: 'Искусство',
+      music: 'Музыка',
+      movies: 'Кино',
+      literature: 'Литература',
+      nature: 'Природа',
+      food: 'Еда',
+      travel: 'Путешествия',
+      languages: 'Языки',
+      mathematics: 'Математика',
+      business: 'Бизнес',
+      gaming: 'Игры',
+      anime: 'Аниме',
+      custom: 'Другое'
+    };
+    return categories[category] || category;
   };
 
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white/10 backdrop-blur-lg border-white/20">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-12 w-12 text-purple-400 animate-spin mb-4" />
-            <p className="text-white/80 text-lg">Загрузка викторины...</p>
-          </CardContent>
-        </Card>
+      <div className="quiz-page-loading">
+        <Loader2 className="quiz-loading-spinner" />
+        <p>Загрузка викторины...</p>
       </div>
     );
   }
@@ -172,18 +267,18 @@ const Quiz = () => {
   // Error State
   if (!quiz) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-white/10 backdrop-blur-lg border-white/20">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <XCircle className="h-16 w-16 text-red-400 mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Викторина не найдена</h2>
-            <p className="text-white/60 mb-6">Возможно, она была удалена или перемещена</p>
-            <Button variant="quiz" onClick={() => navigate('/quizzes')}>
-              <Home className="mr-2 h-4 w-4" />
-              К списку викторин
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="quiz-page-error">
+        <div className="quiz-error-card">
+          <div className="quiz-error-icon">
+            <XCircle />
+          </div>
+          <h2>Викторина не найдена</h2>
+          <p>Возможно, она была удалена или перемещена</p>
+          <Button onClick={() => navigate('/quizzes')} className="quiz-error-btn">
+            <Home className="btn-icon" />
+            К списку викторин
+          </Button>
+        </div>
       </div>
     );
   }
@@ -193,119 +288,106 @@ const Quiz = () => {
     const isPassed = results.passed;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-lg bg-white/10 backdrop-blur-lg border-white/20 overflow-hidden">
-          <div className={cn(
-            "h-2",
-            isPassed ? "bg-gradient-to-r from-emerald-400 to-green-500" : "bg-gradient-to-r from-red-400 to-rose-500"
-          )} />
+      <div className="quiz-page-results">
+        <div className="quiz-results-card">
+          <div className={`quiz-results-bar ${isPassed ? 'passed' : 'failed'}`} />
           
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-4">
+          <div className="quiz-results-content">
+            {/* Icon */}
+            <div className="quiz-results-icon-wrap">
               {isPassed ? (
-                <div className="relative">
-                  <Trophy className="h-20 w-20 text-yellow-400 animate-bounce" />
-                  <Sparkles className="h-6 w-6 text-yellow-300 absolute -top-1 -right-1 animate-pulse" />
+                <div className="quiz-results-icon passed">
+                  <Trophy />
                 </div>
               ) : (
-                <Target className="h-20 w-20 text-purple-400" />
+                <div className="quiz-results-icon failed">
+                  <Target />
+                </div>
               )}
             </div>
-            <CardTitle className="text-3xl text-white mb-2">
-              {isPassed ? '🎉 Поздравляем!' : 'Попробуйте ещё раз!'}
-            </CardTitle>
-            <CardDescription className="text-white/70 text-lg">
-              {quiz.title}
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
+
+            {/* Title */}
+            <h1 className="quiz-results-title">
+              {isPassed ? 'Поздравляем!' : 'Попробуйте ещё раз'}
+            </h1>
+            <p className="quiz-results-subtitle">{quiz.title}</p>
+
             {/* Score Circle */}
-            <div className="flex justify-center">
-              <div className={cn(
-                "relative w-36 h-36 rounded-full flex items-center justify-center",
-                "bg-gradient-to-br shadow-2xl",
-                isPassed ? "from-emerald-500/20 to-green-600/20" : "from-purple-500/20 to-violet-600/20"
-              )}>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-white">{results.percentage}%</div>
-                  <div className="text-white/60 text-sm">результат</div>
-                </div>
-              </div>
+            <div className={`quiz-score-circle ${isPassed ? 'passed' : 'failed'}`}>
+              <div className="quiz-score-value">{results.percentage}%</div>
+              <div className="quiz-score-label">результат</div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <CheckCircle2 className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{results.correctAnswers}</div>
-                <div className="text-xs text-white/60">Правильных</div>
+            <div className="quiz-results-stats">
+              <div className="quiz-results-stat">
+                <CheckCircle2 className="stat-icon correct" />
+                <div className="stat-value">{results.correctAnswers}</div>
+                <div className="stat-label">Правильных</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <BarChart3 className="h-6 w-6 text-purple-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{results.totalQuestions}</div>
-                <div className="text-xs text-white/60">Всего</div>
+              <div className="quiz-results-stat">
+                <BarChart3 className="stat-icon total" />
+                <div className="stat-value">{results.totalQuestions}</div>
+                <div className="stat-label">Всего</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
-                <Timer className="h-6 w-6 text-blue-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-white">{results.timeSpent}с</div>
-                <div className="text-xs text-white/60">Время</div>
+              <div className="quiz-results-stat">
+                <Timer className="stat-icon time" />
+                <div className="stat-value">{results.timeSpent}с</div>
+                <div className="stat-label">Время</div>
               </div>
             </div>
 
             {/* Points */}
-            <div className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Award className="h-8 w-8 text-yellow-400" />
-                <div>
-                  <div className="text-white/60 text-sm">Заработано очков</div>
-                  <div className="text-2xl font-bold text-white">{results.score}</div>
+            <div className="quiz-results-points">
+              <div className="points-info">
+                <div className="points-icon">
+                  <Award />
+                </div>
+                <div className="points-text">
+                  <span className="points-label">Заработано очков</span>
+                  <span className="points-value">{results.score}</span>
                 </div>
               </div>
-              <Zap className="h-10 w-10 text-yellow-400/50" />
+              <Zap className="points-decoration" />
             </div>
 
-            {/* Status Badge */}
-            <div className="flex justify-center">
-              <Badge 
-                variant={isPassed ? "success" : "destructive"} 
-                className="px-4 py-2 text-base"
-              >
+            {/* Status */}
+            <div className="quiz-results-status">
+              <span className={`status-badge ${isPassed ? 'passed' : 'failed'}`}>
                 {isPassed ? (
                   <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    <CheckCircle2 />
                     Тест пройден
                   </>
                 ) : (
                   <>
-                    <XCircle className="mr-2 h-4 w-4" />
+                    <XCircle />
                     Тест не пройден
                   </>
                 )}
-              </Badge>
+              </span>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="quiz-results-actions">
               <Button 
                 variant="outline" 
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
+                className="results-btn outline"
                 onClick={() => navigate('/quizzes')}
               >
-                <Home className="mr-2 h-4 w-4" />
+                <Home className="btn-icon" />
                 К викторинам
               </Button>
               <Button 
-                variant="quiz" 
-                className="flex-1"
+                className="results-btn primary"
                 onClick={() => window.location.reload()}
               >
-                <RotateCcw className="mr-2 h-4 w-4" />
+                <RotateCcw className="btn-icon" />
                 Пройти снова
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -313,99 +395,194 @@ const Quiz = () => {
   // Start Screen
   if (!gameStarted) {
     const questionsCount = Array.isArray(quiz.questions) ? quiz.questions.length : 0;
+    const creator = quiz.creator || {};
+    const difficulty = getDifficultyData(quiz.difficulty);
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-        <div className="max-w-lg mx-auto">
-          <Card className="w-full bg-white/10 backdrop-blur-lg border-white/20 overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
-            
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-violet-500/20 to-purple-600/20 rounded-2xl w-fit">
-                <Brain className="h-16 w-16 text-purple-400" />
-              </div>
-              <CardTitle className="text-3xl text-white mb-3">{quiz.title}</CardTitle>
-              <CardDescription className="text-white/70 text-base">
-                {quiz.description}
-              </CardDescription>
-            </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {/* Quiz Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
-                <div className="p-2 bg-purple-500/20 rounded-lg">
-                  <Target className="h-5 w-5 text-purple-400" />
-                </div>
-                <div>
-                  <div className="text-white/60 text-xs">Вопросов</div>
-                  <div className="text-white font-semibold">{questionsCount}</div>
-                </div>
-              </div>
-              
-              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-blue-400" />
-                </div>
-                <div>
-                  <div className="text-white/60 text-xs">Категория</div>
-                  <div className="text-white font-semibold">{quiz.category}</div>
+      <div className="quiz-page-start">
+        {/* Header */}
+        <div className="quiz-page-header">
+          <div className="quiz-header-content">
+            <button 
+              onClick={() => navigate('/quizzes')}
+              className="quiz-back-btn"
+            >
+              <ChevronLeft />
+              <span>Назад к викторинам</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="quiz-start-container">
+          {/* Main Card */}
+          <div className="quiz-main-card">
+            {/* Thumbnail */}
+            {quiz.thumbnail?.url ? (
+              <div className="quiz-thumbnail">
+                <img src={quiz.thumbnail.url} alt={quiz.title} />
+                <div className="quiz-thumbnail-overlay" />
+                <div className="quiz-category-badge">
+                  <BookOpen />
+                  {getCategoryText(quiz.category)}
                 </div>
               </div>
-              
-              <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
-                <div className="p-2 bg-amber-500/20 rounded-lg">
-                  <Zap className="h-5 w-5 text-amber-400" />
-                </div>
-                <div>
-                  <div className="text-white/60 text-xs">Сложность</div>
-                  <Badge variant={getDifficultyColor(quiz.difficulty)} className="mt-1">
-                    {quiz.difficulty}
-                  </Badge>
+            ) : (
+              <div className="quiz-thumbnail-placeholder">
+                <Brain className="placeholder-icon" />
+                <div className="quiz-category-badge">
+                  <BookOpen />
+                  {getCategoryText(quiz.category)}
                 </div>
               </div>
-              
-              {quiz.timeLimit && (
-                <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3">
-                  <div className="p-2 bg-rose-500/20 rounded-lg">
-                    <Clock className="h-5 w-5 text-rose-400" />
+            )}
+
+            <div className="quiz-card-content">
+              {/* Badges */}
+              <div className="quiz-badges">
+                <span className={`quiz-difficulty-badge ${difficulty.color}`}>
+                  <span className={`difficulty-dot ${difficulty.dot}`} />
+                  {difficulty.text}
+                </span>
+                {quiz.stats?.averageScore > 0 && (
+                  <span className="quiz-rating-badge">
+                    <Star className="star-icon" />
+                    {Math.round(quiz.stats.averageScore)}% средний балл
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <h1 className="quiz-title">{quiz.title}</h1>
+
+              {/* Description */}
+              {quiz.description && (
+                <p className="quiz-description">{quiz.description}</p>
+              )}
+
+              {/* Creator & Date */}
+              <div className="quiz-meta-info">
+                {creator.username && (
+                  <div className="quiz-creator">
+                    <div className="creator-avatar">
+                      {creator.profile?.avatar ? (
+                        <img src={creator.profile.avatar} alt="" />
+                      ) : (
+                        <span>{creator.username?.charAt(0).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="creator-info">
+                      <span className="creator-name">{creator.username}</span>
+                      <span className="creator-role">Автор</span>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-white/60 text-xs">Время</div>
-                    <div className="text-white font-semibold">{quiz.timeLimit} мин</div>
+                )}
+                
+                {quiz.createdAt && (
+                  <div className="quiz-date">
+                    <Calendar />
+                    <span>{formatDate(quiz.createdAt)}</span>
                   </div>
+                )}
+              </div>
+
+              {/* Stats Grid */}
+              <div className="quiz-stats-grid">
+                <div className="quiz-stat-item">
+                  <div className="stat-icon-wrap blue">
+                    <Target />
+                  </div>
+                  <div className="stat-value">{questionsCount}</div>
+                  <div className="stat-label">Вопросов</div>
+                </div>
+                
+                <div className="quiz-stat-item">
+                  <div className="stat-icon-wrap green">
+                    <Users />
+                  </div>
+                  <div className="stat-value">{quiz.stats?.plays || 0}</div>
+                  <div className="stat-label">Прошли</div>
+                </div>
+                
+                <div className="quiz-stat-item">
+                  <div className="stat-icon-wrap amber">
+                    <Trophy />
+                  </div>
+                  <div className="stat-value">{quiz.settings?.passingScore || 70}%</div>
+                  <div className="stat-label">Проходной</div>
+                </div>
+                
+                <div className="quiz-stat-item">
+                  <div className="stat-icon-wrap rose">
+                    <Clock />
+                  </div>
+                  <div className="stat-value">
+                    {quiz.timeLimit ? `${quiz.timeLimit}` : '∞'}
+                  </div>
+                  <div className="stat-label">
+                    {quiz.timeLimit ? 'Минут' : 'Без лимита'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Stats */}
+              <div className="quiz-social-stats">
+                <div className="social-stat">
+                  <Eye />
+                  <span>{quiz.stats?.views || 0} просмотров</span>
+                </div>
+                <div className="social-stat">
+                  <Heart className={isLiked ? 'liked' : ''} />
+                  <span>{likesCount} нравится</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              {questionsCount > 0 ? (
+                <div className="quiz-actions">
+                  <Button 
+                    size="lg" 
+                    className="quiz-start-btn"
+                    onClick={startGame}
+                  >
+                    <Play />
+                    Начать викторину
+                  </Button>
+                  
+                  <div className="quiz-secondary-actions">
+                    <button onClick={handleShare} className="secondary-action-btn">
+                      <Share2 />
+                      <span>Поделиться</span>
+                    </button>
+                    <button 
+                      onClick={handleLike}
+                      disabled={likeLoading}
+                      className={`secondary-action-btn ${isLiked ? 'liked' : ''}`}
+                    >
+                      <Heart className={isLiked ? 'filled' : ''} />
+                      <span>Нравится</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="quiz-no-questions">
+                  <div className="no-questions-icon">
+                    <XCircle />
+                  </div>
+                  <p>В этой викторине пока нет вопросов</p>
+                  <span>Автор скоро добавит их</span>
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Start Button */}
-            {questionsCount > 0 ? (
-              <Button 
-                variant="quiz" 
-                size="xl" 
-                className="w-full animate-pulse-glow"
-                onClick={startGame}
-              >
-                <Sparkles className="mr-2 h-5 w-5" />
-                Начать викторину
-              </Button>
-            ) : (
-              <div className="text-center py-6 bg-white/5 rounded-xl">
-                <XCircle className="h-12 w-12 text-white/40 mx-auto mb-3" />
-                <p className="text-white/60">В этой викторине пока нет вопросов</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Секция комментариев */}
-        <div className="mt-6">
-          <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-            <CardContent className="pt-6">
-              <Comments quizId={id} />
-            </CardContent>
-          </Card>
-        </div>
+          {/* Comments Section */}
+          <div className="quiz-comments-section">
+            <div className="comments-header">
+              <MessageCircle />
+              <h2>Комментарии</h2>
+            </div>
+            <Comments quizId={id} />
+          </div>
         </div>
       </div>
     );
@@ -417,115 +594,93 @@ const Quiz = () => {
   const isTimeLow = timeLeft !== null && timeLeft < 30;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="quiz-page-game">
+      <div className="quiz-game-container">
         {/* Header */}
-        <div className="mb-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="bg-white/10 text-white border-white/20">
-              Вопрос {currentQuestion + 1} из {quiz.questions.length}
-            </Badge>
-            
-            {timeLeft !== null && (
-              <Badge 
-                variant={isTimeLow ? "destructive" : "secondary"}
-                className={cn(
-                  "bg-white/10 border-white/20 text-white",
-                  isTimeLow && "animate-pulse bg-red-500/20 border-red-500/30"
-                )}
-              >
-                <Clock className="mr-1 h-3 w-3" />
-                {formatTime(timeLeft)}
-              </Badge>
-            )}
-          </div>
+        <div className="quiz-game-header">
+          <span className="question-counter">
+            Вопрос {currentQuestion + 1} из {quiz.questions.length}
+          </span>
           
-          <Progress value={currentQuestion + 1} max={quiz.questions.length} />
+          {timeLeft !== null && (
+            <span className={`quiz-timer ${isTimeLow ? 'low' : ''}`}>
+              <Clock />
+              {formatTime(timeLeft)}
+            </span>
+          )}
+        </div>
+        
+        {/* Progress bar */}
+        <div className="quiz-progress-bar">
+          <div 
+            className="quiz-progress-fill"
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
         {/* Question Card */}
-        <Card className="bg-white/10 backdrop-blur-lg border-white/20 overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-xl md:text-2xl text-white leading-relaxed">
-              {question.text || question.question}
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-3">
-            {question.image && (
-              <img 
-                src={question.image} 
-                alt="Question" 
-                className="w-full rounded-xl mb-4 max-h-64 object-cover" 
-              />
-            )}
+        <div className="quiz-question-card">
+          <h2 className="quiz-question-text">
+            {question.text || question.question}
+          </h2>
 
-            {/* Answer Options */}
-            <div className="space-y-3">
-              {question.options.map((option, index) => {
-                const isSelected = answers[currentQuestion] === (option._id || index);
-                const letter = String.fromCharCode(65 + index);
-                
-                return (
-                  <button
-                    key={option._id || index}
-                    onClick={() => handleAnswerSelect(option._id || index)}
-                    className={cn(
-                      "w-full p-4 rounded-xl text-left transition-all duration-200",
-                      "flex items-center gap-4 group",
-                      "border-2",
-                      isSelected
-                        ? "bg-gradient-to-r from-violet-500/30 to-purple-500/30 border-purple-400 shadow-lg shadow-purple-500/20"
-                        : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
-                    )}
-                  >
-                    <span className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-lg font-bold text-lg transition-all",
-                      isSelected
-                        ? "bg-purple-500 text-white"
-                        : "bg-white/10 text-white/60 group-hover:bg-white/20 group-hover:text-white"
-                    )}>
-                      {letter}
-                    </span>
-                    <span className={cn(
-                      "text-base flex-1",
-                      isSelected ? "text-white font-medium" : "text-white/80"
-                    )}>
-                      {option.text || option}
-                    </span>
-                    {isSelected && (
-                      <CheckCircle2 className="h-5 w-5 text-purple-400" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          {question.image && (
+            <img 
+              src={question.image} 
+              alt="Question" 
+              className="quiz-question-image" 
+            />
+          )}
 
-            {/* Next Button */}
-            {answers[currentQuestion] !== undefined && (
-              <div className="pt-4">
-                <Button 
-                  variant="quiz" 
-                  size="lg" 
-                  className="w-full"
-                  onClick={nextQuestion}
+          {/* Answer Options */}
+          <div className="quiz-answers">
+            {question.options.map((option, index) => {
+              const isSelected = answers[currentQuestion] === (option._id || index);
+              const letter = String.fromCharCode(65 + index);
+              
+              return (
+                <button
+                  key={option._id || index}
+                  onClick={() => handleAnswerSelect(option._id || index)}
+                  className={`quiz-answer-btn ${isSelected ? 'selected' : ''}`}
                 >
-                  {currentQuestion < quiz.questions.length - 1 ? (
-                    <>
-                      Следующий вопрос
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="mr-2 h-5 w-5" />
-                      Завершить
-                    </>
+                  <span className={`answer-letter ${isSelected ? 'selected' : ''}`}>
+                    {letter}
+                  </span>
+                  <span className="answer-text">
+                    {option.text || option}
+                  </span>
+                  {isSelected && (
+                    <CheckCircle2 className="answer-check" />
                   )}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Next Button */}
+          {answers[currentQuestion] !== undefined && (
+            <div className="quiz-next-action">
+              <Button 
+                size="lg" 
+                className="quiz-next-btn"
+                onClick={nextQuestion}
+              >
+                {currentQuestion < quiz.questions.length - 1 ? (
+                  <>
+                    Следующий вопрос
+                    <ArrowRight />
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 />
+                    Завершить
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
