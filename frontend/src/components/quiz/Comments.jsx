@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { commentAPI } from '../../services/api';
 
 // Вынесенный компонент элемента комментария (чтобы не терялся фокус)
+// Функция для генерации цвета на основе имени пользователя
+const getAvatarColor = (username) => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+    '#F8B500', '#00CED1', '#FF69B4', '#32CD32', '#FFD700'
+  ];
+  if (!username) return colors[0];
+  const index = username.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
 const CommentItem = ({ 
   comment, 
   isReply = false, 
@@ -18,20 +30,25 @@ const CommentItem = ({
   formatDate
 }) => {
   const canDelete = userId === (comment.user?._id || comment.user?.id || comment.user);
+  const avatarUrl = comment.user?.profile?.avatar?.url || comment.user?.profile?.avatar;
+  const username = comment.user?.username || 'Аноним';
   
   return (
     <div className={`comment-item ${isReply ? 'reply' : ''}`}>
       <div className="comment-header">
         <div className="comment-user">
-          <div className="user-avatar">
-            {comment.user?.profile?.avatar ? (
-              <img src={comment.user.profile.avatar} alt="" />
+          <div 
+            className="user-avatar"
+            style={!avatarUrl ? { backgroundColor: getAvatarColor(username) } : {}}
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" />
             ) : (
-              <span>{comment.user?.username?.charAt(0).toUpperCase() || '?'}</span>
+              <span>{username.charAt(0).toUpperCase()}</span>
             )}
           </div>
           <div className="user-info">
-            <span className="username">{comment.user?.username || 'Аноним'}</span>
+            <span className="username">{username}</span>
             <span className="date">{formatDate(comment.createdAt)}</span>
             {comment.isEdited && <span className="edited">(изменено)</span>}
           </div>

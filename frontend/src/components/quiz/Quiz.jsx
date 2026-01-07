@@ -34,6 +34,18 @@ import {
   MessageCircle
 } from 'lucide-react';
 
+// Функция для генерации цвета на основе имени пользователя
+const getAvatarColor = (username) => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+    '#F8B500', '#00CED1', '#FF69B4', '#32CD32', '#FFD700'
+  ];
+  if (!username) return colors[0];
+  const index = username.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
 const Quiz = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -463,9 +475,12 @@ const Quiz = () => {
               <div className="quiz-meta-info">
                 {creator.username && (
                   <div className="quiz-creator">
-                    <div className="creator-avatar">
-                      {creator.profile?.avatar ? (
-                        <img src={creator.profile.avatar} alt="" />
+                    <div 
+                      className="creator-avatar"
+                      style={!creator.profile?.avatar?.url ? { backgroundColor: getAvatarColor(creator.username) } : {}}
+                    >
+                      {creator.profile?.avatar?.url ? (
+                        <img src={creator.profile.avatar.url} alt="" />
                       ) : (
                         <span>{creator.username?.charAt(0).toUpperCase()}</span>
                       )}

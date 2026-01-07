@@ -2,6 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { quizAPI } from '../../services/api';
 
+// Функция для генерации цвета на основе имени пользователя
+const getAvatarColor = (username) => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+    '#F8B500', '#00CED1', '#FF69B4', '#32CD32', '#FFD700'
+  ];
+  if (!username) return colors[0];
+  const index = username.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
 const QuizCard = ({ quiz, onDelete }) => {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
@@ -158,6 +170,16 @@ const QuizCard = ({ quiz, onDelete }) => {
 
         {quiz.creator && (
           <div className="quiz-creator">
+            <div 
+              className="creator-avatar"
+              style={!quiz.creator.profile?.avatar?.url ? { backgroundColor: getAvatarColor(quiz.creator.username) } : {}}
+            >
+              {quiz.creator.profile?.avatar?.url ? (
+                <img src={quiz.creator.profile.avatar.url} alt="" />
+              ) : (
+                <span>{quiz.creator.username?.charAt(0).toUpperCase() || '?'}</span>
+              )}
+            </div>
             <span>Создал: {quiz.creator.username || 'Неизвестно'}</span>
           </div>
         )}
