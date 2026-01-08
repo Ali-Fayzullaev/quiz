@@ -81,11 +81,9 @@ const MemoryGame = ({ onClose, onGameEnd }) => {
         setShowCombo(true);
         setTimeout(() => setShowCombo(false), 800);
         
-        // Подсчёт очков
-        const basePoints = 50;
-        const comboBonus = combo * 10;
-        const timeBonus = Math.max(0, 10 - Math.floor(time / 30)) * 5;
-        setScore(prev => prev + basePoints + comboBonus + timeBonus);
+        // Подсчёт очков (базовые, без накопления)
+        const comboBonus = Math.min(combo * 5, 30); // макс 30 бонус за комбо
+        setScore(prev => prev + 10 + comboBonus);
         
         setFlipped([]);
       } else {
@@ -104,11 +102,17 @@ const MemoryGame = ({ onClose, onGameEnd }) => {
     if (gameStarted && cards.length > 0 && matched.length === cards.length) {
       setGameOver(true);
       
-      // Финальный подсчёт
-      const { multiplier } = difficulties[difficulty];
-      const timeBonus = Math.max(0, 300 - time) * 2;
-      const movesBonus = Math.max(0, 100 - moves) * 3;
-      const finalScore = Math.round((score + timeBonus + movesBonus) * multiplier);
+      // Финальный подсчёт - сбалансированный
+      const { multiplier, pairs } = difficulties[difficulty];
+      // Базовые очки за пары
+      const baseScore = pairs * 20;
+      // Бонус за время (макс 100 очков)
+      const timeBonus = Math.max(0, Math.min(100, Math.round((120 - time) / 1.2)));
+      // Бонус за минимум ходов (макс 50 очков)
+      const perfectMoves = pairs;
+      const movesBonus = moves <= perfectMoves * 2 ? Math.max(0, 50 - (moves - perfectMoves) * 5) : 0;
+      
+      const finalScore = Math.round((baseScore + timeBonus + movesBonus) * multiplier);
       
       setScore(finalScore);
       

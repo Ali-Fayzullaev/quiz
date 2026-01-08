@@ -34,6 +34,11 @@ import BrainBattle from './BrainBattle';
 import QuizRush from './QuizRush';
 import UltimateChallenge from './UltimateChallenge';
 import ExclusiveArena from './ExclusiveArena';
+import ReactionGame from './ReactionGame';
+import SequenceGame from './SequenceGame';
+import MathRace from './MathRace';
+import ColorMatch from './ColorMatch';
+import AimTrainer from './AimTrainer';
 
 const Achievements = () => {
   const navigate = useNavigate();
@@ -51,17 +56,53 @@ const Achievements = () => {
   const fetchUserStats = async () => {
     try {
       setLoading(true);
-      const response = await userAPI.getUserStats();
-      setUserStats(response.data.data);
+      
+      // Получаем профиль пользователя
+      const profileResponse = await userAPI.getProfile();
+      console.log('Full profile response:', profileResponse.data);
+      
+      // Backend возвращает { success: true, data: user }
+      // Поэтому user находится в profileResponse.data.data
+      const user = profileResponse.data?.data || profileResponse.data?.user || profileResponse.data;
+      const gameStats = user?.gameStats;
+      
+      console.log('User object:', user);
+      console.log('Found gameStats:', gameStats);
+      
+      if (gameStats && typeof gameStats.totalPoints === 'number') {
+        setUserStats({
+          totalPoints: gameStats.totalPoints || 0,
+          experience: gameStats.experience || 0,
+          level: gameStats.level || 1,
+          quizzesCompleted: gameStats.quizzesCompleted || 0,
+          currentStreak: gameStats.currentStreak || 0,
+          longestStreak: gameStats.bestStreak || 0,
+        });
+        console.log('✅ Set userStats, points:', gameStats.totalPoints);
+      } else {
+        console.log('⚠️ gameStats not found in profile, trying game-stats endpoint...');
+        // Если в профиле нет - пробуем отдельный эндпоинт
+        const response = await userAPI.getGameStats();
+        console.log('Game stats response:', response.data);
+        const data = response.data?.data || response.data || {};
+        
+        setUserStats({
+          totalPoints: data.totalPoints || 0,
+          experience: data.experience || 0,
+          level: data.level || 1,
+          quizzesCompleted: data.quizzesCompleted || 0,
+          currentStreak: data.currentStreak || 0,
+          longestStreak: data.bestStreak || 0,
+        });
+      }
     } catch (err) {
-      console.error('Error fetching stats:', err);
-      // Загружаем из localStorage или используем моковые данные
-      const savedPoints = localStorage.getItem('userGamePoints');
+      console.error('❌ Error fetching stats:', err);
+      console.error('Error details:', err.response?.data);
       setUserStats({
-        totalPoints: savedPoints ? parseInt(savedPoints) : 0,
+        totalPoints: 0,
+        experience: 0,
+        level: 1,
         quizzesCompleted: 0,
-        quizzesCreated: 0,
-        correctAnswers: 0,
         currentStreak: 0,
         longestStreak: 0,
       });
@@ -222,23 +263,73 @@ const Achievements = () => {
       time: '3-5 мин',
     },
     {
+      id: 'reaction',
+      title: 'Тест реакции',
+      description: 'Проверь свою скорость реакции! Нажимай когда экран станет зелёным.',
+      icon: Zap,
+      color: 'from-green-500 to-emerald-500',
+      requiredPoints: 100,
+      players: '1 игрок',
+      time: '1-2 мин',
+    },
+    {
+      id: 'sequence',
+      title: 'Последовательность',
+      description: 'Запомни порядок цветов и повтори! С каждым уровнем сложнее.',
+      icon: Sparkles,
+      color: 'from-violet-500 to-purple-500',
+      requiredPoints: 300,
+      players: '1 игрок',
+      time: '3-5 мин',
+    },
+    {
+      id: 'mathrace',
+      title: 'Математическая гонка',
+      description: 'Реши как можно больше примеров за 60 секунд!',
+      icon: Target,
+      color: 'from-orange-500 to-red-500',
+      requiredPoints: 600,
+      players: '1 игрок',
+      time: '1 мин',
+    },
+    {
+      id: 'colormatch',
+      title: 'Цветовой тест',
+      description: 'Совпадает ли цвет текста с названием? Тест на внимательность!',
+      icon: Heart,
+      color: 'from-pink-500 to-rose-500',
+      requiredPoints: 1000,
+      players: '1 игрок',
+      time: '1-2 мин',
+    },
+    {
+      id: 'aimtrainer',
+      title: 'Тренировка прицела',
+      description: 'Нажимай на цели как можно быстрее! Тренируй точность.',
+      icon: Gamepad2,
+      color: 'from-slate-500 to-zinc-600',
+      requiredPoints: 1500,
+      players: '1 игрок',
+      time: '30 сек',
+    },
+    {
       id: 'speed',
       title: 'Speed Quiz',
       description: 'Отвечай на вопросы как можно быстрее! Время ограничено.',
-      icon: Zap,
+      icon: Clock,
       color: 'from-yellow-500 to-orange-500',
-      requiredPoints: 500,
+      requiredPoints: 2000,
       players: '1 игрок',
       time: '2-3 мин',
     },
     {
       id: 'battle',
       title: 'Brain Battle',
-      description: 'Сражайся с другими игроками в реальном времени!',
+      description: 'Сражайся с AI в реальном времени!',
       icon: Users,
       color: 'from-blue-500 to-cyan-500',
-      requiredPoints: 1000,
-      players: '2-4 игрока',
+      requiredPoints: 3000,
+      players: '1 vs AI',
       time: '5-10 мин',
     },
     {
@@ -247,7 +338,7 @@ const Achievements = () => {
       description: 'Бесконечный режим! Сколько вопросов ты осилишь?',
       icon: Flame,
       color: 'from-red-500 to-orange-500',
-      requiredPoints: 2500,
+      requiredPoints: 5000,
       players: '1 игрок',
       time: 'Бесконечно',
     },
@@ -257,7 +348,7 @@ const Achievements = () => {
       description: 'Самые сложные вопросы. Только для легенд!',
       icon: Crown,
       color: 'from-amber-500 to-yellow-600',
-      requiredPoints: 5000,
+      requiredPoints: 8000,
       players: '1 игрок',
       time: '10-15 мин',
     },
@@ -267,8 +358,8 @@ const Achievements = () => {
       description: 'Турнирный режим с призами для топ игроков',
       icon: Gem,
       color: 'from-rose-500 to-red-600',
-      requiredPoints: 10000,
-      players: '8-16 игроков',
+      requiredPoints: 15000,
+      players: '1 игрок',
       time: '15-20 мин',
     },
   ];
@@ -310,27 +401,37 @@ const Achievements = () => {
   };
 
   // Обработка окончания игры и добавление очков
-  const handleGameEnd = useCallback((earnedPoints, gameType) => {
-    const newTotal = (userStats?.totalPoints || 0) + earnedPoints;
+  const handleGameEnd = useCallback(async (earnedPoints, gameType) => {
+    // Убеждаемся что все значения - числа
+    const currentPoints = parseInt(userStats?.totalPoints, 10) || 0;
+    const earned = parseInt(earnedPoints, 10) || 0;
+    const newTotal = currentPoints + earned;
     
-    // Обновляем локальное состояние
+    // Обновляем локальное состояние сразу
     setUserStats(prev => ({
       ...prev,
       totalPoints: newTotal
     }));
     
-    // Сохраняем в localStorage
-    localStorage.setItem('userGamePoints', newTotal.toString());
-    
     // Показываем анимацию заработанных очков
-    setPointsAnimation(earnedPoints);
+    setPointsAnimation(earned);
     setTimeout(() => setPointsAnimation(null), 3000);
     
-    // Попытка сохранить на сервер
+    // Сохраняем на сервер
     try {
-      userAPI.updatePoints({ points: earnedPoints, gameType });
+      const response = await userAPI.addGamePoints(earned, gameType);
+      // Обновляем из ответа сервера (более точные данные)
+      if (response.data.success) {
+        setUserStats(prev => ({
+          ...prev,
+          totalPoints: response.data.data.totalPoints,
+          experience: response.data.data.experience,
+          level: response.data.data.level
+        }));
+      }
     } catch (err) {
-      console.log('Points saved locally');
+      console.error('Error saving points to server:', err);
+      // Очки уже обновлены локально, ничего не делаем
     }
   }, [userStats]);
 
@@ -343,11 +444,12 @@ const Achievements = () => {
 
   const unlockedCount = achievements.filter(a => isAchievementUnlocked(a)).length;
 
-  if (loading) {
+  // Показываем загрузку пока данные не пришли с сервера
+  if (loading || userStats === null) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-        <span className="ml-3 text-gray-600 dark:text-gray-400">Загрузка...</span>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Загрузка статистики...</span>
       </div>
     );
   }
@@ -357,6 +459,16 @@ const Achievements = () => {
     switch (activeGame) {
       case 'memory':
         return <MemoryGame onClose={() => setActiveGame(null)} onGameEnd={handleGameEnd} />;
+      case 'reaction':
+        return <ReactionGame onEnd={handleGameEnd} onBack={() => setActiveGame(null)} />;
+      case 'sequence':
+        return <SequenceGame onEnd={handleGameEnd} onBack={() => setActiveGame(null)} />;
+      case 'mathrace':
+        return <MathRace onEnd={handleGameEnd} onBack={() => setActiveGame(null)} />;
+      case 'colormatch':
+        return <ColorMatch onEnd={handleGameEnd} onBack={() => setActiveGame(null)} />;
+      case 'aimtrainer':
+        return <AimTrainer onEnd={handleGameEnd} onBack={() => setActiveGame(null)} />;
       case 'speed':
         return <SpeedQuiz onClose={() => setActiveGame(null)} onGameEnd={handleGameEnd} />;
       case 'battle':

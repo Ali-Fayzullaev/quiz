@@ -512,4 +512,98 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// @desc    Добавить игровые очки
+// @route   POST /api/users/game-points
+// @access  Private
+router.post('/game-points', protect, async (req, res) => {
+  try {
+    const { points, gameType } = req.body;
+    
+    // Валидация
+    if (typeof points !== 'number' || points < 0 || points > 10000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректное количество очков (0-10000)'
+      });
+    }
+    
+    const validGameTypes = ['memory', 'speed', 'battle', 'rush', 'ultimate', 'exclusive', 'reaction', 'sequence', 'mathrace', 'colormatch', 'aimtrainer'];
+    if (!validGameTypes.includes(gameType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный тип игры'
+      });
+    }
+    
+    // Обновляем очки пользователя
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $inc: { 
+          'gameStats.totalPoints': points,
+          'gameStats.experience': Math.floor(points / 10)
+        }
+      },
+      { new: true }
+    );
+    
+    // Проверяем и обновляем уровень
+    const newLevel = Math.floor(user.gameStats.experience / 1000) + 1;
+    if (newLevel > user.gameStats.level) {
+      user.gameStats.level = newLevel;
+      await user.save();
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        totalPoints: user.gameStats.totalPoints,
+        experience: user.gameStats.experience,
+        level: user.gameStats.level,
+        addedPoints: points
+      }
+    });
+  } catch (error) {
+    console.error('Error adding game points:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при добавлении очков'
+    });
+  }
+});
+
+// @desc    Получить игровую статистику
+// @route   GET /api/users/game-stats
+// @access  Private
+router.get('/game-stats', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('gameStats');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        totalPoints: user.gameStats?.totalPoints || 0,
+        experience: user.gameStats?.experience || 0,
+        level: user.gameStats?.level || 1,
+        quizzesCompleted: user.gameStats?.quizzesCompleted || 0,
+        bestStreak: user.gameStats?.bestStreak || 0,
+        currentStreak: user.gameStats?.currentStreak || 0
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching game stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении игровой статистики'
+    });
+  }
+});
+
 module.exports = router;
