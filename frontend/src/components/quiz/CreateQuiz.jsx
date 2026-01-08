@@ -181,12 +181,12 @@ const CreateQuiz = () => {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center p-8 rounded-2xl bg-white/5 border border-white/10 max-w-md">
+        <div className="text-center p-8 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 max-w-md shadow-lg dark:shadow-none">
           <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="text-purple-400" size={32} />
+            <Sparkles className="text-purple-500 dark:text-purple-400" size={32} />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Требуется авторизация</h2>
-          <p className="text-gray-400 mb-6">Для создания квиза необходимо войти в систему</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Требуется авторизация</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">Для создания квиза необходимо войти в систему</p>
           <div className="flex gap-3 justify-center">
             <button 
               onClick={() => navigate('/login')} 
@@ -196,7 +196,7 @@ const CreateQuiz = () => {
             </button>
             <button 
               onClick={() => navigate('/register')} 
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-colors"
+              className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-700 dark:text-white font-medium rounded-xl transition-colors"
             >
               Регистрация
             </button>
@@ -211,8 +211,8 @@ const CreateQuiz = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white">Создать квиз</h1>
-          <p className="text-gray-400 mt-1">Создайте свой уникальный квиз</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Создать квиз</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Создайте свой уникальный квиз</p>
         </div>
         
         {/* Progress Steps */}
@@ -223,12 +223,12 @@ const CreateQuiz = () => {
               onClick={() => setActiveStep(step)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
                 activeStep === step
-                  ? 'bg-purple-500/20 text-purple-400'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                  ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                  : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
               }`}
             >
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium ${
-                activeStep === step ? 'bg-purple-500 text-white' : 'bg-white/10'
+                activeStep === step ? 'bg-purple-500 text-white' : 'bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-400'
               }`}>
                 {step}
               </span>
@@ -240,20 +240,20 @@ const CreateQuiz = () => {
 
       {/* Messages */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400">
           <AlertCircle size={20} />
           <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="hover:text-red-300">
+          <button onClick={() => setError('')} className="hover:text-red-500 dark:hover:text-red-300">
             <X size={18} />
           </button>
         </div>
       )}
       
       {success && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 dark:text-green-400">
           <Check size={20} />
           <span className="flex-1">{success}</span>
-          <button onClick={() => setSuccess('')} className="hover:text-green-300">
+          <button onClick={() => setSuccess('')} className="hover:text-green-500 dark:hover:text-green-300">
             <X size={18} />
           </button>
         </div>
@@ -264,15 +264,15 @@ const CreateQuiz = () => {
         {activeStep === 1 && (
           <div className="space-y-6">
             {/* Basic Info Card */}
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <FileText size={20} className="text-purple-400" />
+            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <FileText size={20} className="text-purple-500 dark:text-purple-400" />
                 Основная информация
               </h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Название квиза *
                   </label>
                   <input
@@ -281,14 +281,14 @@ const CreateQuiz = () => {
                     value={formData.title}
                     onChange={handleFormChange}
                     placeholder="Введите название квиза"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                             text-white placeholder:text-gray-500 outline-none
-                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                             text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                             focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Описание
                   </label>
                   <textarea
@@ -297,9 +297,9 @@ const CreateQuiz = () => {
                     onChange={handleFormChange}
                     placeholder="Опишите ваш квиз..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                             text-white placeholder:text-gray-500 outline-none resize-none
-                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                             text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none resize-none
+                             focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                   />
                 </div>
               </div>
@@ -308,8 +308,8 @@ const CreateQuiz = () => {
             {/* Category & Settings */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Category */}
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-lg font-semibold text-white mb-4">Категория</h2>
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Категория</h2>
                 <div className="grid grid-cols-2 gap-2">
                   {categories.map((cat) => (
                     <button
@@ -318,8 +318,8 @@ const CreateQuiz = () => {
                       onClick={() => setFormData(prev => ({ ...prev, category: cat.value }))}
                       className={`flex items-center gap-2 px-4 py-3 rounded-xl text-left transition-all ${
                         formData.category === cat.value
-                          ? 'bg-purple-500/20 border-purple-500/50 text-purple-400 border'
-                          : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'
+                          ? 'bg-purple-500/20 border-purple-500 dark:border-purple-500/50 text-purple-600 dark:text-purple-400 border'
+                          : 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 border border-transparent'
                       }`}
                     >
                       <span>{cat.icon}</span>
@@ -330,13 +330,13 @@ const CreateQuiz = () => {
               </div>
 
               {/* Settings */}
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-lg font-semibold text-white mb-4">Настройки</h2>
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Настройки</h2>
                 
                 <div className="space-y-4">
                   {/* Difficulty */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Сложность</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Сложность</label>
                     <div className="flex flex-wrap gap-2">
                       {difficulties.map((diff) => (
                         <button
@@ -346,7 +346,7 @@ const CreateQuiz = () => {
                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                             formData.difficulty === diff.value
                               ? diff.color + ' ring-2 ring-current'
-                              : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                              : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                           }`}
                         >
                           {diff.label}
@@ -357,7 +357,7 @@ const CreateQuiz = () => {
 
                   {/* Time Limit */}
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Clock size={16} />
                       Время на квиз (минут)
                     </label>
@@ -368,19 +368,19 @@ const CreateQuiz = () => {
                       onChange={handleFormChange}
                       min="1"
                       max="180"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
 
                   {/* Public Toggle */}
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5">
                     <div className="flex items-center gap-3">
-                      {formData.isPublic ? <Eye size={20} className="text-green-400" /> : <EyeOff size={20} className="text-gray-400" />}
+                      {formData.isPublic ? <Eye size={20} className="text-green-500 dark:text-green-400" /> : <EyeOff size={20} className="text-gray-400" />}
                       <div>
-                        <p className="text-white font-medium">Публичный квиз</p>
-                        <p className="text-gray-400 text-sm">Виден всем пользователям</p>
+                        <p className="text-gray-900 dark:text-white font-medium">Публичный квиз</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">Виден всем пользователям</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -391,7 +391,7 @@ const CreateQuiz = () => {
                         onChange={handleFormChange}
                         className="sr-only peer" 
                       />
-                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer 
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
                                     peer-checked:after:translate-x-full peer-checked:bg-purple-500
                                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
                                     after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
@@ -421,15 +421,15 @@ const CreateQuiz = () => {
         {activeStep === 2 && (
           <div className="space-y-6">
             {/* Add Question Card */}
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <HelpCircle size={20} className="text-purple-400" />
+            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <HelpCircle size={20} className="text-purple-500 dark:text-purple-400" />
                 Добавить вопрос
               </h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Текст вопроса *
                   </label>
                   <input
@@ -438,23 +438,23 @@ const CreateQuiz = () => {
                     value={currentQuestion.question}
                     onChange={handleQuestionChange}
                     placeholder="Введите вопрос"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                             text-white placeholder:text-gray-500 outline-none
-                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                             text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                             focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Тип вопроса</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Тип вопроса</label>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setCurrentQuestion(prev => ({ ...prev, type: 'multiple-choice', options: ['', '', '', ''] }))}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all ${
                           currentQuestion.type === 'multiple-choice'
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'
+                            ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500 dark:border-purple-500/50'
+                            : 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 border border-transparent'
                         }`}
                       >
                         <ListChecks size={18} />
@@ -465,8 +465,8 @@ const CreateQuiz = () => {
                         onClick={() => setCurrentQuestion(prev => ({ ...prev, type: 'true-false', options: ['Правда', 'Ложь'], correctAnswer: 0 }))}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all ${
                           currentQuestion.type === 'true-false'
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'
+                            ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500 dark:border-purple-500/50'
+                            : 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 border border-transparent'
                         }`}
                       >
                         <ToggleLeft size={18} />
@@ -476,7 +476,7 @@ const CreateQuiz = () => {
                   </div>
 
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Clock size={16} />
                       Время (секунд)
                     </label>
@@ -487,9 +487,9 @@ const CreateQuiz = () => {
                       onChange={handleQuestionChange}
                       min="5"
                       max="120"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                 </div>
@@ -497,7 +497,7 @@ const CreateQuiz = () => {
                 {/* Options for Multiple Choice */}
                 {currentQuestion.type === 'multiple-choice' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Варианты ответов (выберите правильный)
                     </label>
                     <div className="space-y-2">
@@ -509,7 +509,7 @@ const CreateQuiz = () => {
                             className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${
                               currentQuestion.correctAnswer === index
                                 ? 'bg-green-500 text-white'
-                                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                             }`}
                           >
                             {currentQuestion.correctAnswer === index ? <Check size={18} /> : index + 1}
@@ -519,9 +519,9 @@ const CreateQuiz = () => {
                             value={option}
                             onChange={(e) => handleOptionChange(index, e.target.value)}
                             placeholder={`Вариант ${index + 1}`}
-                            className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                                     text-white placeholder:text-gray-500 outline-none
-                                     focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                                     text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                                     focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                           />
                         </div>
                       ))}
@@ -532,7 +532,7 @@ const CreateQuiz = () => {
                 {/* Options for True/False */}
                 {currentQuestion.type === 'true-false' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Правильный ответ
                     </label>
                     <div className="flex gap-3">
@@ -542,7 +542,7 @@ const CreateQuiz = () => {
                         className={`flex-1 py-3 rounded-xl font-medium transition-all ${
                           currentQuestion.correctAnswer === 0
                             ? 'bg-green-500 text-white'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                         }`}
                       >
                         ✓ Правда
@@ -553,7 +553,7 @@ const CreateQuiz = () => {
                         className={`flex-1 py-3 rounded-xl font-medium transition-all ${
                           currentQuestion.correctAnswer === 1
                             ? 'bg-red-500 text-white'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                         }`}
                       >
                         ✗ Ложь
@@ -564,7 +564,7 @@ const CreateQuiz = () => {
 
                 {/* Explanation */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Объяснение (опционально)
                   </label>
                   <textarea
@@ -573,9 +573,9 @@ const CreateQuiz = () => {
                     onChange={handleQuestionChange}
                     placeholder="Объяснение правильного ответа..."
                     rows={2}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                             text-white placeholder:text-gray-500 outline-none resize-none
-                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                             text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none resize-none
+                             focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                   />
                 </div>
 
@@ -594,8 +594,8 @@ const CreateQuiz = () => {
 
             {/* Questions List */}
             {formData.questions.length > 0 && (
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-lg font-semibold text-white mb-4">
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Добавленные вопросы ({formData.questions.length})
                 </h2>
                 
@@ -603,16 +603,16 @@ const CreateQuiz = () => {
                   {formData.questions.map((question, index) => (
                     <div 
                       key={index} 
-                      className="flex items-start gap-4 p-4 rounded-xl bg-white/5 group"
+                      className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-white/5 group"
                     >
-                      <span className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 
+                      <span className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-600 dark:text-purple-400 
                                      flex items-center justify-center font-bold flex-shrink-0">
                         {index + 1}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium truncate">{question.question}</p>
+                        <p className="text-gray-900 dark:text-white font-medium truncate">{question.question}</p>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-gray-400">
+                          <span className="text-xs px-2 py-1 rounded-full bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-400">
                             {question.type === 'multiple-choice' ? 'Выбор' : 'Да/Нет'}
                           </span>
                           <span className="text-xs text-gray-500 flex items-center gap-1">
@@ -624,7 +624,7 @@ const CreateQuiz = () => {
                       <button
                         type="button"
                         onClick={() => removeQuestion(index)}
-                        className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 
+                        className="p-2 text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 
                                  rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                       >
                         <Trash2 size={18} />
@@ -640,8 +640,8 @@ const CreateQuiz = () => {
               <button
                 type="button"
                 onClick={() => setActiveStep(1)}
-                className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 
-                         text-white font-medium rounded-xl transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 
+                         text-gray-700 dark:text-white font-medium rounded-xl transition-colors"
               >
                 <ChevronDown className="rotate-90" size={18} />
                 Назад

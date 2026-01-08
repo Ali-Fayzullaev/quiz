@@ -24,6 +24,68 @@ body {
   padding: 20px;
 }
 
+/* Game Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* 3D Card Flip */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
 /* Header Styles */
 .header {
   background-color: #fff;
@@ -3226,6 +3288,10 @@ body {
   padding: 32px 16px;
 }
 
+.dark .profile-page {
+  background: transparent;
+}
+
 .profile-container {
   max-width: 896px;
   margin: 0 auto;
@@ -3240,9 +3306,15 @@ body {
   margin-bottom: 24px;
 }
 
+.dark .profile-header-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
 .profile-cover {
-  height: 120px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  height: 140px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
 }
 
 .profile-header-content {
@@ -3252,23 +3324,27 @@ body {
 
 .profile-avatar-wrap {
   position: relative;
-  width: 96px;
-  height: 96px;
-  margin-top: -48px;
+  width: 112px;
+  height: 112px;
+  margin-top: -56px;
   margin-bottom: 16px;
 }
 
 .profile-avatar {
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   border: 4px solid white;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.3);
+}
+
+.dark .profile-avatar {
+  border-color: #1f2937;
 }
 
 .profile-avatar img {
@@ -3284,21 +3360,35 @@ body {
 }
 
 .profile-user-info h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #111827;
   margin: 0 0 4px;
 }
 
+.dark .profile-user-info h1 {
+  color: white;
+}
+
 .profile-username {
   color: #6b7280;
   margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.dark .profile-username {
+  color: #9ca3af;
 }
 
 .profile-bio {
   color: #4b5563;
   margin: 0 0 16px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.dark .profile-bio {
+  color: #9ca3af;
 }
 
 .profile-meta {
@@ -3307,6 +3397,10 @@ body {
   gap: 16px;
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+.dark .profile-meta {
+  color: #9ca3af;
 }
 
 .profile-meta-item {
@@ -3335,17 +3429,34 @@ body {
 
 .profile-stat-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
-  padding: 20px;
+  padding: 24px;
   text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.profile-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .profile-stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.dark .profile-stat-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 .profile-stat-card .stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3378,14 +3489,23 @@ body {
 }
 
 .profile-stat-card .stat-value {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #111827;
+}
+
+.dark .profile-stat-card .stat-value {
+  color: white;
 }
 
 .profile-stat-card .stat-label {
   font-size: 0.875rem;
   color: #6b7280;
+  margin-top: 4px;
+}
+
+.dark .profile-stat-card .stat-label {
+  color: #9ca3af;
 }
 
 .profile-section {
@@ -3395,6 +3515,12 @@ body {
   border: 1px solid #e5e7eb;
   padding: 24px;
   margin-bottom: 24px;
+}
+
+.dark .profile-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
 }
 
 .profile-section h2 {
@@ -3407,10 +3533,14 @@ body {
   gap: 8px;
 }
 
+.dark .profile-section h2 {
+  color: white;
+}
+
 .profile-section h2 svg {
   width: 20px;
   height: 20px;
-  color: #6b7280;
+  color: #8b5cf6;
 }
 
 .profile-quizzes-list {
@@ -3426,18 +3556,31 @@ body {
   padding: 16px;
   background: #f9fafb;
   border-radius: 12px;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  text-decoration: none;
+  border: 1px solid transparent;
 }
 
 .profile-quiz-item:hover {
   background: #f3f4f6;
+  border-color: #e5e7eb;
+  transform: translateX(4px);
+}
+
+.dark .profile-quiz-item {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .profile-quiz-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .profile-quiz-thumb {
-  width: 64px;
-  height: 64px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3472,10 +3615,18 @@ body {
   text-overflow: ellipsis;
 }
 
+.dark .profile-quiz-info h3 {
+  color: white;
+}
+
 .profile-quiz-info p {
   font-size: 0.875rem;
   color: #6b7280;
   margin: 0;
+}
+
+.dark .profile-quiz-info p {
+  color: #9ca3af;
 }
 
 .profile-quiz-stats {
@@ -3483,6 +3634,7 @@ body {
   gap: 16px;
   color: #9ca3af;
   font-size: 0.75rem;
+  margin-top: 8px;
 }
 
 .profile-quiz-stats span {
@@ -3498,43 +3650,322 @@ body {
 
 .profile-empty {
   text-align: center;
-  padding: 40px;
+  padding: 48px;
   color: #6b7280;
 }
 
+.dark .profile-empty {
+  color: #9ca3af;
+}
+
 .profile-empty svg {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   color: #d1d5db;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.dark .profile-empty svg {
+  color: #4b5563;
 }
 
 .profile-edit-btn {
   position: absolute;
-  top: -36px;
+  top: -40px;
   right: 24px;
   display: flex;
   align-items: center;
   gap: 8px;
   background: white;
   border: 1px solid #e5e7eb;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .profile-edit-btn:hover {
   background: #f9fafb;
-  border-color: #d1d5db;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.dark .profile-edit-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.dark .profile-edit-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
+  color: #a78bfa;
 }
 
 .profile-edit-btn svg {
   width: 16px;
   height: 16px;
+}
+
+/* Achievements Grid */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .achievements-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.achievement-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  background: #f9fafb;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.dark .achievement-item {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.achievement-item.unlocked {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1),
+    rgba(236, 72, 153, 0.1)
+  );
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.dark .achievement-item.unlocked {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2),
+    rgba(236, 72, 153, 0.2)
+  );
+}
+
+.achievement-item.locked {
+  opacity: 0.6;
+}
+
+.achievement-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.dark .achievement-icon {
+  background: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+}
+
+.achievement-item.unlocked .achievement-icon {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+}
+
+.achievement-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.achievement-info h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dark .achievement-info h4 {
+  color: white;
+}
+
+.achievement-info p {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+.dark .achievement-info p {
+  color: #9ca3af;
+}
+
+.achievement-star {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+/* Profile Actions Grid */
+.profile-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .profile-actions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.profile-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  background: #f9fafb;
+  border-radius: 16px;
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.dark .profile-action-card {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.profile-action-card:hover {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.dark .profile-action-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-action-card.primary {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1),
+    rgba(236, 72, 153, 0.1)
+  );
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dark .profile-action-card.primary {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2),
+    rgba(236, 72, 153, 0.2)
+  );
+}
+
+.profile-action-card.primary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2),
+    rgba(236, 72, 153, 0.2)
+  );
+  border-color: #8b5cf6;
+}
+
+.profile-action-card.danger:hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.dark .profile-action-card.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.profile-action-card .action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.dark .profile-action-card .action-icon {
+  background: rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+}
+
+.profile-action-card.primary .action-icon {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+}
+
+.profile-action-card.danger .action-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.dark .profile-action-card.danger .action-icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.profile-action-card .action-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.profile-action-card .action-info h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dark .profile-action-card .action-info h4 {
+  color: white;
+}
+
+.profile-action-card.danger .action-info h4 {
+  color: #dc2626;
+}
+
+.dark .profile-action-card.danger .action-info h4 {
+  color: #f87171;
+}
+
+.profile-action-card .action-info p {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+.dark .profile-action-card .action-info p {
+  color: #9ca3af;
+}
+
+.profile-action-card .action-arrow {
+  display: none;
 }
 
 /* =====================================================
@@ -4991,4 +5422,8 @@ body {
   .dashboard-actions {
     grid-template-columns: 1fr;
   }
+}
+
+.bb {
+  border: 2px solid red;
 }

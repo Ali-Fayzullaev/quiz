@@ -37,8 +37,8 @@ const Sidebar = ({ darkMode, collapsed, onToggle }) => {
     { icon: LayoutDashboard, label: 'Обзор', path: '/dashboard' },
     { icon: BookOpen, label: 'Мои квизы', path: '/my-quizzes' },
     { icon: Heart, label: 'Избранное', path: '/liked' },
-    { icon: BarChart3, label: 'Статистика', path: '/stats', badge: 'Скоро' },
-    { icon: Trophy, label: 'Достижения', path: '/achievements', badge: 'Скоро' },
+    { icon: BarChart3, label: 'Статистика', path: '/stats' },
+    { icon: Trophy, label: 'Достижения', path: '/achievements' },
   ];
 
   const playNavItems = [

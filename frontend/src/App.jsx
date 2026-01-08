@@ -14,6 +14,9 @@ import Profile from './components/profile/Profile';
 import ProfileEditor from './components/profile/ProfileEditor';
 import Dashboard from './components/dashboard/Dashboard';
 import DashboardLayout from './components/dashboard/DashboardLayout';
+import QuickPlay from './components/games/QuickPlay';
+import Stats from './components/games/Stats';
+import Achievements from './components/games/Achievements';
 import './App.css';
 
 // Компонент для защищенных маршрутов с Dashboard Layout
@@ -60,6 +63,9 @@ const AppContent = () => {
         <Route path="/liked" element={<ProtectedRoute><LikedQuizzes /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/profile/edit" element={<ProtectedRoute><ProfileEditor /></ProtectedRoute>} />
+        <Route path="/quick-play" element={<ProtectedRoute><QuickPlay /></ProtectedRoute>} />
+        <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
+        <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       </Routes>
     </div>
   );

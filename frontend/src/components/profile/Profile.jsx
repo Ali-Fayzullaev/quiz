@@ -17,31 +17,13 @@ import {
   Loader2,
   LogOut,
   Settings,
-  HelpCircle,
+  Brain,
+  Award,
+  TrendingUp,
+  Zap,
   Star,
-  Award
+  ChevronRight
 } from 'lucide-react';
-
-const getAvatarColor = (username) => {
-  const colors = [
-    'from-pink-500 to-rose-500',
-    'from-violet-500 to-purple-500',
-    'from-blue-500 to-cyan-500',
-    'from-emerald-500 to-teal-500',
-    'from-amber-500 to-orange-500',
-  ];
-  if (!username) return colors[0];
-  const index = username.charCodeAt(0) % colors.length;
-  return colors[index];
-};
-
-const getCategoryIcon = (category) => {
-  const icons = {
-    'general': '🎯', 'science': '🔬', 'history': '📜', 'geography': '🌍',
-    'sports': '⚽', 'entertainment': '🎬', 'technology': '💻', 'gaming': '🎮',
-  };
-  return icons[category] || '📚';
-};
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -49,6 +31,7 @@ const Profile = () => {
   const [stats, setStats] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('quizzes');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -56,15 +39,18 @@ const Profile = () => {
       navigate('/login');
       return;
     }
+    
     fetchUserData();
   }, []);
 
   const fetchUserData = async () => {
     try {
+      // Получаем профиль пользователя
       const profileRes = await userAPI.getProfile();
       const userData = profileRes.data.data?.user || profileRes.data.data;
       setUser(userData);
 
+      // Получаем статистику
       try {
         const statsRes = await userAPI.getUserStats();
         setStats(statsRes.data.data);
@@ -72,6 +58,7 @@ const Profile = () => {
         console.log('Stats not available');
       }
 
+      // Получаем викторины пользователя
       const quizzesRes = await quizAPI.getQuizzes({ creator: userData._id });
       setQuizzes(quizzesRes.data.data?.quizzes || []);
 
@@ -101,260 +88,286 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-        <span className="ml-3 text-gray-400">Загрузка профиля...</span>
+      <div className="profile-page">
+        <div className="profile-container">
+          <div className="quiz-page-loading">
+            <Loader2 className="quiz-loading-spinner" />
+            <p>Загрузка профиля...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="text-center py-20">
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
-          <User className="w-10 h-10 text-red-400" />
+      <div className="profile-page">
+        <div className="profile-container">
+          <div className="quiz-error-card">
+            <h2>Не удалось загрузить профиль</h2>
+            <p>Попробуйте войти в аккаунт снова</p>
+            <button onClick={() => navigate('/login')} className="quiz-error-btn">
+              Войти
+            </button>
+          </div>
         </div>
-        <h3 className="text-xl font-semibold text-gray-300 mb-2">Не удалось загрузить профиль</h3>
-        <p className="text-gray-500 mb-6">Попробуйте войти в аккаунт снова</p>
-        <button 
-          onClick={() => navigate('/login')}
-          className="px-6 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-colors"
-        >
-          Войти
-        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Card */}
-      <div className="relative rounded-2xl overflow-hidden bg-white/5 border border-white/10">
-        {/* Cover */}
-        <div className="h-32 lg:h-48 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30" />
-        
-        {/* Content */}
-        <div className="px-4 lg:px-6 pb-6">
-          {/* Avatar */}
-          <div className="flex flex-col lg:flex-row lg:items-end gap-4 -mt-16 lg:-mt-20">
-            <div className={`w-28 h-28 lg:w-36 lg:h-36 rounded-2xl bg-gradient-to-br ${getAvatarColor(user.username)} 
-                          flex items-center justify-center border-4 border-[#0a0a0f] overflow-hidden`}>
-              {user.profile?.avatar?.url ? (
-                <img src={user.profile.avatar.url} alt={user.username} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-white text-4xl lg:text-5xl font-bold">
-                  {user.username?.charAt(0).toUpperCase()}
-                </span>
+    <div className="w-full">
+      <div className="w-full ">
+        {/* Header Card */}
+        <div className="profile-header-card">
+          <div className="profile-cover" />
+          
+          <div className="profile-header-content">
+            {/* Avatar */}
+            <div className="profile-avatar-wrap">
+              <div className="profile-avatar">
+                {user.profile?.avatar?.url ? (
+                  <img src={user.profile.avatar.url} alt={user.username} />
+                ) : (
+                  <span>{user.username?.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Edit Button */}
+            <button className="profile-edit-btn" onClick={() => navigate('/profile/edit')}>
+              <Edit2 />
+              Редактировать
+            </button>
+
+            {/* User Info */}
+            <div className="profile-user-info">
+              <h1>
+                {user.profile?.firstName && user.profile?.lastName 
+                  ? `${user.profile.firstName} ${user.profile.lastName}`
+                  : user.username
+                }
+              </h1>
+              <p className="profile-username">@{user.username}</p>
+              
+              {user.profile?.bio && (
+                <p className="profile-bio">{user.profile.bio}</p>
               )}
-            </div>
 
-            <div className="flex-1 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                  {user.profile?.firstName && user.profile?.lastName 
-                    ? `${user.profile.firstName} ${user.profile.lastName}`
-                    : user.username
-                  }
-                </h1>
-                <p className="text-gray-400">@{user.username}</p>
-              </div>
-
-              <button 
-                onClick={() => navigate('/profile/edit')}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 
-                         text-white rounded-xl transition-colors"
-              >
-                <Edit2 size={18} />
-                Редактировать
-              </button>
-            </div>
-          </div>
-
-          {/* Bio */}
-          {user.profile?.bio && (
-            <p className="mt-4 text-gray-300 max-w-2xl">{user.profile.bio}</p>
-          )}
-
-          {/* Meta */}
-          <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <Mail size={16} />
-              <span>{user.email}</span>
-            </div>
-            {user.createdAt && (
-              <div className="flex items-center gap-2">
-                <Calendar size={16} />
-                <span>На сайте с {formatDate(user.createdAt)}</span>
-              </div>
-            )}
-            {user.profile?.location && (
-              <div className="flex items-center gap-2">
-                <MapPin size={16} />
-                <span>{user.profile.location}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center mb-3">
-            <BookOpen className="text-blue-400" size={20} />
-          </div>
-          <p className="text-2xl font-bold text-white">{quizzes.length}</p>
-          <p className="text-sm text-gray-400">Квизов создано</p>
-        </div>
-        
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-          <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center mb-3">
-            <Target className="text-green-400" size={20} />
-          </div>
-          <p className="text-2xl font-bold text-white">{stats?.quizzesCompleted || 0}</p>
-          <p className="text-sm text-gray-400">Пройдено</p>
-        </div>
-        
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center mb-3">
-            <Trophy className="text-amber-400" size={20} />
-          </div>
-          <p className="text-2xl font-bold text-white">{stats?.totalPoints || 0}</p>
-          <p className="text-sm text-gray-400">Очков</p>
-        </div>
-        
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center mb-3">
-            <Star className="text-purple-400" size={20} />
-          </div>
-          <p className="text-2xl font-bold text-white">{stats?.averageScore || 0}%</p>
-          <p className="text-sm text-gray-400">Средний балл</p>
-        </div>
-      </div>
-
-      {/* Achievements */}
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-white mb-4">
-          <Award className="text-yellow-400" />
-          Достижения
-        </h2>
-        <div className="flex flex-wrap gap-3">
-          {[
-            { icon: '🎯', name: 'Первый квиз', unlocked: quizzes.length > 0 },
-            { icon: '🏆', name: '100 очков', unlocked: (stats?.totalPoints || 0) >= 100 },
-            { icon: '🎮', name: '10 игр', unlocked: (stats?.quizzesCompleted || 0) >= 10 },
-            { icon: '⭐', name: 'Отличник', unlocked: (stats?.averageScore || 0) >= 80 },
-          ].map((achievement, i) => (
-            <div 
-              key={i}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border ${
-                achievement.unlocked 
-                  ? 'bg-yellow-500/10 border-yellow-500/30 text-white' 
-                  : 'bg-white/5 border-white/10 text-gray-500 opacity-50'
-              }`}
-            >
-              <span className="text-xl">{achievement.icon}</span>
-              <span className="text-sm font-medium">{achievement.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* My Quizzes */}
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-white">
-            <BookOpen className="text-purple-400" />
-            Мои квизы
-          </h2>
-          {quizzes.length > 3 && (
-            <Link to="/my-quizzes" className="text-sm text-purple-400 hover:text-purple-300">
-              Все квизы →
-            </Link>
-          )}
-        </div>
-        
-        {quizzes.length > 0 ? (
-          <div className="space-y-3">
-            {quizzes.slice(0, 3).map(quiz => (
-              <Link 
-                to={`/quiz/${quiz._id}`} 
-                key={quiz._id}
-                className="flex items-center gap-4 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-              >
-                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 
-                              flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {quiz.thumbnail ? (
-                    <img src={quiz.thumbnail} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl">{getCategoryIcon(quiz.category)}</span>
-                  )}
+              <div className="profile-meta">
+                <div className="profile-meta-item">
+                  <Mail />
+                  <span>{user.email}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white truncate">{quiz.title}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <HelpCircle size={12} />
-                      {quiz.questions?.length || 0}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye size={12} />
-                      {quiz.stats?.views || 0}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Play size={12} />
-                      {quiz.stats?.plays || 0}
-                    </span>
+                {user.createdAt && (
+                  <div className="profile-meta-item">
+                    <Calendar />
+                    <span>На сайте с {formatDate(user.createdAt)}</span>
                   </div>
-                </div>
-                <Play className="text-purple-400 flex-shrink-0" size={20} />
-              </Link>
-            ))}
+                )}
+                {user.profile?.location && (
+                  <div className="profile-meta-item">
+                    <MapPin />
+                    <span>{user.profile.location}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-            <p className="text-gray-400 mb-4">Вы ещё не создали ни одного квиза</p>
-            <Link 
-              to="/create-quiz"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500 hover:bg-purple-600 
-                       text-white rounded-xl transition-colors"
-            >
-              Создать первый квиз
-            </Link>
-          </div>
-        )}
-      </div>
+        </div>
 
-      {/* Settings */}
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-white mb-4">
-          <Settings className="text-gray-400" />
-          Настройки
-        </h2>
-        
-        <div className="space-y-2">
-          <Link 
-            to="/profile/edit"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 transition-colors"
-          >
-            <Edit2 size={20} />
-            <span>Редактировать профиль</span>
-          </Link>
-          <Link 
-            to="/my-quizzes"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 transition-colors"
-          >
-            <BookOpen size={20} />
-            <span>Мои квизы</span>
-          </Link>
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 text-red-400 w-full transition-colors"
-          >
-            <LogOut size={20} />
-            <span>Выйти из аккаунта</span>
-          </button>
+        {/* Stats Grid */}
+        <div className="profile-stats-grid">
+          <div className="profile-stat-card">
+            <div className="stat-icon blue">
+              <BookOpen />
+            </div>
+            <div className="stat-value">{quizzes.length}</div>
+            <div className="stat-label">Викторин создано</div>
+          </div>
+          
+          <div className="profile-stat-card">
+            <div className="stat-icon green">
+              <Target />
+            </div>
+            <div className="stat-value">{stats?.quizzesCompleted || 0}</div>
+            <div className="stat-label">Пройдено</div>
+          </div>
+          
+          <div className="profile-stat-card">
+            <div className="stat-icon amber">
+              <Trophy />
+            </div>
+            <div className="stat-value">{stats?.totalPoints || 0}</div>
+            <div className="stat-label">Очков</div>
+          </div>
+          
+          <div className="profile-stat-card">
+            <div className="stat-icon rose">
+              <TrendingUp />
+            </div>
+            <div className="stat-value">{stats?.averageScore || 0}%</div>
+            <div className="stat-label">Средний балл</div>
+          </div>
+        </div>
+
+        {/* Achievements Section */}
+        <div className="profile-section">
+          <h2>
+            <Award />
+            Достижения
+          </h2>
+          
+          <div className="achievements-grid">
+            <div className={`achievement-item ${quizzes.length >= 1 ? 'unlocked' : 'locked'}`}>
+              <div className="achievement-icon">
+                <Zap />
+              </div>
+              <div className="achievement-info">
+                <h4>Первый квиз</h4>
+                <p>Создайте свой первый квиз</p>
+              </div>
+              {quizzes.length >= 1 && <Star className="achievement-star" />}
+            </div>
+            
+            <div className={`achievement-item ${quizzes.length >= 5 ? 'unlocked' : 'locked'}`}>
+              <div className="achievement-icon">
+                <BookOpen />
+              </div>
+              <div className="achievement-info">
+                <h4>Автор</h4>
+                <p>Создайте 5 квизов</p>
+              </div>
+              {quizzes.length >= 5 && <Star className="achievement-star" />}
+            </div>
+            
+            <div className={`achievement-item ${(stats?.quizzesCompleted || 0) >= 10 ? 'unlocked' : 'locked'}`}>
+              <div className="achievement-icon">
+                <Target />
+              </div>
+              <div className="achievement-info">
+                <h4>Знаток</h4>
+                <p>Пройдите 10 квизов</p>
+              </div>
+              {(stats?.quizzesCompleted || 0) >= 10 && <Star className="achievement-star" />}
+            </div>
+            
+            <div className={`achievement-item ${(stats?.totalPoints || 0) >= 1000 ? 'unlocked' : 'locked'}`}>
+              <div className="achievement-icon">
+                <Trophy />
+              </div>
+              <div className="achievement-info">
+                <h4>Мастер</h4>
+                <p>Наберите 1000 очков</p>
+              </div>
+              {(stats?.totalPoints || 0) >= 1000 && <Star className="achievement-star" />}
+            </div>
+          </div>
+        </div>
+
+        {/* My Quizzes Section */}
+        <div className="profile-section">
+          <h2>
+            <BookOpen />
+            Мои викторины
+          </h2>
+          
+          {quizzes.length > 0 ? (
+            <div className="profile-quizzes-list">
+              {quizzes.slice(0, 5).map(quiz => (
+                <Link 
+                  to={`/quiz/${quiz._id}`} 
+                  key={quiz._id}
+                  className="profile-quiz-item"
+                >
+                  <div className="profile-quiz-thumb">
+                    {quiz.thumbnail?.url ? (
+                      <img src={quiz.thumbnail.url} alt={quiz.title} />
+                    ) : (
+                      <Brain />
+                    )}
+                  </div>
+                  <div className="profile-quiz-info">
+                    <h3>{quiz.title}</h3>
+                    <p>{quiz.questions?.length || 0} вопросов</p>
+                    <div className="profile-quiz-stats">
+                      <span><Eye /> {quiz.stats?.views || 0}</span>
+                      <span><Play /> {quiz.stats?.plays || 0}</span>
+                      <span><Heart /> {quiz.likesCount || quiz.social?.likes?.length || 0}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="profile-empty">
+              <BookOpen />
+              <p>Вы ещё не создали ни одной викторины</p>
+              <Link to="/create-quiz" className="quiz-start-btn" style={{ marginTop: '16px', display: 'inline-flex' }}>
+                Создать первую викторину
+              </Link>
+            </div>
+          )}
+          
+          {quizzes.length > 5 && (
+            <Link to="/my-quizzes" className="load-more-btn" style={{ marginTop: '16px', display: 'block', textDecoration: 'none' }}>
+              Показать все викторины ({quizzes.length})
+            </Link>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="profile-section">
+          <h2>
+            <Settings />
+            Быстрые действия
+          </h2>
+          
+          <div className="profile-actions-grid">
+            <Link to="/create-quiz" className="profile-action-card primary">
+              <div className="action-icon">
+                <Brain />
+              </div>
+              <div className="action-info">
+                <h4>Создать квиз</h4>
+                <p>Новая викторина</p>
+              </div>
+              <ChevronRight className="action-arrow" />
+            </Link>
+            
+            <Link to="/my-quizzes" className="profile-action-card">
+              <div className="action-icon">
+                <BookOpen />
+              </div>
+              <div className="action-info">
+                <h4>Мои викторины</h4>
+                <p>{quizzes.length} квизов</p>
+              </div>
+              <ChevronRight className="action-arrow" />
+            </Link>
+            
+            <Link to="/quizzes" className="profile-action-card">
+              <div className="action-icon">
+                <Play />
+              </div>
+              <div className="action-info">
+                <h4>Все квизы</h4>
+                <p>Найти викторину</p>
+              </div>
+              <ChevronRight className="action-arrow" />
+            </Link>
+            
+            <button onClick={handleLogout} className="profile-action-card danger">
+              <div className="action-icon">
+                <LogOut />
+              </div>
+              <div className="action-info">
+                <h4>Выйти</h4>
+                <p>Из аккаунта</p>
+              </div>
+              <ChevronRight className="action-arrow" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -213,7 +213,7 @@ const ProfileEditor = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-        <span className="ml-3 text-gray-400">Загрузка профиля...</span>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Загрузка профиля...</span>
       </div>
     );
   }
@@ -222,26 +222,26 @@ const ProfileEditor = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-white">Настройки</h1>
-        <p className="text-gray-400 mt-1">Управляйте своим профилем и настройками аккаунта</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Настройки</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Управляйте своим профилем и настройками аккаунта</p>
       </div>
 
       {/* Messages */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400">
           <AlertCircle size={20} />
           <span className="flex-1">{error}</span>
-          <button onClick={() => setError('')} className="hover:text-red-300">
+          <button onClick={() => setError('')} className="hover:text-red-500 dark:hover:text-red-300">
             <X size={18} />
           </button>
         </div>
       )}
       
       {success && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-green-600 dark:text-green-400">
           <Check size={20} />
           <span className="flex-1">{success}</span>
-          <button onClick={() => setSuccess('')} className="hover:text-green-300">
+          <button onClick={() => setSuccess('')} className="hover:text-green-500 dark:hover:text-green-300">
             <X size={18} />
           </button>
         </div>
@@ -250,7 +250,7 @@ const ProfileEditor = () => {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Tabs */}
         <div className="lg:w-64 flex-shrink-0">
-          <div className="p-2 rounded-2xl bg-white/5 border border-white/10">
+          <div className="p-2 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -259,8 +259,8 @@ const ProfileEditor = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-purple-500/20 text-purple-400'
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Icon size={20} />
@@ -276,8 +276,8 @@ const ProfileEditor = () => {
           {activeTab === 'profile' && (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Avatar Section */}
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-lg font-semibold text-white mb-4">Фото профиля</h2>
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Фото профиля</h2>
                 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                   <div className="relative">
@@ -285,7 +285,7 @@ const ProfileEditor = () => {
                       onClick={handleAvatarClick}
                       className={`w-28 h-28 rounded-2xl bg-gradient-to-br ${getAvatarColor(profile.username)} 
                                 flex items-center justify-center cursor-pointer overflow-hidden
-                                ring-4 ring-white/10 hover:ring-purple-500/50 transition-all`}
+                                ring-4 ring-gray-100 dark:ring-white/10 hover:ring-purple-500/50 transition-all`}
                     >
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
@@ -316,7 +316,7 @@ const ProfileEditor = () => {
                   </div>
                   
                   <div className="space-y-3">
-                    <p className="text-gray-400 text-sm">JPG, PNG, GIF или WebP. Максимум 5MB.</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm">JPG, PNG, GIF или WebP. Максимум 5MB.</p>
                     <div className="flex gap-3">
                       <button 
                         type="button" 
@@ -333,8 +333,8 @@ const ProfileEditor = () => {
                           type="button" 
                           onClick={handleDeleteAvatar}
                           disabled={uploadingAvatar}
-                          className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 
-                                   text-red-400 text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
+                          className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 
+                                   text-red-600 dark:text-red-400 text-sm font-medium rounded-xl transition-colors disabled:opacity-50"
                         >
                           <Trash2 size={16} />
                           Удалить
@@ -346,12 +346,12 @@ const ProfileEditor = () => {
               </div>
 
               {/* Basic Info */}
-              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                <h2 className="text-lg font-semibold text-white mb-4">Основная информация</h2>
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Основная информация</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <User size={16} />
                       Имя пользователя
                     </label>
@@ -361,14 +361,14 @@ const ProfileEditor = () => {
                       value={profile.username}
                       onChange={handleInputChange}
                       placeholder="Введите имя пользователя"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white placeholder:text-gray-500 outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                   
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Mail size={16} />
                       Email
                     </label>
@@ -378,14 +378,14 @@ const ProfileEditor = () => {
                       value={profile.email}
                       onChange={handleInputChange}
                       placeholder="Введите email"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white placeholder:text-gray-500 outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                   
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <User size={16} />
                       Имя
                     </label>
@@ -395,14 +395,14 @@ const ProfileEditor = () => {
                       value={profile.firstName}
                       onChange={handleInputChange}
                       placeholder="Введите имя"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white placeholder:text-gray-500 outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                   
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <User size={16} />
                       Фамилия
                     </label>
@@ -412,14 +412,14 @@ const ProfileEditor = () => {
                       value={profile.lastName}
                       onChange={handleInputChange}
                       placeholder="Введите фамилию"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white placeholder:text-gray-500 outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                   
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Globe size={16} />
                       Страна
                     </label>
@@ -429,14 +429,14 @@ const ProfileEditor = () => {
                       value={profile.country}
                       onChange={handleInputChange}
                       placeholder="Введите страну"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white placeholder:text-gray-500 outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                   
                   <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       <Calendar size={16} />
                       Дата рождения
                     </label>
@@ -445,15 +445,15 @@ const ProfileEditor = () => {
                       name="dateOfBirth"
                       value={profile.dateOfBirth}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                               text-white outline-none
-                               focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                               text-gray-900 dark:text-white outline-none
+                               focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                     />
                   </div>
                 </div>
                 
                 <div className="mt-4">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     <FileText size={16} />
                     О себе
                   </label>
@@ -463,9 +463,9 @@ const ProfileEditor = () => {
                     onChange={handleInputChange}
                     placeholder="Расскажите немного о себе..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                             text-white placeholder:text-gray-500 outline-none resize-none
-                             focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                             text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none resize-none
+                             focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
                   />
                   <p className="text-right text-sm text-gray-500 mt-1">{profile.bio.length} / 500</p>
                 </div>
@@ -476,8 +476,8 @@ const ProfileEditor = () => {
                 <button 
                   type="button" 
                   onClick={() => navigate('/profile')}
-                  className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 
-                           text-white font-medium rounded-xl transition-colors"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 
+                           text-gray-700 dark:text-white font-medium rounded-xl transition-colors"
                 >
                   <X size={18} />
                   Отмена
@@ -505,20 +505,20 @@ const ProfileEditor = () => {
           )}
 
           {activeTab === 'security' && (
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-4">Безопасность</h2>
-              <p className="text-gray-400">Настройки безопасности будут доступны в ближайшее время.</p>
+            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Безопасность</h2>
+              <p className="text-gray-600 dark:text-gray-400">Настройки безопасности будут доступны в ближайшее время.</p>
               
-              <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                <p className="text-yellow-400 text-sm">🔒 Функция смены пароля скоро будет добавлена</p>
+              <div className="mt-6 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20">
+                <p className="text-yellow-700 dark:text-yellow-400 text-sm">🔒 Функция смены пароля скоро будет добавлена</p>
               </div>
             </div>
           )}
 
           {activeTab === 'notifications' && (
-            <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-              <h2 className="text-lg font-semibold text-white mb-4">Уведомления</h2>
-              <p className="text-gray-400 mb-6">Настройте, какие уведомления вы хотите получать.</p>
+            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Уведомления</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Настройте, какие уведомления вы хотите получать.</p>
               
               <div className="space-y-4">
                 {[
@@ -527,14 +527,14 @@ const ProfileEditor = () => {
                   { label: 'Новые лайки', desc: 'Когда кто-то ставит лайк вашему квизу' },
                   { label: 'Результаты', desc: 'Когда кто-то проходит ваш квиз' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5">
                     <div>
-                      <p className="text-white font-medium">{item.label}</p>
-                      <p className="text-gray-400 text-sm">{item.desc}</p>
+                      <p className="text-gray-900 dark:text-white font-medium">{item.label}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" className="sr-only peer" defaultChecked={i < 2} />
-                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer 
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
                                     peer-checked:after:translate-x-full peer-checked:bg-purple-500
                                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
                                     after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">

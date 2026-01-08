@@ -1,0 +1,9 @@
+export { default as MemoryGame } from './MemoryGame';
+export { default as SpeedQuiz } from './SpeedQuiz';
+export { default as BrainBattle } from './BrainBattle';
+export { default as QuizRush } from './QuizRush';
+export { default as UltimateChallenge } from './UltimateChallenge';
+export { default as ExclusiveArena } from './ExclusiveArena';
+export { default as QuickPlay } from './QuickPlay';
+export { default as Stats } from './Stats';
+export { default as Achievements } from './Achievements';

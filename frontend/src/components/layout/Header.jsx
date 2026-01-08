@@ -86,7 +86,7 @@ const Header = () => {
                   style={{ backgroundColor: getAvatarColor(user.username) }}
                 >
                   {user.avatar ? (
-                    <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                    <img src={user.avatar.url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     user.username?.charAt(0).toUpperCase()
                   )}
