@@ -33,30 +33,70 @@ const Stats = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await userAPI.getUserStats();
-      setStats(response.data.data);
+      
+      // Получаем профиль пользователя и его квизы параллельно
+      const [profileResponse, quizzesResponse] = await Promise.all([
+        userAPI.getProfile(),
+        userAPI.getUserQuizzes().catch(() => ({ data: { data: [] } }))
+      ]);
+      
+      console.log('Stats - Full profile response:', profileResponse.data);
+      console.log('Stats - Quizzes response:', quizzesResponse.data);
+      
+      // Backend возвращает { success: true, data: user }
+      const user = profileResponse.data?.data || profileResponse.data?.user || profileResponse.data;
+      const gameStats = user?.gameStats;
+      
+      // Получаем количество созданных квизов
+      const quizzes = quizzesResponse.data?.data || quizzesResponse.data?.quizzes || quizzesResponse.data || [];
+      const quizzesCreated = Array.isArray(quizzes) ? quizzes.length : 0;
+      
+      console.log('Stats - Found gameStats:', gameStats);
+      console.log('Stats - Quizzes created:', quizzesCreated);
+      
+      if (gameStats) {
+        setStats({
+          totalPoints: gameStats.totalPoints || 0,
+          quizzesCompleted: gameStats.quizzesCompleted || 0,
+          quizzesCreated: quizzesCreated,
+          correctAnswers: 0,
+          wrongAnswers: 0,
+          averageScore: gameStats.averageScore || 0,
+          totalTimePlayed: 0,
+          longestStreak: gameStats.bestStreak || 0,
+          currentStreak: gameStats.currentStreak || 0,
+          level: gameStats.level || 1,
+          experience: gameStats.experience || 0,
+          bestCategory: 'general',
+          weeklyProgress: [65, 78, 82, 70, 90, 85, 88],
+          categoryStats: [
+            { category: 'Наука', completed: 12, avgScore: 85 },
+            { category: 'История', completed: 8, avgScore: 78 },
+            { category: 'География', completed: 6, avgScore: 92 },
+            { category: 'Технологии', completed: 5, avgScore: 88 },
+            { category: 'Спорт', completed: 3, avgScore: 70 },
+          ]
+        });
+        console.log('✅ Stats set, points:', gameStats.totalPoints, 'created:', quizzesCreated);
+      } else {
+        throw new Error('No gameStats found');
+      }
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      console.error('❌ Error fetching stats:', err);
       // Используем моковые данные если API не работает
       setStats({
-        totalPoints: 2450,
-        quizzesCompleted: 34,
-        quizzesCreated: 8,
-        correctAnswers: 287,
-        wrongAnswers: 63,
-        averageScore: 82,
-        totalTimePlayed: 4520,
-        longestStreak: 12,
-        currentStreak: 5,
-        bestCategory: 'science',
-        weeklyProgress: [65, 78, 82, 70, 90, 85, 88],
-        categoryStats: [
-          { category: 'Наука', completed: 12, avgScore: 85 },
-          { category: 'История', completed: 8, avgScore: 78 },
-          { category: 'География', completed: 6, avgScore: 92 },
-          { category: 'Технологии', completed: 5, avgScore: 88 },
-          { category: 'Спорт', completed: 3, avgScore: 70 },
-        ]
+        totalPoints: 0,
+        quizzesCompleted: 0,
+        quizzesCreated: 0,
+        correctAnswers: 0,
+        wrongAnswers: 0,
+        averageScore: 0,
+        totalTimePlayed: 0,
+        longestStreak: 0,
+        currentStreak: 0,
+        bestCategory: 'general',
+        weeklyProgress: [0, 0, 0, 0, 0, 0, 0],
+        categoryStats: []
       });
     } finally {
       setLoading(false);

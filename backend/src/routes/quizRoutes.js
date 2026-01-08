@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuth } = require('../middleware/auth');
 const { validate } = require('../middleware/errorHandler');
 const { quiz } = require('../utils/validation');
 const {
@@ -43,7 +43,8 @@ const upload = multer({
 // Публичные маршруты
 router.get('/', getQuizzes);
 router.get('/popular', getPopularQuizzes);
-router.get('/:id', getQuizById);
+// optionalAuth - получаем user если есть токен (для проверки приватных квизов)
+router.get('/:id', optionalAuth, getQuizById);
 
 // Тестовый роут
 router.post('/test', (req, res) => {

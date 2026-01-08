@@ -131,7 +131,16 @@ const CreateQuiz = () => {
     setError('');
     
     try {
-      const response = await quizAPI.createQuiz(formData);
+      // Преобразуем isPublic в visibility для backend
+      const submitData = {
+        ...formData,
+        visibility: formData.isPublic ? 'public' : 'private'
+      };
+      delete submitData.isPublic; // Убираем isPublic, backend использует visibility
+      
+      console.log('Submitting quiz with visibility:', submitData.visibility);
+      
+      const response = await quizAPI.createQuiz(submitData);
       setSuccess('Квиз успешно создан!');
       
       const quizId = response.data?.data?.quiz?._id || response.data?.quiz?._id;

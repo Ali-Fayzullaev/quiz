@@ -26,13 +26,12 @@ const getQuizzes = asyncHandler(async (req, res) => {
     // Построение фильтров
     const filters = {};
     
-    // В production показываем только опубликованные квизы
-    if (process.env.NODE_ENV === 'production') {
-        filters.status = 'published';
-    } else {
-        // В development показываем все квизы кроме удаленных
-        filters.status = { $ne: 'deleted' };
-    }
+    // Показываем только не удалённые квизы
+    filters.status = { $ne: 'deleted' };
+    
+    // Показываем только публичные квизы (или unlisted если есть прямая ссылка)
+    // Приватные квизы видны только создателю
+    filters.visibility = 'public';
     
     if (category && category !== 'all') {
         filters.category = category;
@@ -43,6 +42,7 @@ const getQuizzes = asyncHandler(async (req, res) => {
     }
     
     if (creator) {
+        // Если запрашиваем квизы конкретного создателя, показываем его публичные
         filters.creator = creator;
     }
     
@@ -101,6 +101,20 @@ const getQuizById = asyncHandler(async (req, res) => {
 
     if (!quiz) {
         return res.status(404).json(createResponse.error('Викторина не найдена'));
+    }
+
+    // Проверяем статус - удалённые квизы недоступны
+    if (quiz.status === 'deleted') {
+        return res.status(404).json(createResponse.error('Викторина удалена'));
+    }
+
+    // Проверяем visibility - приватные квизы доступны только создателю
+    // Получаем userId из токена если есть
+    const userId = req.user?._id?.toString();
+    const creatorId = quiz.creator?._id?.toString();
+    
+    if (quiz.visibility === 'private' && userId !== creatorId) {
+        return res.status(403).json(createResponse.error('Это приватная викторина'));
     }
 
     // Увеличиваем счетчик просмотров

@@ -33,7 +33,10 @@ const QuickPlay = () => {
     try {
       setLoading(true);
       const response = await quizAPI.getQuizzes({ limit: 50 });
-      setQuizzes(response.data.data?.quizzes || []);
+      console.log('QuickPlay response:', response.data);
+      const data = response.data?.data || response.data;
+      const quizList = data?.quizzes || data || [];
+      setQuizzes(Array.isArray(quizList) ? quizList : []);
     } catch (err) {
       console.error('Error fetching quizzes:', err);
     } finally {
@@ -130,6 +133,29 @@ const QuickPlay = () => {
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
         <span className="ml-3 text-gray-600 dark:text-gray-400">Загрузка...</span>
+      </div>
+    );
+  }
+
+  // Если нет публичных квизов
+  if (quizzes.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
+          <Play className="text-purple-500" size={40} />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Пока нет доступных квизов
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+          Создайте свой первый публичный квиз или подождите, пока другие пользователи добавят свои!
+        </p>
+        <button
+          onClick={() => navigate('/create-quiz')}
+          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl hover:opacity-90 transition-opacity"
+        >
+          Создать квиз
+        </button>
       </div>
     );
   }

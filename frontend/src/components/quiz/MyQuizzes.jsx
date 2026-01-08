@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import { quizAPI } from '../../services/api';
+import { quizAPI, userAPI } from '../../services/api';
 import { 
   Plus, Eye, BarChart3, Edit3, Trash2, FileText, 
-  Clock, HelpCircle, Play, Loader2, X, Search, Filter
+  Clock, HelpCircle, Play, Loader2, X, Search, Filter,
+  Lock, Globe
 } from 'lucide-react';
 
 const MyQuizzes = () => {
@@ -32,9 +33,11 @@ const MyQuizzes = () => {
   const fetchMyQuizzes = async () => {
     setLoading(true);
     try {
-      const response = await quizAPI.getQuizzes({ creator: userId });
-      const data = response.data.data;
-      setQuizzes(data.quizzes || []);
+      // Используем userAPI.getUserQuizzes - он возвращает ВСЕ квизы пользователя
+      // включая приватные (фильтрует только удалённые на backend)
+      const response = await userAPI.getUserQuizzes();
+      const data = response.data.data || response.data;
+      setQuizzes(Array.isArray(data) ? data : []);
     } catch (err) {
       setError('Ошибка загрузки ваших квизов');
       console.error(err);
@@ -245,6 +248,15 @@ const MyQuizzes = () => {
                         <h3 className={`font-bold text-lg truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>{quiz.title}</h3>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(quiz.status)}`}>
                           {getStatusText(quiz.status)}
+                        </span>
+                        {/* Индикатор видимости */}
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          quiz.visibility === 'private' 
+                            ? (darkMode ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600')
+                            : (darkMode ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600')
+                        }`}>
+                          {quiz.visibility === 'private' ? <Lock size={10} /> : <Globe size={10} />}
+                          {quiz.visibility === 'private' ? 'Приватный' : 'Публичный'}
                         </span>
                       </div>
                       <p className={`text-sm line-clamp-1 mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>

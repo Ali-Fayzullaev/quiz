@@ -347,9 +347,13 @@ router.get('/stats', protect, async (req, res) => {
 // @access  Private
 router.get('/quizzes', protect, async (req, res) => {
   try {
-    const quizzes = await Quiz.find({ creator: req.user._id })
+    // Исключаем удалённые квизы (status: 'deleted')
+    const quizzes = await Quiz.find({ 
+      creator: req.user._id,
+      status: { $ne: 'deleted' }  // не равно 'deleted'
+    })
       .sort({ createdAt: -1 })
-      .select('title description thumbnail category difficulty stats social createdAt isPublished');
+      .select('title description thumbnail category difficulty stats social createdAt isPublished status visibility');
     
     res.json({
       success: true,

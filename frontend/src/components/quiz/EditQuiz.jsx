@@ -229,7 +229,16 @@ const EditQuiz = () => {
     setError('');
     
     try {
-      await quizAPI.updateQuiz(id, formData);
+      // Преобразуем isPublic в visibility для backend
+      const submitData = {
+        ...formData,
+        visibility: formData.isPublic ? 'public' : 'private'
+      };
+      delete submitData.isPublic; // Убираем isPublic, backend использует visibility
+      
+      console.log('Updating quiz with visibility:', submitData.visibility);
+      
+      await quizAPI.updateQuiz(id, submitData);
       setSuccess('Квиз успешно обновлен!');
       
       setTimeout(() => {

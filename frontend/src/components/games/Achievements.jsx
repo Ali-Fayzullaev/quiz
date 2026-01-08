@@ -57,17 +57,26 @@ const Achievements = () => {
     try {
       setLoading(true);
       
-      // Получаем профиль пользователя
-      const profileResponse = await userAPI.getProfile();
+      // Получаем профиль пользователя и его квизы параллельно
+      const [profileResponse, quizzesResponse] = await Promise.all([
+        userAPI.getProfile(),
+        userAPI.getUserQuizzes().catch(() => ({ data: { data: [] } }))
+      ]);
+      
       console.log('Full profile response:', profileResponse.data);
+      console.log('Quizzes response:', quizzesResponse.data);
       
       // Backend возвращает { success: true, data: user }
-      // Поэтому user находится в profileResponse.data.data
       const user = profileResponse.data?.data || profileResponse.data?.user || profileResponse.data;
       const gameStats = user?.gameStats;
       
+      // Получаем количество созданных квизов
+      const quizzes = quizzesResponse.data?.data || quizzesResponse.data?.quizzes || quizzesResponse.data || [];
+      const quizzesCreated = Array.isArray(quizzes) ? quizzes.length : 0;
+      
       console.log('User object:', user);
       console.log('Found gameStats:', gameStats);
+      console.log('Quizzes created:', quizzesCreated);
       
       if (gameStats && typeof gameStats.totalPoints === 'number') {
         setUserStats({
@@ -75,10 +84,11 @@ const Achievements = () => {
           experience: gameStats.experience || 0,
           level: gameStats.level || 1,
           quizzesCompleted: gameStats.quizzesCompleted || 0,
+          quizzesCreated: quizzesCreated,
           currentStreak: gameStats.currentStreak || 0,
           longestStreak: gameStats.bestStreak || 0,
         });
-        console.log('✅ Set userStats, points:', gameStats.totalPoints);
+        console.log('✅ Set userStats, points:', gameStats.totalPoints, 'created:', quizzesCreated);
       } else {
         console.log('⚠️ gameStats not found in profile, trying game-stats endpoint...');
         // Если в профиле нет - пробуем отдельный эндпоинт
@@ -91,6 +101,7 @@ const Achievements = () => {
           experience: data.experience || 0,
           level: data.level || 1,
           quizzesCompleted: data.quizzesCompleted || 0,
+          quizzesCreated: quizzesCreated,
           currentStreak: data.currentStreak || 0,
           longestStreak: data.bestStreak || 0,
         });
@@ -103,6 +114,7 @@ const Achievements = () => {
         experience: 0,
         level: 1,
         quizzesCompleted: 0,
+        quizzesCreated: 0,
         currentStreak: 0,
         longestStreak: 0,
       });
