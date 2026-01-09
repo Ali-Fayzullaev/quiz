@@ -1,3 +1,4 @@
+// frontend/src/components/dashboard/DashboardLayout.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
@@ -10,6 +11,25 @@ import {
   Menu,
   X
 } from 'lucide-react';
+
+
+ const fetchAllData = async () => {
+    try {
+      const [profileRes,] = await Promise.allSettled([
+        userAPI.getProfile()
+      ]);
+
+      if (profileRes.status === 'fulfilled') {
+        setUser(profileRes.value.data.data?.user || profileRes.value.data.data);
+      }
+
+    } catch (err) {
+      console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
 const DashboardLayout = ({ children }) => {
   const { darkMode, toggleTheme } = useTheme();

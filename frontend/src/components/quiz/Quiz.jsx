@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { quizAPI, gameAPI } from '../../services/api';
+import { useTheme } from '../../context/ThemeContext';
 import Comments from './Comments';
 import {
   Clock,
@@ -45,6 +46,7 @@ const getAvatarColor = (username) => {
 const Quiz = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
   const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -265,10 +267,10 @@ const Quiz = () => {
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
-          <p className="text-white/60">Загрузка викторины...</p>
+          <Loader2 className={`w-12 h-12 animate-spin mx-auto mb-4 ${darkMode ? 'text-purple-500' : 'text-purple-600'}`} />
+          <p className={darkMode ? 'text-white/60' : 'text-gray-500'}>Загрузка викторины...</p>
         </div>
       </div>
     );
@@ -277,13 +279,13 @@ const Quiz = () => {
   // Error State
   if (!quiz) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center max-w-md">
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+        <div className={`rounded-2xl p-8 text-center max-w-md ${darkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-200 shadow-lg'}`}>
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <XCircle className="w-8 h-8 text-red-400" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">Викторина не найдена</h2>
-          <p className="text-white/60 mb-6">Возможно, она была удалена или перемещена</p>
+          <h2 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Викторина не найдена</h2>
+          <p className={`mb-6 ${darkMode ? 'text-white/60' : 'text-gray-500'}`}>Возможно, она была удалена или перемещена</p>
           <button 
             onClick={() => navigate('/quizzes')} 
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
@@ -301,8 +303,8 @@ const Quiz = () => {
     const isPassed = results.passed;
     
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
-        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden max-w-lg w-full">
+      <div className={`min-h-screen flex items-center justify-center p-4 ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+        <div className={`rounded-2xl overflow-hidden max-w-lg w-full ${darkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-200 shadow-xl'}`}>
           {/* Top bar */}
           <div className={`h-2 ${isPassed ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 'bg-gradient-to-r from-red-500 to-orange-500'}`} />
           
@@ -321,10 +323,10 @@ const Quiz = () => {
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl font-bold text-white mb-1">
+            <h1 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {isPassed ? 'Поздравляем!' : 'Попробуйте ещё раз'}
             </h1>
-            <p className="text-white/60 mb-6">{quiz.title}</p>
+            <p className={`mb-6 ${darkMode ? 'text-white/60' : 'text-gray-500'}`}>{quiz.title}</p>
 
             {/* Score Circle */}
             <div className={`w-32 h-32 rounded-full mx-auto mb-6 flex flex-col items-center justify-center ${
@@ -335,37 +337,37 @@ const Quiz = () => {
               <div className={`text-3xl font-bold ${isPassed ? 'text-emerald-400' : 'text-red-400'}`}>
                 {results.percentage}%
               </div>
-              <div className="text-white/40 text-sm">результат</div>
+              <div className={`text-sm ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>результат</div>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{results.correctAnswers}</div>
-                <div className="text-xs text-white/40">Правильных</div>
+                <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{results.correctAnswers}</div>
+                <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Правильных</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                 <BarChart3 className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{results.totalQuestions}</div>
-                <div className="text-xs text-white/40">Всего</div>
+                <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{results.totalQuestions}</div>
+                <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Всего</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                 <Timer className="w-5 h-5 text-amber-400 mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{results.timeSpent}с</div>
-                <div className="text-xs text-white/40">Время</div>
+                <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{results.timeSpent}с</div>
+                <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Время</div>
               </div>
             </div>
 
             {/* Points */}
-            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-4 flex items-center justify-between mb-6">
+            <div className={`rounded-xl p-4 flex items-center justify-between mb-6 ${darkMode ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20' : 'bg-gradient-to-r from-purple-100 to-pink-100'}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${darkMode ? 'bg-purple-500/30' : 'bg-purple-200'}`}>
                   <Award className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <div className="text-white/60 text-sm">Заработано очков</div>
-                  <div className="text-xl font-bold text-white">{results.score}</div>
+                  <div className={`text-sm ${darkMode ? 'text-white/60' : 'text-gray-500'}`}>Заработано очков</div>
+                  <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{results.score}</div>
                 </div>
               </div>
               <Zap className="w-6 h-6 text-yellow-400" />
@@ -396,7 +398,11 @@ const Quiz = () => {
             <div className="flex gap-3">
               <button 
                 onClick={() => navigate('/quizzes')}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-medium hover:bg-white/10 transition-colors"
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors ${
+                  darkMode 
+                    ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' 
+                    : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200'
+                }`}
               >
                 <Home className="w-4 h-4" />
                 К викторинам
@@ -422,13 +428,13 @@ const Quiz = () => {
     const difficulty = getDifficultyData(quiz.difficulty);
     
     return (
-      <div className="min-h-screen bg-[#0a0a0f]">
+      <div className={`min-h-screen ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
         {/* Header */}
-        <div className="border-b border-white/10 bg-white/5 backdrop-blur-sm sticky top-0 z-10">
+        <div className={`border-b backdrop-blur-sm sticky top-0 z-10 ${darkMode ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-white/80'}`}>
           <div className="max-w-5xl mx-auto px-4 py-4">
             <button 
               onClick={() => navigate('/quizzes')}
-              className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+              className={`flex items-center gap-2 transition-colors ${darkMode ? 'text-white/60 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
             >
               <ChevronLeft className="w-5 h-5" />
               <span>Назад к викторинам</span>
@@ -440,7 +446,7 @@ const Quiz = () => {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Card */}
             <div className="lg:col-span-2">
-              <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+              <div className={`rounded-2xl overflow-hidden ${darkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-200 shadow-lg'}`}>
                 {/* Thumbnail */}
                 {quiz.thumbnail?.url ? (
                   <div className="relative h-64 overflow-hidden">
@@ -452,11 +458,11 @@ const Quiz = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="relative h-48 bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                    <Brain className="w-16 h-16 text-purple-400/50" />
-                    <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full">
+                  <div className={`relative h-48 flex items-center justify-center ${darkMode ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20' : 'bg-gradient-to-br from-purple-100 to-pink-100'}`}>
+                    <Brain className={`w-16 h-16 ${darkMode ? 'text-purple-400/50' : 'text-purple-300'}`} />
+                    <div className={`absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full ${darkMode ? 'bg-white/10 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
                       <BookOpen className="w-4 h-4 text-purple-400" />
-                      <span className="text-white text-sm">{getCategoryText(quiz.category)}</span>
+                      <span className={`text-sm ${darkMode ? 'text-white' : 'text-gray-700'}`}>{getCategoryText(quiz.category)}</span>
                     </div>
                   </div>
                 )}
@@ -477,15 +483,15 @@ const Quiz = () => {
                   </div>
 
                   {/* Title */}
-                  <h1 className="text-2xl font-bold text-white mb-3">{quiz.title}</h1>
+                  <h1 className={`text-2xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-900'}`}>{quiz.title}</h1>
 
                   {/* Description */}
                   {quiz.description && (
-                    <p className="text-white/60 mb-6 leading-relaxed">{quiz.description}</p>
+                    <p className={`mb-6 leading-relaxed ${darkMode ? 'text-white/60' : 'text-gray-600'}`}>{quiz.description}</p>
                   )}
 
                   {/* Creator & Date */}
-                  <div className="flex flex-wrap items-center gap-4 mb-6 pb-6 border-b border-white/10">
+                  <div className={`flex flex-wrap items-center gap-4 mb-6 pb-6 border-b ${darkMode ? 'border-white/10' : 'border-gray-200'}`}>
                     {creator.username && (
                       <div className="flex items-center gap-3">
                         <div 
@@ -499,14 +505,14 @@ const Quiz = () => {
                           )}
                         </div>
                         <div>
-                          <div className="text-white font-medium">{creator.username}</div>
-                          <div className="text-white/40 text-sm">Автор</div>
+                          <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{creator.username}</div>
+                          <div className={`text-sm ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Автор</div>
                         </div>
                       </div>
                     )}
                     
                     {quiz.createdAt && (
-                      <div className="flex items-center gap-2 text-white/40 text-sm">
+                      <div className={`flex items-center gap-2 text-sm ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
                         <Calendar className="w-4 h-4" />
                         <span>{formatDate(quiz.createdAt)}</span>
                       </div>
@@ -515,45 +521,45 @@ const Quiz = () => {
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                       <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                         <Target className="w-5 h-5 text-blue-400" />
                       </div>
-                      <div className="text-xl font-bold text-white">{questionsCount}</div>
-                      <div className="text-xs text-white/40">Вопросов</div>
+                      <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{questionsCount}</div>
+                      <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Вопросов</div>
                     </div>
                     
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                       <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                         <Users className="w-5 h-5 text-emerald-400" />
                       </div>
-                      <div className="text-xl font-bold text-white">{quiz.stats?.plays || 0}</div>
-                      <div className="text-xs text-white/40">Прошли</div>
+                      <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{quiz.stats?.plays || 0}</div>
+                      <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Прошли</div>
                     </div>
                     
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                       <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                         <Trophy className="w-5 h-5 text-amber-400" />
                       </div>
-                      <div className="text-xl font-bold text-white">{quiz.settings?.passingScore || 70}%</div>
-                      <div className="text-xs text-white/40">Проходной</div>
+                      <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{quiz.settings?.passingScore || 70}%</div>
+                      <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Проходной</div>
                     </div>
                     
-                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                    <div className={`rounded-xl p-4 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                       <div className="w-10 h-10 bg-rose-500/20 rounded-lg flex items-center justify-center mx-auto mb-2">
                         <Clock className="w-5 h-5 text-rose-400" />
                       </div>
-                      <div className="text-xl font-bold text-white">
+                      <div className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                         {quiz.timeLimit ? `${quiz.timeLimit}` : '∞'}
                       </div>
-                      <div className="text-xs text-white/40">
+                      <div className={`text-xs ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
                         {quiz.timeLimit ? 'Минут' : 'Без лимита'}
                       </div>
                     </div>
                   </div>
 
                   {/* Social Stats */}
-                  <div className="flex items-center gap-4 text-white/40 text-sm mb-6">
+                  <div className={`flex items-center gap-4 text-sm mb-6 ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>
                     <div className="flex items-center gap-1.5">
                       <Eye className="w-4 h-4" />
                       <span>{quiz.stats?.views || 0} просмотров</span>
@@ -579,7 +585,11 @@ const Quiz = () => {
                       <div className="flex gap-3">
                         <button 
                           onClick={handleShare} 
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition-colors"
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-colors ${
+                            darkMode 
+                              ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' 
+                              : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200'
+                          }`}
                         >
                           <Share2 className="w-4 h-4" />
                           <span>Поделиться</span>
@@ -590,7 +600,9 @@ const Quiz = () => {
                           className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-colors ${
                             isLiked 
                               ? 'bg-pink-500/20 border border-pink-500/50 text-pink-400' 
-                              : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+                              : darkMode 
+                                ? 'bg-white/5 border border-white/10 text-white hover:bg-white/10' 
+                                : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
                           <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
@@ -599,12 +611,12 @@ const Quiz = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-white/5 rounded-xl p-6 text-center">
+                    <div className={`rounded-xl p-6 text-center ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
                       <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
                         <XCircle className="w-6 h-6 text-amber-400" />
                       </div>
-                      <p className="text-white font-medium mb-1">В этой викторине пока нет вопросов</p>
-                      <span className="text-white/40 text-sm">Автор скоро добавит их</span>
+                      <p className={`font-medium mb-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>В этой викторине пока нет вопросов</p>
+                      <span className={`text-sm ${darkMode ? 'text-white/40' : 'text-gray-400'}`}>Автор скоро добавит их</span>
                     </div>
                   )}
                 </div>
@@ -613,10 +625,10 @@ const Quiz = () => {
 
             {/* Sidebar - Comments */}
             <div className="lg:col-span-1">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sticky top-24">
+              <div className={`rounded-2xl p-6 sticky top-24 ${darkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-200 shadow-lg'}`}>
                 <div className="flex items-center gap-2 mb-4">
                   <MessageCircle className="w-5 h-5 text-purple-400" />
-                  <h2 className="text-lg font-semibold text-white">Комментарии</h2>
+                  <h2 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Комментарии</h2>
                 </div>
                 <Comments quizId={id} />
               </div>
@@ -633,11 +645,11 @@ const Quiz = () => {
   const isTimeLow = timeLeft !== null && timeLeft < 30;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
+    <div className={`min-h-screen flex flex-col ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className="border-b border-white/10 bg-white/5 backdrop-blur-sm">
+      <div className={`border-b backdrop-blur-sm ${darkMode ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-white/80'}`}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <span className="text-white font-medium">
+          <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             Вопрос <span className="text-purple-400">{currentQuestion + 1}</span> из {quiz.questions.length}
           </span>
           
@@ -645,7 +657,7 @@ const Quiz = () => {
             <span className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
               isTimeLow 
                 ? 'bg-red-500/20 text-red-400 animate-pulse' 
-                : 'bg-white/10 text-white'
+                : darkMode ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'
             }`}>
               <Clock className="w-4 h-4" />
               {formatTime(timeLeft)}
@@ -654,7 +666,7 @@ const Quiz = () => {
         </div>
         
         {/* Progress bar */}
-        <div className="h-1 bg-white/10">
+        <div className={`h-1 ${darkMode ? 'bg-white/10' : 'bg-gray-200'}`}>
           <div 
             className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -665,8 +677,8 @@ const Quiz = () => {
       {/* Question Card */}
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-3xl">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-6 text-center">
+          <div className={`rounded-2xl p-6 md:p-8 ${darkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-gray-200 shadow-lg'}`}>
+            <h2 className={`text-xl md:text-2xl font-bold mb-6 text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               {question.text || question.question}
             </h2>
 
@@ -691,17 +703,19 @@ const Quiz = () => {
                     className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
                       isSelected 
                         ? 'bg-purple-500/20 border-2 border-purple-500' 
-                        : 'bg-white/5 border-2 border-transparent hover:bg-white/10 hover:border-white/20'
+                        : darkMode 
+                          ? 'bg-white/5 border-2 border-transparent hover:bg-white/10 hover:border-white/20' 
+                          : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100 hover:border-gray-300'
                     }`}
                   >
                     <span className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg shrink-0 ${
                       isSelected 
                         ? 'bg-purple-500 text-white' 
-                        : 'bg-white/10 text-white/60'
+                        : darkMode ? 'bg-white/10 text-white/60' : 'bg-gray-200 text-gray-500'
                     }`}>
                       {letter}
                     </span>
-                    <span className="text-white text-left flex-1">
+                    <span className={`text-left flex-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {option.text || option}
                     </span>
                     {isSelected && (
