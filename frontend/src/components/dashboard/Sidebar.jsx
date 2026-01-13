@@ -237,8 +237,8 @@ const Sidebar = ({ darkMode, collapsed, onToggle }) => {
             className={`w-full px-4 py-3 flex items-center justify-between transition-all hover:bg-white/5 ${darkMode ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}
           >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${levelInfo.color} flex items-center justify-center shadow-lg ${animateXP ? 'animate-bounce' : ''}`}>
-                <Zap className="w-5 h-5 text-white" />
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg}`}>
+                <Image width={40} height={40} src={user?.avatar?.url} alt={user?.username || 'User avatar'} />
               </div>
               <div className="text-left">
                 <p className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'} ${animateXP ? 'text-purple-400' : ''} transition-colors`}>
@@ -296,7 +296,7 @@ const Sidebar = ({ darkMode, collapsed, onToggle }) => {
                 <div className="relative">
                   {user.avatar?.url ? (
                     <img 
-                      src={user.avatar.url} 
+                      src={user?.avatar?.url} 
                       alt={user.username}
                       className="w-12 h-12 rounded-xl object-cover ring-2 ring-purple-500/30"
                     />

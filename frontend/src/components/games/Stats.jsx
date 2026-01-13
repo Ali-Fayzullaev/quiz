@@ -231,7 +231,6 @@ const Stats = () => {
                 <ArrowUp className="w-4 h-4" />
                 До следующего уровня
               </span>
-              <span className="font-bold">{(nextLevelPoints - (stats?.totalPoints || 0)).toLocaleString()} XP</span>
             </div>
             <div className="relative h-4 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
               <div 

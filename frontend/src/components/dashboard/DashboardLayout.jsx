@@ -109,7 +109,7 @@ const DashboardLayout = ({ children }) => {
       `}>
         {/* Top Header */}
         <header className={`
-          sticky top-0 z-30 px-4 lg:px-6 py-4
+          sticky top-0 z-30 px-4 lg:px-12 py-4
           backdrop-blur-xl border-b
           ${darkMode 
             ? 'bg-[#0a0a0f]/80 border-white/5' 
@@ -264,7 +264,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-4 lg:p-12">
           {children}
         </main>
       </div>
