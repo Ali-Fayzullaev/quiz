@@ -82,7 +82,8 @@ const SequenceGame = ({ onEnd, onBack }) => {
     if (newInput.length === sequence.length) {
       setIsCorrect(true);
       setGameState('result');
-      const levelScore = level * 50 + sequence.length * 10;
+      // Сбалансированные очки: 15 базовых + 5 за уровень + 3 за элемент последовательности
+      const levelScore = 15 + level * 5 + sequence.length * 3;
       setScore(prev => prev + levelScore);
       setHighestLevel(Math.max(highestLevel, level));
       
@@ -98,7 +99,8 @@ const SequenceGame = ({ onEnd, onBack }) => {
 
   const calculateFinalScore = () => {
     const baseScore = score;
-    const levelBonus = highestLevel * 30;
+    // Уменьшенный бонус за уровень
+    const levelBonus = highestLevel * 10;
     return baseScore + levelBonus;
   };
 

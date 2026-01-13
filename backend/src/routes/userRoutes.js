@@ -523,11 +523,11 @@ router.post('/game-points', protect, async (req, res) => {
   try {
     const { points, gameType } = req.body;
     
-    // Валидация
-    if (typeof points !== 'number' || points < 0 || points > 10000) {
+    // Валидация - максимум 500 очков за одну игру
+    if (typeof points !== 'number' || points < 0 || points > 500) {
       return res.status(400).json({
         success: false,
-        message: 'Некорректное количество очков (0-10000)'
+        message: 'Некорректное количество очков (0-500)'
       });
     }
     

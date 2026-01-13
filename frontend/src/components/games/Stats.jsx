@@ -3,21 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, 
   TrendingUp, 
-  Trophy, 
   Target, 
   Clock, 
   CheckCircle,
   XCircle,
   Percent,
-  Calendar,
-  Award,
   Flame,
-  Star,
-  Brain,
   Zap,
   BookOpen,
   Loader2,
-  Crown,
   Sparkles,
   Medal,
   ArrowUp,
@@ -40,14 +34,13 @@ const Stats = () => {
     try {
       setLoading(true);
       
-      // Получаем профиль пользователя и его квизы параллельно
+
       const [profileResponse, quizzesResponse] = await Promise.all([
         userAPI.getProfile(),
         userAPI.getUserQuizzes().catch(() => ({ data: { data: [] } }))
       ]);
       
-      console.log('Stats - Full profile response:', profileResponse.data);
-      console.log('Stats - Quizzes response:', quizzesResponse.data);
+
       
       // Backend возвращает { success: true, data: user }
       const user = profileResponse.data?.data || profileResponse.data?.user || profileResponse.data;

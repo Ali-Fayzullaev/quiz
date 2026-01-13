@@ -81,10 +81,6 @@ const MemoryGame = ({ onClose, onGameEnd }) => {
         setShowCombo(true);
         setTimeout(() => setShowCombo(false), 800);
         
-        // Подсчёт очков (базовые, без накопления)
-        const comboBonus = Math.min(combo * 5, 30); // макс 30 бонус за комбо
-        setScore(prev => prev + 10 + comboBonus);
-        
         setFlipped([]);
       } else {
         // Нет совпадения
@@ -95,33 +91,33 @@ const MemoryGame = ({ onClose, onGameEnd }) => {
       }
       setMoves(prev => prev + 1);
     }
-  }, [flipped, cards, combo, time]);
+  }, [flipped, cards]);
 
   // Проверка окончания игры
   useEffect(() => {
-    if (gameStarted && cards.length > 0 && matched.length === cards.length) {
-      setGameOver(true);
-      
+    // Добавляем !gameOver чтобы не вызывалось повторно
+    if (gameStarted && !gameOver && cards.length > 0 && matched.length === cards.length) {
       // Финальный подсчёт - сбалансированный
       const { multiplier, pairs } = difficulties[difficulty];
-      // Базовые очки за пары
-      const baseScore = pairs * 20;
-      // Бонус за время (макс 100 очков)
-      const timeBonus = Math.max(0, Math.min(100, Math.round((120 - time) / 1.2)));
-      // Бонус за минимум ходов (макс 50 очков)
+      // Базовые очки за пары (5 очков за пару)
+      const baseScore = pairs * 5;
+      // Бонус за время (макс 20 очков)
+      const timeBonus = Math.max(0, Math.min(20, Math.round((90 - time) * 0.3)));
+      // Бонус за минимум ходов (макс 15 очков)
       const perfectMoves = pairs;
-      const movesBonus = moves <= perfectMoves * 2 ? Math.max(0, 50 - (moves - perfectMoves) * 5) : 0;
+      const movesBonus = moves <= perfectMoves * 2 ? Math.max(0, 15 - (moves - perfectMoves) * 2) : 0;
       
       const finalScore = Math.round((baseScore + timeBonus + movesBonus) * multiplier);
       
       setScore(finalScore);
+      setGameOver(true);
       
       // Сохранение очков
       if (onGameEnd) {
         onGameEnd(finalScore, 'memory');
       }
     }
-  }, [matched, cards, gameStarted, difficulty, time, moves, score, onGameEnd]);
+  }, [matched, cards, gameStarted, gameOver, difficulty, time, moves, onGameEnd]);
 
   const handleCardClick = (index) => {
     if (
@@ -333,7 +329,7 @@ const MemoryGame = ({ onClose, onGameEnd }) => {
             </div>
             <div className="flex items-center gap-2">
               <Star size={18} className="text-yellow-300" />
-              <span className="font-mono font-bold">{score}</span>
+              <span className="font-mono font-bold">{matched.length / 2}/{cards.length / 2}</span>
             </div>
           </div>
           

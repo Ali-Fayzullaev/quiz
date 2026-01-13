@@ -118,8 +118,9 @@ const QuizRush = ({ onClose, onGameEnd }) => {
     const isCorrect = index === questions[currentQuestion].correct;
     
     if (isCorrect) {
-      const basePoints = 100;
-      const streakBonus = streak * 20;
+      // Сбалансированные очки
+      const basePoints = 5;
+      const streakBonus = Math.min(streak, 5);
       setScore(prev => prev + basePoints + streakBonus);
       setStreak(prev => {
         const newStreak = prev + 1;
@@ -174,8 +175,8 @@ const QuizRush = ({ onClose, onGameEnd }) => {
   const finishGame = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     
-    // Бонусы за время выживания
-    const timeBonus = Math.floor(time / 10) * 5;
+    // Бонусы за время выживания - сбалансированный
+    const timeBonus = Math.min(20, Math.floor(time / 30));
     const finalScore = score + timeBonus;
     setScore(finalScore);
     setGameState('finished');

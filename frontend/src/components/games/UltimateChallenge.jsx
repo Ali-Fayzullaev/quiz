@@ -106,10 +106,11 @@ const UltimateChallenge = ({ onClose, onGameEnd }) => {
     if (timerRef.current) clearInterval(timerRef.current);
     
     const isCorrect = index === questions[currentQuestion].correct;
-    const timeBonus = Math.round(timeLeft * 15);
+    // Сбалансированные очки
+    const timeBonus = Math.floor(timeLeft / 5);
     
     if (isCorrect) {
-      const basePoints = 200;
+      const basePoints = 8;
       setScore(prev => prev + basePoints + timeBonus);
     } else {
       setPerfectRun(false);
@@ -134,9 +135,9 @@ const UltimateChallenge = ({ onClose, onGameEnd }) => {
   };
 
   const finishGame = () => {
-    // Бонусы
-    const perfectBonus = perfectRun ? 1000 : 0;
-    const speedBonus = Math.max(0, 300 - totalTime) * 3;
+    // Бонусы - сбалансированные
+    const perfectBonus = perfectRun ? 50 : 0;
+    const speedBonus = Math.min(30, Math.max(0, Math.floor((300 - totalTime) / 10)));
     const finalScore = score + perfectBonus + speedBonus;
     
     setScore(finalScore);

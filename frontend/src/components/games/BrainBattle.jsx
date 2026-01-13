@@ -188,10 +188,10 @@ const BrainBattle = ({ onClose, onGameEnd }) => {
   };
 
   const finishGame = () => {
-    // Подсчёт очков
-    const baseScore = playerScore * 150;
-    const winBonus = playerScore > botScore ? 500 : 0;
-    const perfectBonus = botScore === 0 ? 300 : 0;
+    // Подсчёт очков - сбалансированный
+    const baseScore = playerScore * 10; // 10 очков за правильный ответ
+    const winBonus = playerScore > botScore ? 30 : 0;
+    const perfectBonus = botScore === 0 ? 20 : 0;
     const finalScore = baseScore + winBonus + perfectBonus;
     
     setPlayerScore(finalScore);

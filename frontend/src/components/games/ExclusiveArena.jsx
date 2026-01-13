@@ -106,18 +106,20 @@ const ExclusiveArena = ({ onClose, onGameEnd }) => {
     const question = questions[currentQuestion];
     const isCorrect = index === question.correct;
     const responseTime = TIME_PER_QUESTION - timeLeft;
-    const timeBonus = Math.round((timeLeft / TIME_PER_QUESTION) * 100);
+    // Сбалансированные очки
+    const timeBonus = Math.floor(timeLeft / 5);
     
     if (isCorrect) {
-      const earnedPoints = Math.round((question.points + timeBonus) * multiplier);
+      // Базовые 8 очков + бонус за время + небольшой мультипликатор
+      const earnedPoints = Math.round((8 + timeBonus) * multiplier);
       setScore(prev => prev + earnedPoints);
       
       const newStreak = streak + 1;
       setStreak(newStreak);
       
-      // Увеличение множителя каждые 3 правильных ответа
-      if (newStreak % 3 === 0 && multiplier < 3) {
-        setMultiplier(prev => Math.min(prev + 0.5, 3));
+      // Увеличение множителя каждые 3 правильных ответа (макс 1.5x)
+      if (newStreak % 3 === 0 && multiplier < 1.5) {
+        setMultiplier(prev => Math.min(prev + 0.25, 1.5));
         setShowMultiplierBonus(true);
         setTimeout(() => setShowMultiplierBonus(false), 1500);
       }
@@ -146,8 +148,9 @@ const ExclusiveArena = ({ onClose, onGameEnd }) => {
 
   const finishGame = () => {
     const correctCount = answers.filter(a => a.correct).length + (selectedAnswer === questions[currentQuestion]?.correct ? 1 : 0);
-    const perfectBonus = correctCount === TOTAL_QUESTIONS ? 2000 : 0;
-    const speedBonus = Math.max(0, (TOTAL_QUESTIONS * TIME_PER_QUESTION - totalTime) * 5);
+    // Сбалансированные бонусы
+    const perfectBonus = correctCount === TOTAL_QUESTIONS ? 50 : 0;
+    const speedBonus = Math.min(30, Math.max(0, Math.floor((TOTAL_QUESTIONS * TIME_PER_QUESTION - totalTime) / 5)));
     const finalScore = score + perfectBonus + speedBonus;
     
     setScore(finalScore);

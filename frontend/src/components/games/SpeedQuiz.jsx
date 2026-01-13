@@ -123,11 +123,12 @@ const SpeedQuiz = ({ onClose, onGameEnd }) => {
     }
     
     const isCorrect = index === questions[currentQuestion].correct;
-    const timeBonus = Math.round(timeLeft * 10);
-    const streakBonus = streak * 5;
+    // Сбалансированные очки
+    const timeBonus = Math.floor(timeLeft / 3);
+    const streakBonus = Math.min(streak, 5);
     
     if (isCorrect) {
-      const questionScore = 100 + timeBonus + streakBonus;
+      const questionScore = 5 + timeBonus + streakBonus;
       setScore(prev => prev + questionScore);
       setStreak(prev => {
         const newStreak = prev + 1;
