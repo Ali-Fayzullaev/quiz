@@ -440,6 +440,9 @@ const Achievements = () => {
           experience: response.data.data.experience,
           level: response.data.data.level
         }));
+        
+        // Уведомляем Sidebar об обновлении данных
+        window.dispatchEvent(new CustomEvent('userStatsUpdated'));
       }
     } catch (err) {
       console.error('Error saving points to server:', err);

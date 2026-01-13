@@ -110,7 +110,7 @@ const Stats = () => {
   };
 
   const getLevel = (points) => {
-    if (points >= 10000) return { level: 9, name: 'Бог квизов', color: 'from-amber-300 via-yellow-400 to-orange-500', icon: '🏆', min: 10000, max: Infinity };
+    if (points >= 10000) return { level: 9, name: 'The best of the best', color: 'from-amber-300 via-yellow-400 to-orange-500', icon: '🏆', min: 10000, max: Infinity };
     if (points >= 7500) return { level: 8, name: 'Титан', color: 'from-indigo-400 to-purple-600', icon: '⚡', min: 7500, max: 9999 };
     if (points >= 5000) return { level: 7, name: 'Легенда', color: 'from-yellow-400 to-amber-500', icon: '👑', min: 5000, max: 7499 };
     if (points >= 3500) return { level: 6, name: 'Гуру', color: 'from-pink-400 to-rose-500', icon: '💎', min: 3500, max: 4999 };

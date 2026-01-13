@@ -191,6 +191,8 @@ const ProfileEditor = () => {
       
       if (response.data.success) {
         setSuccess('Профиль успешно обновлен!');
+        // Уведомляем Sidebar об обновлении данных
+        window.dispatchEvent(new CustomEvent('userStatsUpdated'));
         setTimeout(() => {
           navigate('/profile');
         }, 1500);

@@ -47,7 +47,8 @@ const Profile = () => {
     try {
       // Получаем профиль пользователя
       const profileRes = await userAPI.getProfile();
-      const userData = profileRes.data.data?.user || profileRes.data.data;
+      // Backend возвращает { success: true, data: user }
+      const userData = profileRes.data?.data || profileRes.data?.user || profileRes.data;
       setUser(userData);
 
       // Получаем статистику

@@ -1,6 +1,6 @@
 // frontend/src/components/dashboard/Sidebar.jsx
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -23,13 +23,61 @@ import {
   Star,
   Flame
 } from 'lucide-react';
+import { userAPI } from '../../services/api';
 
 const Sidebar = ({ darkMode, collapsed, onToggle }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
   const [animateXP, setAnimateXP] = useState(false);
   const [userCardExpanded, setUserCardExpanded] = useState(false);
+  const [prevPoints, setPrevPoints] = useState(0);
+
+  // Загружаем данные пользователя с сервера
+  const fetchUserData = useCallback(async () => {
+    try {
+      const response = await userAPI.getProfile();
+      // Backend возвращает { success: true, data: user }
+      const userData = response.data?.data || response.data?.user || response.data;
+      if (userData && userData.username) {
+        setUser(userData);
+        // Обновляем localStorage для других компонентов
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Анимация если очки изменились
+        const newPoints = userData.gameStats?.totalPoints || 0;
+        if (newPoints !== prevPoints && prevPoints > 0) {
+          setAnimateXP(true);
+          setTimeout(() => setAnimateXP(false), 600);
+        }
+        setPrevPoints(newPoints);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }, [prevPoints]);
+
+  // Загружаем данные при монтировании и периодически
+  useEffect(() => {
+    fetchUserData();
+    
+    // Обновляем данные каждые 10 секунд
+    const interval = setInterval(fetchUserData, 10000);
+    
+    // Слушаем кастомное событие для мгновенного обновления
+    const handleUserUpdate = () => fetchUserData();
+    window.addEventListener('userStatsUpdated', handleUserUpdate);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('userStatsUpdated', handleUserUpdate);
+    };
+  }, [fetchUserData]);
+
+  // Обновляем при возвращении на страницу
+  useEffect(() => {
+    fetchUserData();
+  }, [location.pathname, fetchUserData]);
 
   // Получаем статистику пользователя
   const gameStats = user.gameStats || {};
@@ -61,12 +109,6 @@ const Sidebar = ({ darkMode, collapsed, onToggle }) => {
   };
 
   const levelInfo = getLevelInfo(totalPoints);
-
-  useEffect(() => {
-    setAnimateXP(true);
-    const timer = setTimeout(() => setAnimateXP(false), 600);
-    return () => clearTimeout(timer);
-  }, [totalPoints]);
 
   const getAvatarColor = (username) => {
     const colors = [

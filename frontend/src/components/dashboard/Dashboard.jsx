@@ -81,7 +81,8 @@ const Dashboard = () => {
       ]);
 
       if (profileRes.status === 'fulfilled') {
-        setUser(profileRes.value.data.data?.user || profileRes.value.data.data);
+        const userData = profileRes.value.data?.data || profileRes.value.data?.user || profileRes.value.data;
+        setUser(userData);
       }
       if (statsRes.status === 'fulfilled') {
         setStats(statsRes.value.data.data);
