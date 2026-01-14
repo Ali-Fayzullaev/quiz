@@ -74,7 +74,17 @@ const VocabularyList = ({ darkMode }) => {
 
   useEffect(() => {
     fetchVocabularies();
-  }, [activeTab]);
+  }, [activeTab, selectedCategory]);
+
+  // Поиск с debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (activeTab === 'public') {
+        fetchVocabularies();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchVocabularies = async () => {
     setLoading(true);
@@ -83,7 +93,10 @@ const VocabularyList = ({ darkMode }) => {
       if (activeTab === 'my') {
         response = await vocabularyAPI.getMyVocabularies();
       } else if (activeTab === 'public') {
-        response = await vocabularyAPI.getPublicVocabularies({ category: selectedCategory, search: searchQuery });
+        response = await vocabularyAPI.getPublicVocabularies({ 
+          category: selectedCategory !== 'all' ? selectedCategory : undefined, 
+          search: searchQuery || undefined 
+        });
       } else {
         response = await vocabularyAPI.getFavorites();
       }
@@ -124,15 +137,18 @@ const VocabularyList = ({ darkMode }) => {
     }
   };
 
-  const filteredVocabularies = vocabularies.filter(v => {
-    if (searchQuery && !v.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    if (selectedCategory !== 'all' && v.category !== selectedCategory) {
-      return false;
-    }
-    return true;
-  });
+  // Для "my" фильтруем на клиенте, для "public" уже отфильтровано на сервере
+  const filteredVocabularies = activeTab === 'my' 
+    ? vocabularies.filter(v => {
+        if (searchQuery && !v.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+          return false;
+        }
+        if (selectedCategory !== 'all' && v.category !== selectedCategory) {
+          return false;
+        }
+        return true;
+      })
+    : vocabularies;
 
   const VocabularyCard = ({ vocabulary }) => {
     const progress = vocabulary.stats?.totalWords > 0
