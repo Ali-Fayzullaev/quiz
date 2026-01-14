@@ -21,6 +21,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const socialRoutes = require('./routes/socialRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const vocabularyRoutes = require('./routes/vocabularyRoutes');
 
 // Импорт middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -153,6 +154,7 @@ class QuizApp {
         this.app.use('/api/game', gameRoutes);
         this.app.use('/api/social', socialRoutes);
         this.app.use('/api/admin', adminRoutes);
+        this.app.use('/api/vocabulary', vocabularyRoutes);
 
         // Главная страница API
         this.app.get('/api', (req, res) => {

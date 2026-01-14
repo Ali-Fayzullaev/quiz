@@ -109,4 +109,55 @@ export const userAPI = {
   changePassword: (passwordData) => api.put('/users/password', passwordData),
 };
 
+// Vocabulary API
+export const vocabularyAPI = {
+  // Получить мои словари
+  getMyVocabularies: () => api.get('/vocabulary/my'),
+  
+  // Получить публичные словари
+  getPublicVocabularies: (params = {}) => api.get('/vocabulary/public', { params }),
+  
+  // Получить избранные словари
+  getFavorites: () => api.get('/vocabulary/favorites'),
+  
+  // Создать словарь
+  createVocabulary: (data) => api.post('/vocabulary', data),
+  
+  // Получить один словарь
+  getVocabulary: (id) => api.get(`/vocabulary/${id}`),
+  
+  // Обновить словарь
+  updateVocabulary: (id, data) => api.put(`/vocabulary/${id}`, data),
+  
+  // Удалить словарь
+  deleteVocabulary: (id) => api.delete(`/vocabulary/${id}`),
+  
+  // Добавить слово
+  addWord: (vocabularyId, wordData) => api.post(`/vocabulary/${vocabularyId}/words`, wordData),
+  
+  // Добавить несколько слов
+  addWords: (vocabularyId, words) => api.post(`/vocabulary/${vocabularyId}/words/bulk`, { words }),
+  
+  // Обновить слово
+  updateWord: (vocabularyId, wordId, data) => api.put(`/vocabulary/${vocabularyId}/words/${wordId}`, data),
+  
+  // Удалить слово
+  deleteWord: (vocabularyId, wordId) => api.delete(`/vocabulary/${vocabularyId}/words/${wordId}`),
+  
+  // Получить слова для изучения
+  getWordsToLearn: (vocabularyId, params = {}) => api.get(`/vocabulary/${vocabularyId}/learn`, { params }),
+  
+  // Обновить прогресс слова
+  updateWordProgress: (vocabularyId, data) => api.post(`/vocabulary/${vocabularyId}/progress`, data),
+  
+  // Сбросить прогресс
+  resetProgress: (vocabularyId) => api.post(`/vocabulary/${vocabularyId}/reset`),
+  
+  // Копировать публичный словарь
+  forkVocabulary: (id) => api.post(`/vocabulary/${id}/fork`),
+  
+  // Добавить/убрать из избранного
+  toggleFavorite: (id) => api.post(`/vocabulary/${id}/favorite`),
+};
+
 export default api;

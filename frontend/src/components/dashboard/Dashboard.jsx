@@ -232,7 +232,7 @@ const Dashboard = () => {
 
   const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
   const displayName = user?.profile?.firstName || user?.username || savedUser?.username || 'Пользователь';
-  const avatar = user?.profile?.avatar.url;
+  const avatar = user?.profile?.avatar?.url;
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {

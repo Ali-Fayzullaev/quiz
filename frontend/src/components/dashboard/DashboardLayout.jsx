@@ -236,9 +236,9 @@ const DashboardLayout = ({ children }) => {
                 onClick={() => navigate('/profile')}
                 className="flex items-center gap-3"
               >
-                {user.avatar?.url ? (
+                {user?.profile.avatar?.url ? (
                   <img 
-                    src={user.avatar.url} 
+                    src={user.profile.avatar.url} 
                     alt={user.username}
                     className="w-10 h-10 rounded-xl object-cover ring-2 ring-purple-500/50"
                   />

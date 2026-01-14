@@ -17,6 +17,7 @@ import DashboardLayout from './components/dashboard/DashboardLayout';
 import QuickPlay from './components/games/QuickPlay';
 import Stats from './components/games/Stats';
 import Achievements from './components/games/Achievements';
+import { VocabularyList, CreateVocabulary, VocabularyDetail, LearnVocabulary } from './components/vocabulary';
 import './App.css';
 
 // Компонент для защищенных маршрутов с Dashboard Layout
@@ -66,6 +67,13 @@ const AppContent = () => {
         <Route path="/quick-play" element={<ProtectedRoute><QuickPlay /></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
+        
+        {/* Vocabulary Routes */}
+        <Route path="/vocabulary" element={<ProtectedRoute><VocabularyList /></ProtectedRoute>} />
+        <Route path="/vocabulary/create" element={<ProtectedRoute><CreateVocabulary /></ProtectedRoute>} />
+        <Route path="/vocabulary/:id" element={<ProtectedRoute><VocabularyDetail /></ProtectedRoute>} />
+        <Route path="/vocabulary/:id/edit" element={<ProtectedRoute><CreateVocabulary /></ProtectedRoute>} />
+        <Route path="/vocabulary/:id/learn" element={<ProtectedRoute><LearnVocabulary /></ProtectedRoute>} />
       </Routes>
     </div>
   );
