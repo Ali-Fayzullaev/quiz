@@ -71,6 +71,7 @@ export const quizAPI = {
   toggleLike: (id) => api.post(`/quizzes/${id}/toggle-like`),
   getPopular: () => api.get('/quizzes/popular'),
   getStats: (id) => api.get(`/quizzes/${id}/stats`),
+  getMyResults: () => api.get('/users/results'),
 };
 
 // Comment API
