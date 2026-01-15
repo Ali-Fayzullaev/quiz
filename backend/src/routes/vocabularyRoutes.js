@@ -3,6 +3,10 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const vocabularyController = require('../controllers/vocabularyController');
 
+// Готовые наборы слов
+router.get('/word-sets', authenticate, vocabularyController.getWordSets);
+router.get('/word-sets/:category', authenticate, vocabularyController.getWordSetByCategory);
+
 // Публичные роуты (требуют авторизацию для просмотра)
 router.get('/public', authenticate, vocabularyController.getPublicVocabularies);
 

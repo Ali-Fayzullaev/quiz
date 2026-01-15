@@ -120,6 +120,11 @@ export const vocabularyAPI = {
   // Получить избранные словари
   getFavorites: () => api.get('/vocabulary/favorites'),
   
+  // Готовые наборы слов
+  getWordSets: () => api.get('/vocabulary/word-sets'),
+  getWordSetByCategory: (category, sourceLanguage = 'en', targetLanguage = 'ru') => 
+    api.get(`/vocabulary/word-sets/${category}`, { params: { sourceLanguage, targetLanguage } }),
+  
   // Создать словарь
   createVocabulary: (data) => api.post('/vocabulary', data),
   

@@ -1,4 +1,51 @@
 const Vocabulary = require('../models/Vocabulary');
+const { getWordSet, getAvailableCategories } = require('../data/wordSets');
+
+// Получить список доступных наборов слов
+exports.getWordSets = async (req, res) => {
+  try {
+    const categories = getAvailableCategories();
+    
+    res.status(200).json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении наборов слов',
+      error: error.message
+    });
+  }
+};
+
+// Получить набор слов по категории
+exports.getWordSetByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const { sourceLanguage = 'en', targetLanguage = 'ru' } = req.query;
+    
+    const words = getWordSet(category, sourceLanguage, targetLanguage);
+    
+    if (!words) {
+      return res.status(404).json({
+        success: false,
+        message: 'Набор слов не найден для данной категории'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: words
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении набора слов',
+      error: error.message
+    });
+  }
+};
 
 // Получить все словари пользователя
 exports.getMyVocabularies = async (req, res) => {

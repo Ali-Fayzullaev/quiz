@@ -185,6 +185,20 @@ const VocabularyList = () => {
               <Heart className={`w-4 h-4 ${vocabulary.isFavorite ? 'fill-red-500 text-red-500' : 'text-white/80 hover:text-red-400'}`} />
             </button>
             
+            {/* Delete button - only for own vocabularies */}
+            {activeTab === 'my' && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDelete(vocabulary._id);
+                }}
+                className="p-1.5 rounded-lg bg-black/20 hover:bg-red-500/80 transition-colors z-10"
+              >
+                <Trash2 className="w-4 h-4 text-white/80 hover:text-white" />
+              </button>
+            )}
+            
             {/* Public/Private icon */}
             {vocabulary.isPublic ? (
               <Globe className="w-5 h-5 text-white/70" />

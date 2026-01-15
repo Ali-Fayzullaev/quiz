@@ -12,7 +12,9 @@ import {
   Upload,
   Sparkles,
   Check,
-  X
+  X,
+  Wand2,
+  Loader2
 } from 'lucide-react';
 import { vocabularyAPI } from '../../services/api';
 
@@ -84,6 +86,8 @@ const CreateVocabulary = () => {
 
   const [bulkInput, setBulkInput] = useState('');
   const [showBulkInput, setShowBulkInput] = useState(false);
+  const [showWordSets, setShowWordSets] = useState(false);
+  const [loadingWordSet, setLoadingWordSet] = useState(false);
 
   // Загружаем данные словаря при редактировании
   useEffect(() => {
@@ -148,6 +152,12 @@ const CreateVocabulary = () => {
     }
   };
 
+  const clearAllWords = () => {
+    if (window.confirm('Удалить все слова?')) {
+      setWords([{ word: '', translation: '', transcription: '', example: '' }]);
+    }
+  };
+
   const handleBulkImport = () => {
     const lines = bulkInput.trim().split('\n');
     const newWords = lines
@@ -169,6 +179,39 @@ const CreateVocabulary = () => {
       setWords([...words.filter(w => w.word || w.translation), ...newWords]);
       setBulkInput('');
       setShowBulkInput(false);
+    }
+  };
+
+  // Загрузить готовый набор слов
+  const handleLoadWordSet = async () => {
+    setLoadingWordSet(true);
+    try {
+      const response = await vocabularyAPI.getWordSetByCategory(
+        formData.category,
+        formData.sourceLanguage,
+        formData.targetLanguage
+      );
+      
+      const wordSetData = response.data.data;
+      
+      if (wordSetData && wordSetData.length > 0) {
+        const newWords = wordSetData.map(w => ({
+          word: w.word,
+          translation: w.translation,
+          transcription: w.transcription || '',
+          example: w.example || ''
+        }));
+        
+        // Добавляем к существующим (или заменяем пустые)
+        const existingWords = words.filter(w => w.word.trim() || w.translation.trim());
+        setWords(existingWords.length > 0 ? [...existingWords, ...newWords] : newWords);
+        setShowWordSets(false);
+      }
+    } catch (error) {
+      console.error('Error loading word set:', error);
+      alert('Набор слов для этой категории не найден');
+    } finally {
+      setLoadingWordSet(false);
     }
   };
 
@@ -446,18 +489,79 @@ const CreateVocabulary = () => {
         ) : (
           /* Step 2: Add Words */
           <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Добавить слова
               </h2>
-              <button
-                onClick={() => setShowBulkInput(!showBulkInput)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
-              >
-                <Upload className="w-4 h-4" />
-                Импорт списком
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setShowWordSets(!showWordSets);
+                    setShowBulkInput(false);
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${
+                    showWordSets 
+                      ? 'bg-purple-500 text-white' 
+                      : darkMode 
+                        ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400' 
+                        : 'bg-purple-100 hover:bg-purple-200 text-purple-700'
+                  }`}
+                >
+                  <Wand2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Готовые слова</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowBulkInput(!showBulkInput);
+                    setShowWordSets(false);
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                >
+                  <Upload className="w-4 h-4" />
+                  <span className="hidden sm:inline">Импорт</span>
+                </button>
+              </div>
             </div>
+
+            {/* Word Sets Panel */}
+            {showWordSets && (
+              <div className={`mb-6 p-4 rounded-xl ${darkMode ? 'bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/30' : 'bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200'}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className={`p-2 rounded-lg ${darkMode ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      Загрузить готовый набор слов
+                    </h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Добавить 25 популярных слов по категории "{CATEGORIES.find(c => c.code === formData.category)?.name || formData.category}"
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLoadWordSet}
+                  disabled={loadingWordSet}
+                  className={`
+                    w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all
+                    bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90
+                    ${loadingWordSet ? 'opacity-70 cursor-wait' : ''}
+                  `}
+                >
+                  {loadingWordSet ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="w-5 h-5" />
+                      Добавить готовые слова
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
 
             {/* Bulk import */}
             {showBulkInput && (
@@ -581,20 +685,38 @@ const CreateVocabulary = () => {
               ))}
             </div>
 
-            {/* Add word button */}
-            <button
-              onClick={addWord}
-              className={`
-                w-full mt-4 py-3 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 transition-colors
-                ${darkMode 
-                  ? 'border-white/20 text-gray-400 hover:border-purple-500 hover:text-purple-400' 
-                  : 'border-gray-300 text-gray-500 hover:border-purple-500 hover:text-purple-600'
-                }
-              `}
-            >
-              <Plus className="w-5 h-5" />
-              Добавить слово
-            </button>
+            {/* Add word button and Clear all */}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={addWord}
+                className={`
+                  flex-1 py-3 border-2 border-dashed rounded-xl flex items-center justify-center gap-2 transition-colors
+                  ${darkMode 
+                    ? 'border-white/20 text-gray-400 hover:border-purple-500 hover:text-purple-400' 
+                    : 'border-gray-300 text-gray-500 hover:border-purple-500 hover:text-purple-600'
+                  }
+                `}
+              >
+                <Plus className="w-5 h-5" />
+                Добавить слово
+              </button>
+              
+              {words.length > 1 && (
+                <button
+                  onClick={clearAllWords}
+                  className={`
+                    px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors
+                    ${darkMode 
+                      ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' 
+                      : 'bg-red-50 text-red-500 hover:bg-red-100'
+                    }
+                  `}
+                >
+                  <Trash2 className="w-5 h-5" />
+                  <span className="hidden sm:inline">Удалить всё</span>
+                </button>
+              )}
+            </div>
 
             {/* Actions */}
             <div className="flex justify-between mt-8">
