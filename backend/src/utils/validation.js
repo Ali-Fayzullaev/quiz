@@ -5,14 +5,10 @@ const schemas = {
     // ID объектов MongoDB
     mongoId: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'valid mongo id').required(),
     
-    // Пароль
+    // Пароль (минимум 6 символов)
     password: Joi.string()
         .min(6)
-        .max(50)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)'))
-        .messages({
-            'string.pattern.base': 'Пароль должен содержать минимум одну строчную букву, одну заглавную букву и одну цифру'
-        }),
+        .max(50),
     
     // Email
     email: Joi.string()

@@ -76,24 +76,7 @@ const Friends = () => {
   const [showOnlyFriends, setShowOnlyFriends] = useState(false);
   const [actionLoading, setActionLoading] = useState({});
 
-  // Загрузка данных
-  useEffect(() => {
-    fetchData();
-  }, [activeTab, sortBy, showOnlyFriends]);
-
-  // Поиск с debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery.length >= 2) {
-        searchUsers();
-      } else {
-        setSearchResults([]);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === 'leaderboard') {
@@ -113,7 +96,24 @@ const Friends = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, sortBy, showOnlyFriends]);
+
+  // Загрузка данных
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Поиск с debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.length >= 2) {
+        searchUsers();
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const searchUsers = async () => {
     setSearchLoading(true);
@@ -152,6 +152,12 @@ const Friends = () => {
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
       await friendsAPI.acceptFriendRequest(userId);
+      // Убираем заявку из списка сразу
+      setFriendRequests(prev => ({
+        ...prev,
+        incoming: prev.incoming.filter(r => r._id !== userId)
+      }));
+      // Перезагружаем все данные
       fetchData();
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -164,6 +170,12 @@ const Friends = () => {
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
       await friendsAPI.rejectFriendRequest(userId);
+      // Убираем заявку из списка сразу
+      setFriendRequests(prev => ({
+        ...prev,
+        incoming: prev.incoming.filter(r => r._id !== userId)
+      }));
+      // Перезагружаем все данные
       fetchData();
     } catch (error) {
       console.error('Error rejecting request:', error);
@@ -176,6 +188,12 @@ const Friends = () => {
     setActionLoading(prev => ({ ...prev, [userId]: true }));
     try {
       await friendsAPI.cancelFriendRequest(userId);
+      // Убираем заявку из списка сразу
+      setFriendRequests(prev => ({
+        ...prev,
+        outgoing: prev.outgoing.filter(r => r._id !== userId)
+      }));
+      // Перезагружаем все данные
       fetchData();
     } catch (error) {
       console.error('Error canceling request:', error);

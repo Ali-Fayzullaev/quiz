@@ -425,6 +425,7 @@ const DashboardLayout = ({ children }) => {
                     max-w-[400px]
                     right-0 sm:right-0
                     rounded-2xl overflow-hidden shadow-2xl
+                    z-50
                     ${darkMode 
                       ? 'bg-gray-900 border border-gray-700/50' 
                       : 'bg-white border border-gray-200'

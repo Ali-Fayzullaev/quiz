@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, User, Calendar, Globe, Loader2, Eye, EyeOff, Sparkles, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, Loader2, Eye, EyeOff, Sparkles, Check, ArrowRight } from 'lucide-react';
 import { authAPI } from '../../services/api';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
     firstName: '',
     lastName: '',
-    dateOfBirth: '',
-    country: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,8 +31,20 @@ const Register = () => {
     setError('');
 
     try {
-      await authAPI.register(formData);
+      const response = await authAPI.register(formData);
+      
+      // Сохраняем токен и данные пользователя
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+      
       setSuccess(true);
+      
+      // Перенаправляем на dashboard через 2 секунды
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Ошибка регистрации');
     } finally {
@@ -53,17 +64,14 @@ const Register = () => {
           <div className="w-16 h-16 rounded-2xl bg-green-500/20 flex items-center justify-center mx-auto mb-4">
             <Check className="text-green-400" size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Регистрация завершена!</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Добро пожаловать!</h2>
           <p className="text-gray-400 mb-6">
-            Мы отправили вам код подтверждения на email. Пожалуйста, проверьте почту и подтвердите аккаунт.
+            Ваш аккаунт успешно создан. Сейчас вы будете перенаправлены в личный кабинет.
           </p>
-          <Link 
-            to="/verify-email" 
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 
-                     text-white font-medium rounded-xl hover:opacity-90 transition-opacity"
-          >
-            Ввести код подтверждения
-          </Link>
+          <div className="flex items-center justify-center gap-2 text-purple-400">
+            <Loader2 className="animate-spin" size={18} />
+            <span>Перенаправление...</span>
+          </div>
         </div>
       </div>
     );
@@ -103,7 +111,7 @@ const Register = () => {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                 <User size={16} />
-                Имя пользователя *
+                Имя пользователя <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -121,7 +129,7 @@ const Register = () => {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                 <Mail size={16} />
-                Email *
+                Email <span className="text-red-400">*</span>
               </label>
               <input
                 type="email"
@@ -139,7 +147,7 @@ const Register = () => {
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                 <Lock size={16} />
-                Пароль *
+                Пароль <span className="text-red-400">*</span>
               </label>
               <div className="relative">
                 <input
@@ -149,6 +157,7 @@ const Register = () => {
                   onChange={handleChange}
                   placeholder="Минимум 6 символов"
                   required
+                  minLength={6}
                   className="w-full px-4 py-3 pr-12 bg-white/5 border border-white/10 rounded-xl 
                            text-white placeholder:text-gray-500 outline-none
                            focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
@@ -161,12 +170,26 @@ const Register = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {formData.password && (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className={`h-1 flex-1 rounded-full ${
+                    formData.password.length < 6 ? 'bg-red-400' :
+                    formData.password.length < 10 ? 'bg-yellow-400' : 'bg-green-400'
+                  }`} />
+                  <span className={`text-xs ${
+                    formData.password.length < 6 ? 'text-red-400' :
+                    formData.password.length < 10 ? 'text-yellow-400' : 'text-green-400'
+                  }`}>
+                    {formData.password.length < 6 ? 'Слабый' :
+                     formData.password.length < 10 ? 'Средний' : 'Надёжный'}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <User size={16} />
                   Имя
                 </label>
                 <input
@@ -174,7 +197,7 @@ const Register = () => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Имя"
+                  placeholder="Ваше имя"
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
                            text-white placeholder:text-gray-500 outline-none
                            focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
@@ -183,7 +206,6 @@ const Register = () => {
 
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <User size={16} />
                   Фамилия
                 </label>
                 <input
@@ -191,42 +213,7 @@ const Register = () => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Фамилия"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                           text-white placeholder:text-gray-500 outline-none
-                           focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <Calendar size={16} />
-                  Дата рождения
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
-                           text-white outline-none
-                           focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
-                  <Globe size={16} />
-                  Страна
-                </label>
-                <input
-                  type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  placeholder="Страна"
+                  placeholder="Ваша фамилия"
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl 
                            text-white placeholder:text-gray-500 outline-none
                            focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
@@ -237,7 +224,7 @@ const Register = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 
+              className="w-full flex items-center justify-center gap-2 py-3 mt-2
                        bg-gradient-to-r from-purple-500 to-pink-500 
                        hover:opacity-90 text-white font-medium rounded-xl 
                        transition-opacity disabled:opacity-50"
@@ -245,10 +232,13 @@ const Register = () => {
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" size={18} />
-                  Регистрируемся...
+                  Создаём аккаунт...
                 </>
               ) : (
-                'Зарегистрироваться'
+                <>
+                  Зарегистрироваться
+                  <ArrowRight size={18} />
+                </>
               )}
             </button>
           </form>
@@ -264,7 +254,7 @@ const Register = () => {
         </div>
 
         <p className="mt-6 text-center text-gray-500 text-sm">
-          © 2024 QuizMaster. Все права защищены.
+          © 2026 QuizMaster. Все права защищены.
         </p>
       </div>
     </div>

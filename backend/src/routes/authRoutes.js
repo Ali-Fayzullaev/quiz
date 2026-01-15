@@ -18,10 +18,10 @@ router.get('/test-cors', (req, res) => {
 });
 
 // @route   POST /api/auth/register
-// @desc    Регистрация нового пользователя (с отправкой кода верификации)
+// @desc    Регистрация нового пользователя
 // @access  Public
 router.post('/register', validate(auth.register), asyncHandler(async (req, res) => {
-    const { username, email, password, firstName, lastName, dateOfBirth, country } = req.body;
+    const { username, email, password, firstName, lastName } = req.body;
 
     // Проверяем, существует ли пользователь
     const existingUser = await User.findOne({
@@ -39,65 +39,47 @@ router.post('/register', validate(auth.register), asyncHandler(async (req, res) 
         );
     }
 
-    // Генерируем код верификации
-    const verificationCode = generateVerificationCode();
-    const verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 минут
-
-    // В режиме разработки автоматически активируем пользователя
-    const isAutoVerified = process.env.NODE_ENV === 'development';
-
-    // Создаем пользователя (неактивированного)
+    // Создаем пользователя (сразу активного)
     const user = new User({
         username,
         email,
         password, // Будет захеширован в middleware модели
         profile: {
             firstName,
-            lastName,
-            dateOfBirth,
-            country
+            lastName
         },
-        isVerified: isAutoVerified,
-        status: isAutoVerified ? 'active' : 'inactive', // В dev режиме сразу активен
-        verificationCode: isAutoVerified ? undefined : verificationCode,
-        verificationCodeExpires: isAutoVerified ? undefined : verificationCodeExpires
+        isVerified: true,
+        status: 'active'
     });
 
     await user.save();
 
-    // В режиме разработки не отправляем email
-    if (!isAutoVerified) {
-        // Отправляем код верификации на email
-        try {
-            await sendVerificationCode(email, verificationCode, firstName || username);
-            logger.info(`Verification code sent to: ${email} for user: ${username}`);
-        } catch (error) {
-            logger.error('Failed to send verification email:', error);
-            // В случае ошибки отправки email, пользователь уже создан, 
-            // но будем считать регистрацию частично успешной
-        }
-    }
+    // Создаем токены для входа
+    const accessToken = generateToken({ id: user._id, email: user.email });
+    const refreshToken = generateRefreshToken({ id: user._id });
 
-    logger.info(`New user registered${isAutoVerified ? ' (auto-verified for dev)' : ' (verification pending)'}: ${user.username} (${user.email})`);
+    // Сохраняем refresh token
+    user.refreshTokens.push({ token: refreshToken });
+    await user.save();
 
-    const response = createResponse.success({
+    logger.info(`New user registered: ${user.username} (${user.email})`);
+
+    res.status(201).json({
+        success: true,
+        message: 'Регистрация успешна!',
+        token: accessToken,
+        refreshToken,
         user: {
             id: user._id,
             username: user.username,
             email: user.email,
             profile: user.profile,
+            gameStats: user.gameStats,
             isVerified: user.isVerified,
             status: user.status,
             createdAt: user.createdAt
-        },
-        message: isAutoVerified 
-            ? 'Регистрация успешна. Аккаунт активирован для разработки.'
-            : 'Регистрация успешна. Код верификации отправлен на ваш email.'
-    }, isAutoVerified 
-        ? 'Регистрация успешна. Аккаунт готов к использованию.'
-        : 'Регистрация успешна. Подтвердите email для активации аккаунта.');
-
-    res.status(201).json(response);
+        }
+    });
 }));
 
 // @route   POST /api/auth/verify-code
