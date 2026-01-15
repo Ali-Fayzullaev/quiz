@@ -29,6 +29,7 @@ import {
   Award,
   X,
   MapPin,
+  Users,
 } from "lucide-react";
 
 // Иконки для уровней (lucide-react вместо emoji)
@@ -149,6 +150,7 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
   const mainNavItems = [
     { icon: LayoutDashboard, label: "Обзор", path: "/dashboard" },
     { icon: MapPin, label: "Дорожная карта", path: "/roadmap", badge: "Новое" },
+    { icon: Users, label: "Сообщество", path: "/friends", badge: "Новое" },
     { icon: BookOpen, label: "Мои квизы", path: "/my-quizzes" },
     { icon: Book, label: "Словарь", path: "/vocabulary" },
     { icon: Heart, label: "Избранное", path: "/liked" },

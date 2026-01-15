@@ -19,6 +19,7 @@ import Stats from './components/games/Stats';
 import Achievements from './components/games/Achievements';
 import { VocabularyList, CreateVocabulary, VocabularyDetail, LearnVocabulary } from './components/vocabulary';
 import { Roadmap } from './components/roadmap';
+import Friends from './components/friends/Friends';
 import './App.css';
 
 // Компонент для защищенных маршрутов с Dashboard Layout
@@ -78,6 +79,9 @@ const AppContent = () => {
         
         {/* Roadmap */}
         <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
+        
+        {/* Friends & Leaderboard */}
+        <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
       </Routes>
     </div>
   );

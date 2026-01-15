@@ -166,4 +166,28 @@ export const vocabularyAPI = {
   toggleFavorite: (id) => api.post(`/vocabulary/${id}/favorite`),
 };
 
+// Friends API
+export const friendsAPI = {
+  // Лидерборд
+  getLeaderboard: (params = {}) => api.get('/friends/leaderboard', { params }),
+  getFriendsLeaderboard: () => api.get('/friends/leaderboard/friends'),
+  
+  // Поиск пользователей
+  searchUsers: (q) => api.get('/friends/search', { params: { q } }),
+  
+  // Друзья
+  getFriends: () => api.get('/friends'),
+  getFriendRequests: () => api.get('/friends/requests'),
+  
+  // Профиль пользователя
+  getUserProfile: (userId) => api.get(`/friends/user/${userId}`),
+  
+  // Действия с друзьями
+  sendFriendRequest: (userId) => api.post(`/friends/request/${userId}`),
+  acceptFriendRequest: (userId) => api.post(`/friends/accept/${userId}`),
+  rejectFriendRequest: (userId) => api.post(`/friends/reject/${userId}`),
+  removeFriend: (userId) => api.delete(`/friends/remove/${userId}`),
+  cancelFriendRequest: (userId) => api.delete(`/friends/cancel/${userId}`),
+};
+
 export default api;
