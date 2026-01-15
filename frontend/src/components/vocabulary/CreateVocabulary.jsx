@@ -1,6 +1,7 @@
 // frontend/src/components/vocabulary/CreateVocabulary.jsx
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import {
   Book,
   ArrowLeft,
@@ -57,9 +58,14 @@ const COLORS = [
   { code: 'indigo', name: 'Индиго', class: 'from-indigo-500 to-purple-500' }
 ];
 
-const CreateVocabulary = ({ darkMode }) => {
+const CreateVocabulary = () => {
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
+  const { id } = useParams(); // Получаем id для редактирования
+  const isEditMode = Boolean(id);
+  
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEditMode);
   const [step, setStep] = useState(1); // 1 - основное, 2 - слова
   
   const [formData, setFormData] = useState({
@@ -78,6 +84,45 @@ const CreateVocabulary = ({ darkMode }) => {
 
   const [bulkInput, setBulkInput] = useState('');
   const [showBulkInput, setShowBulkInput] = useState(false);
+
+  // Загружаем данные словаря при редактировании
+  useEffect(() => {
+    if (isEditMode && id) {
+      const fetchVocabulary = async () => {
+        try {
+          const response = await vocabularyAPI.getVocabulary(id);
+          const vocab = response.data.data;
+          
+          setFormData({
+            title: vocab.title || '',
+            description: vocab.description || '',
+            sourceLanguage: vocab.sourceLanguage || 'en',
+            targetLanguage: vocab.targetLanguage || 'ru',
+            category: vocab.category || 'general',
+            color: vocab.color || 'purple',
+            isPublic: vocab.isPublic || false
+          });
+          
+          if (vocab.words && vocab.words.length > 0) {
+            setWords(vocab.words.map(w => ({
+              word: w.word || '',
+              translation: w.translation || '',
+              transcription: w.transcription || '',
+              example: w.example || ''
+            })));
+          }
+        } catch (error) {
+          console.error('Error fetching vocabulary:', error);
+          alert('Ошибка при загрузке словаря');
+          navigate('/vocabulary');
+        } finally {
+          setInitialLoading(false);
+        }
+      };
+      
+      fetchVocabulary();
+    }
+  }, [id, isEditMode, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -132,15 +177,22 @@ const CreateVocabulary = ({ darkMode }) => {
     try {
       const validWords = words.filter(w => w.word.trim() && w.translation.trim());
       
-      const response = await vocabularyAPI.createVocabulary({
+      const data = {
         ...formData,
         words: validWords
-      });
+      };
 
-      navigate(`/vocabulary/${response.data.data._id}`);
+      let response;
+      if (isEditMode) {
+        response = await vocabularyAPI.updateVocabulary(id, data);
+        navigate(`/vocabulary/${id}`);
+      } else {
+        response = await vocabularyAPI.createVocabulary(data);
+        navigate(`/vocabulary/${response.data.data._id}`);
+      }
     } catch (error) {
-      console.error('Error creating vocabulary:', error);
-      alert('Ошибка при создании словаря');
+      console.error('Error saving vocabulary:', error);
+      alert(isEditMode ? 'Ошибка при сохранении словаря' : 'Ошибка при создании словаря');
     } finally {
       setLoading(false);
     }
@@ -148,20 +200,29 @@ const CreateVocabulary = ({ darkMode }) => {
 
   const selectedColor = COLORS.find(c => c.code === formData.color);
 
+  // Показываем загрузку при редактировании
+  if (initialLoading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className={`min-h-screen p-6 ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen p-4 sm:p-6 ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
-            onClick={() => navigate('/vocabulary')}
-            className={`p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+            onClick={() => navigate(isEditMode ? `/vocabulary/${id}` : '/vocabulary')}
+            className={`p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
           >
             <ArrowLeft className={`w-6 h-6 ${darkMode ? 'text-white' : 'text-gray-900'}`} />
           </button>
           <div>
             <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              Создать словарь
+              {isEditMode ? 'Редактировать словарь' : 'Создать словарь'}
             </h1>
             <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               Шаг {step} из 2
@@ -171,7 +232,7 @@ const CreateVocabulary = ({ darkMode }) => {
 
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
-          <div className={`flex-1 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-200'}`}>
+          <div className={`flex-1 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
             <div 
               className={`h-full bg-gradient-to-r ${selectedColor?.class} transition-all duration-500`}
               style={{ width: step === 1 ? '50%' : '100%' }}
@@ -181,7 +242,7 @@ const CreateVocabulary = ({ darkMode }) => {
 
         {step === 1 ? (
           /* Step 1: Basic Info */
-          <div className={`rounded-2xl p-6 ${darkMode ? 'bg-white/5' : 'bg-white border border-gray-200'}`}>
+          <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
             <h2 className={`text-xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Основная информация
             </h2>
@@ -201,7 +262,7 @@ const CreateVocabulary = ({ darkMode }) => {
                   className={`
                     w-full px-4 py-3 rounded-xl border transition-all
                     ${darkMode 
-                      ? 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-purple-500' 
+                      ? 'bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500' 
                       : 'bg-gray-50 border-gray-200 focus:border-purple-500'
                     }
                   `}
@@ -223,7 +284,7 @@ const CreateVocabulary = ({ darkMode }) => {
                   className={`
                     w-full px-4 py-3 rounded-xl border transition-all resize-none
                     ${darkMode 
-                      ? 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-purple-500' 
+                      ? 'bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500' 
                       : 'bg-gray-50 border-gray-200 focus:border-purple-500'
                     }
                   `}
@@ -243,7 +304,7 @@ const CreateVocabulary = ({ darkMode }) => {
                     className={`
                       w-full px-4 py-3 rounded-xl border transition-all cursor-pointer
                       ${darkMode 
-                        ? 'bg-white/5 border-white/10 text-white focus:border-purple-500' 
+                        ? 'bg-gray-900 border-gray-700 text-white focus:border-purple-500' 
                         : 'bg-gray-50 border-gray-200 focus:border-purple-500'
                       }
                     `}
@@ -266,7 +327,7 @@ const CreateVocabulary = ({ darkMode }) => {
                     className={`
                       w-full px-4 py-3 rounded-xl border transition-all cursor-pointer
                       ${darkMode 
-                        ? 'bg-white/5 border-white/10 text-white focus:border-purple-500' 
+                        ? 'bg-gray-900 border-gray-700 text-white focus:border-purple-500' 
                         : 'bg-gray-50 border-gray-200 focus:border-purple-500'
                       }
                     `}
@@ -296,7 +357,7 @@ const CreateVocabulary = ({ darkMode }) => {
                         ${formData.category === cat.code
                           ? `bg-gradient-to-r ${selectedColor?.class} text-white`
                           : darkMode
-                            ? 'bg-white/5 hover:bg-white/10 text-gray-300'
+                            ? 'bg-gray-900 hover:bg-gray-700 text-gray-300'
                             : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                         }
                       `}
@@ -333,7 +394,7 @@ const CreateVocabulary = ({ darkMode }) => {
               </div>
 
               {/* Public toggle */}
-              <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+              <div className={`flex items-center justify-between p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
                 <div className="flex items-center gap-3">
                   {formData.isPublic ? (
                     <Globe className={`w-5 h-5 ${darkMode ? 'text-green-400' : 'text-green-500'}`} />
@@ -354,7 +415,7 @@ const CreateVocabulary = ({ darkMode }) => {
                   onClick={() => setFormData(prev => ({ ...prev, isPublic: !prev.isPublic }))}
                   className={`
                     relative w-12 h-6 rounded-full transition-colors
-                    ${formData.isPublic ? 'bg-green-500' : darkMode ? 'bg-white/20' : 'bg-gray-300'}
+                    ${formData.isPublic ? 'bg-green-500' : darkMode ? 'bg-gray-600' : 'bg-gray-300'}
                   `}
                 >
                   <div className={`
@@ -384,14 +445,14 @@ const CreateVocabulary = ({ darkMode }) => {
           </div>
         ) : (
           /* Step 2: Add Words */
-          <div className={`rounded-2xl p-6 ${darkMode ? 'bg-white/5' : 'bg-white border border-gray-200'}`}>
+          <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Добавить слова
               </h2>
               <button
                 onClick={() => setShowBulkInput(!showBulkInput)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${darkMode ? 'bg-white/10 hover:bg-white/15 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
               >
                 <Upload className="w-4 h-4" />
                 Импорт списком
@@ -400,7 +461,7 @@ const CreateVocabulary = ({ darkMode }) => {
 
             {/* Bulk import */}
             {showBulkInput && (
-              <div className={`mb-6 p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+              <div className={`mb-6 p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
                 <p className={`text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   Введите слова в формате: слово - перевод (каждое с новой строки)
                 </p>
@@ -412,7 +473,7 @@ const CreateVocabulary = ({ darkMode }) => {
                   className={`
                     w-full px-4 py-3 rounded-xl border transition-all resize-none mb-3
                     ${darkMode 
-                      ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                      ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                       : 'bg-white border-gray-200'
                     }
                   `}
@@ -426,7 +487,7 @@ const CreateVocabulary = ({ darkMode }) => {
                   </button>
                   <button
                     onClick={() => setShowBulkInput(false)}
-                    className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'bg-white/10 hover:bg-white/15 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+                    className={`px-4 py-2 rounded-lg transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
                   >
                     Отмена
                   </button>
@@ -439,7 +500,7 @@ const CreateVocabulary = ({ darkMode }) => {
               {words.map((word, index) => (
                 <div
                   key={index}
-                  className={`p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}
+                  className={`p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}
                 >
                   <div className="flex items-start gap-4">
                     <span className={`
@@ -457,7 +518,7 @@ const CreateVocabulary = ({ darkMode }) => {
                         className={`
                           px-4 py-2 rounded-lg border transition-all
                           ${darkMode 
-                            ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                             : 'bg-white border-gray-200'
                           }
                         `}
@@ -470,7 +531,7 @@ const CreateVocabulary = ({ darkMode }) => {
                         className={`
                           px-4 py-2 rounded-lg border transition-all
                           ${darkMode 
-                            ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                             : 'bg-white border-gray-200'
                           }
                         `}
@@ -483,7 +544,7 @@ const CreateVocabulary = ({ darkMode }) => {
                         className={`
                           px-4 py-2 rounded-lg border transition-all
                           ${darkMode 
-                            ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                             : 'bg-white border-gray-200'
                           }
                         `}
@@ -496,7 +557,7 @@ const CreateVocabulary = ({ darkMode }) => {
                         className={`
                           px-4 py-2 rounded-lg border transition-all
                           ${darkMode 
-                            ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                             : 'bg-white border-gray-200'
                           }
                         `}
@@ -539,7 +600,7 @@ const CreateVocabulary = ({ darkMode }) => {
             <div className="flex justify-between mt-8">
               <button
                 onClick={() => setStep(1)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${darkMode ? 'bg-white/10 hover:bg-white/15 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-colors ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
               >
                 <ArrowLeft className="w-5 h-5" />
                 Назад
@@ -558,12 +619,12 @@ const CreateVocabulary = ({ darkMode }) => {
                 {loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Создание...
+                    {isEditMode ? 'Сохранение...' : 'Создание...'}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5" />
-                    Создать словарь
+                    {isEditMode ? 'Сохранить изменения' : 'Создать словарь'}
                   </>
                 )}
               </button>

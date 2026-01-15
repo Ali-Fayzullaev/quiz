@@ -1,6 +1,7 @@
 // frontend/src/components/vocabulary/LearnVocabulary.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import {
   ArrowLeft,
   Volume2,
@@ -33,7 +34,8 @@ const COLORS = {
   indigo: 'from-indigo-500 to-purple-500'
 };
 
-const LearnVocabulary = ({ darkMode }) => {
+const LearnVocabulary = () => {
+  const { darkMode } = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -210,7 +212,7 @@ const LearnVocabulary = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
       </div>
     );
@@ -218,8 +220,8 @@ const LearnVocabulary = ({ darkMode }) => {
 
   if (!vocabulary || words.length === 0) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
-        <div className="text-center">
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className="text-center px-4">
           <BookOpen className={`w-16 h-16 mx-auto mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
           <h2 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             Нет слов для изучения
@@ -249,8 +251,8 @@ const LearnVocabulary = ({ darkMode }) => {
       : 0;
 
     return (
-      <div className={`min-h-screen flex items-center justify-center p-6 ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
-        <div className={`max-w-md w-full rounded-3xl p-8 text-center ${darkMode ? 'bg-white/5' : 'bg-white shadow-xl'}`}>
+      <div className={`min-h-screen flex items-center justify-center p-4 sm:p-6 ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
+        <div className={`max-w-md w-full rounded-3xl p-6 sm:p-8 text-center ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-xl'}`}>
           <div className={`w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center`}>
             <Trophy className="w-12 h-12 text-white" />
           </div>
@@ -262,25 +264,25 @@ const LearnVocabulary = ({ darkMode }) => {
             Отличная работа! Продолжайте в том же духе.
           </p>
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className={`p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+            <div className={`p-3 sm:p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
               <Check className="w-6 h-6 mx-auto mb-2 text-green-500" />
-              <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{stats.correct}</p>
+              <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{stats.correct}</p>
               <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Правильно</p>
             </div>
-            <div className={`p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+            <div className={`p-3 sm:p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
               <X className="w-6 h-6 mx-auto mb-2 text-red-500" />
-              <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{stats.incorrect}</p>
+              <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{stats.incorrect}</p>
               <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Ошибки</p>
             </div>
-            <div className={`p-4 rounded-xl ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+            <div className={`p-3 sm:p-4 rounded-xl ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
               <Target className="w-6 h-6 mx-auto mb-2 text-purple-500" />
-              <p className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{accuracy}%</p>
+              <p className={`text-xl sm:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{accuracy}%</p>
               <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Точность</p>
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={restartSession}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium bg-gradient-to-r ${colorClass} text-white`}
@@ -290,7 +292,7 @@ const LearnVocabulary = ({ darkMode }) => {
             </button>
             <button
               onClick={() => navigate(`/vocabulary/${id}`)}
-              className={`flex-1 py-3 rounded-xl font-medium ${darkMode ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'}`}
+              className={`flex-1 py-3 rounded-xl font-medium ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'}`}
             >
               Завершить
             </button>
@@ -301,10 +303,10 @@ const LearnVocabulary = ({ darkMode }) => {
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`sticky top-0 z-10 backdrop-blur-xl ${darkMode ? 'bg-[#0a0a0f]/80' : 'bg-white/80'} border-b ${darkMode ? 'border-white/5' : 'border-gray-200'}`}>
-        <div className="max-w-4xl mx-auto px-6 py-4">
+      <div className={`sticky top-0 z-10 backdrop-blur-xl ${darkMode ? 'bg-gray-950/80 border-gray-800' : 'bg-white/80 border-gray-200'} border-b`}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => navigate(`/vocabulary/${id}`)}
@@ -334,7 +336,7 @@ const LearnVocabulary = ({ darkMode }) => {
               </div>
 
               {/* Mode Selector */}
-              <div className={`flex rounded-xl overflow-hidden ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+              <div className={`flex rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
                 {[
                   { id: 'flashcard', icon: BookOpen, label: 'Карточки' },
                   { id: 'quiz', icon: Lightbulb, label: 'Тест' },
@@ -358,7 +360,7 @@ const LearnVocabulary = ({ darkMode }) => {
             <span className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
               {currentIndex + 1} / {words.length}
             </span>
-            <div className={`flex-1 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-200'}`}>
+            <div className={`flex-1 h-2 rounded-full overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
               <div 
                 className={`h-full bg-gradient-to-r ${colorClass} transition-all duration-300`}
                 style={{ width: `${progress}%` }}
@@ -369,7 +371,7 @@ const LearnVocabulary = ({ darkMode }) => {
       </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-6 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Flashcard Mode */}
         {mode === 'flashcard' && (
           <div className="perspective-1000">
@@ -384,8 +386,8 @@ const LearnVocabulary = ({ darkMode }) => {
               {/* Front */}
               <div 
                 className={`
-                  absolute inset-0 rounded-3xl p-8 flex flex-col items-center justify-center backface-hidden
-                  ${darkMode ? 'bg-white/5' : 'bg-white shadow-xl'}
+                  absolute inset-0 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center backface-hidden
+                  ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-xl'}
                 `}
                 style={{ backfaceVisibility: 'hidden' }}
               >
@@ -394,12 +396,12 @@ const LearnVocabulary = ({ darkMode }) => {
                     e.stopPropagation();
                     speakWord(currentWord.word, vocabulary.sourceLanguage);
                   }}
-                  className={`absolute top-4 right-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                  className={`absolute top-4 right-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                 >
                   <Volume2 className={`w-6 h-6 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                 </button>
                 
-                <span className={`text-4xl md:text-5xl font-bold text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                <span className={`text-3xl sm:text-4xl md:text-5xl font-bold text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {currentWord.word}
                 </span>
                 {currentWord.transcription && (
@@ -415,12 +417,12 @@ const LearnVocabulary = ({ darkMode }) => {
               {/* Back */}
               <div 
                 className={`
-                  absolute inset-0 rounded-3xl p-8 flex flex-col items-center justify-center rotate-y-180 backface-hidden
+                  absolute inset-0 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center rotate-y-180 backface-hidden
                   bg-gradient-to-br ${colorClass}
                 `}
                 style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
               >
-                <span className="text-4xl md:text-5xl font-bold text-center text-white">
+                <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-white">
                   {currentWord.translation}
                 </span>
                 {currentWord.example && (
@@ -432,7 +434,7 @@ const LearnVocabulary = ({ darkMode }) => {
             </div>
 
             {/* Answer Buttons */}
-            <div className="flex gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
               <button
                 onClick={() => handleAnswer(false)}
                 className={`
@@ -460,10 +462,10 @@ const LearnVocabulary = ({ darkMode }) => {
         {/* Quiz Mode */}
         {mode === 'quiz' && (
           <div>
-            <div className={`rounded-3xl p-8 text-center mb-8 ${darkMode ? 'bg-white/5' : 'bg-white shadow-xl'}`}>
+            <div className={`rounded-3xl p-6 sm:p-8 text-center mb-6 sm:mb-8 relative ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-xl'}`}>
               <button
                 onClick={() => speakWord(currentWord.word, vocabulary.sourceLanguage)}
-                className={`absolute top-4 right-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                className={`absolute top-4 right-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
               >
                 <Volume2 className={`w-6 h-6 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
               </button>
@@ -471,7 +473,7 @@ const LearnVocabulary = ({ darkMode }) => {
               <p className={`text-sm mb-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                 Выберите правильный перевод:
               </p>
-              <span className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span className={`text-3xl sm:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {currentWord.word}
               </span>
               {currentWord.transcription && (
@@ -494,14 +496,14 @@ const LearnVocabulary = ({ darkMode }) => {
                         ? 'bg-green-500 text-white'
                         : feedback.correct === false && option === feedback.message?.split(': ')[1]
                           ? 'bg-red-500 text-white'
-                          : darkMode ? 'bg-white/5 text-gray-500' : 'bg-gray-100 text-gray-400'
+                          : darkMode ? 'bg-gray-800 text-gray-500' : 'bg-gray-100 text-gray-400'
                       : darkMode
-                        ? 'bg-white/5 text-white hover:bg-white/10'
+                        ? 'bg-gray-800 text-white hover:bg-gray-700 border border-gray-700'
                         : 'bg-white text-gray-900 hover:bg-gray-50 shadow'
                     }
                   `}
                 >
-                  <span className={`inline-block w-8 h-8 rounded-lg mr-3 text-center leading-8 ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}>
+                  <span className={`inline-block w-8 h-8 rounded-lg mr-3 text-center leading-8 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                     {index + 1}
                   </span>
                   {option}
@@ -514,15 +516,15 @@ const LearnVocabulary = ({ darkMode }) => {
         {/* Typing Mode */}
         {mode === 'typing' && (
           <div>
-            <div className={`rounded-3xl p-8 text-center mb-8 ${darkMode ? 'bg-white/5' : 'bg-white shadow-xl'}`}>
+            <div className={`rounded-3xl p-6 sm:p-8 text-center mb-6 sm:mb-8 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-xl'}`}>
               <button
                 onClick={() => speakWord(currentWord.word, vocabulary.sourceLanguage)}
-                className={`mb-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                className={`mb-4 p-2 rounded-xl transition-colors ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
               >
                 <Volume2 className={`w-6 h-6 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
               </button>
               
-              <span className={`block text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <span className={`block text-3xl sm:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {currentWord.word}
               </span>
               {currentWord.transcription && (
@@ -542,13 +544,13 @@ const LearnVocabulary = ({ darkMode }) => {
                 disabled={!!feedback}
                 autoFocus
                 className={`
-                  w-full px-6 py-4 text-xl rounded-2xl border-2 transition-all text-center
+                  w-full px-4 sm:px-6 py-3 sm:py-4 text-lg sm:text-xl rounded-2xl border-2 transition-all text-center
                   ${feedback
                     ? feedback.correct
                       ? 'border-green-500 bg-green-500/10'
                       : 'border-red-500 bg-red-500/10'
                     : darkMode
-                      ? 'bg-white/5 border-white/10 text-white focus:border-purple-500'
+                      ? 'bg-gray-800 border-gray-700 text-white focus:border-purple-500'
                       : 'bg-white border-gray-200 focus:border-purple-500'
                   }
                 `}

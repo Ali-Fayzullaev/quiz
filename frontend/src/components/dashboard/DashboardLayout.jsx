@@ -78,13 +78,13 @@ const DashboardLayout = ({ children }) => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       darkMode 
-        ? 'bg-[#0a0a0f] text-white' 
+        ? 'bg-gray-950 text-white' 
         : 'bg-gray-50 text-gray-900'
     }`}>
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -99,6 +99,8 @@ const DashboardLayout = ({ children }) => {
           darkMode={darkMode} 
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          isMobile={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 
@@ -112,7 +114,7 @@ const DashboardLayout = ({ children }) => {
           sticky top-0 z-30 px-4 lg:px-12 py-4
           backdrop-blur-xl border-b
           ${darkMode 
-            ? 'bg-[#0a0a0f]/80 border-white/5' 
+            ? 'bg-gray-950/80 border-gray-800' 
             : 'bg-white/80 border-gray-200'
           }
         `}>

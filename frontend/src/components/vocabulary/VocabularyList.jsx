@@ -1,6 +1,7 @@
 // frontend/src/components/vocabulary/VocabularyList.jsx
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import {
   Book,
   Plus,
@@ -63,7 +64,8 @@ const COLORS = {
   indigo: 'from-indigo-500 to-purple-500'
 };
 
-const VocabularyList = ({ darkMode }) => {
+const VocabularyList = () => {
+  const { darkMode } = useTheme();
   const navigate = useNavigate();
   const [vocabularies, setVocabularies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -158,7 +160,7 @@ const VocabularyList = ({ darkMode }) => {
     return (
       <div className={`
         relative group rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl
-        ${darkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-white hover:shadow-lg border border-gray-100'}
+        ${darkMode ? 'bg-gray-800 hover:bg-gray-750 border border-gray-700' : 'bg-white hover:shadow-lg border border-gray-100'}
       `}>
         {/* Gradient Header */}
         <div className={`h-24 bg-gradient-to-br ${COLORS[vocabulary.color] || COLORS.purple} relative overflow-hidden`}>
@@ -168,11 +170,28 @@ const VocabularyList = ({ darkMode }) => {
             <span className="text-white/70">→</span>
             <span className="text-2xl">{LANGUAGES[vocabulary.targetLanguage]?.flag}</span>
           </div>
-          {vocabulary.isPublic ? (
-            <Globe className="absolute top-3 right-3 w-5 h-5 text-white/70" />
-          ) : (
-            <Lock className="absolute top-3 right-3 w-5 h-5 text-white/70" />
-          )}
+          
+          {/* Top right icons */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            {/* Favorite button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleToggleFavorite(vocabulary._id);
+              }}
+              className="p-1.5 rounded-lg bg-black/20 hover:bg-black/40 transition-colors z-10"
+            >
+              <Heart className={`w-4 h-4 ${vocabulary.isFavorite ? 'fill-red-500 text-red-500' : 'text-white/80 hover:text-red-400'}`} />
+            </button>
+            
+            {/* Public/Private icon */}
+            {vocabulary.isPublic ? (
+              <Globe className="w-5 h-5 text-white/70" />
+            ) : (
+              <Lock className="w-5 h-5 text-white/70" />
+            )}
+          </div>
         </div>
 
         {/* Content */}
@@ -196,11 +215,11 @@ const VocabularyList = ({ darkMode }) => {
               {menuOpen === vocabulary._id && (
                 <div className={`
                   absolute right-0 top-8 w-48 rounded-xl shadow-lg z-50 overflow-hidden
-                  ${darkMode ? 'bg-[#1a1a2e] border border-white/10' : 'bg-white border border-gray-200'}
+                  ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}
                 `}>
                   <Link
                     to={`/vocabulary/${vocabulary._id}/learn`}
-                    className={`flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                    className={`flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-50 text-gray-700'}`}
                   >
                     <Play className="w-4 h-4 text-green-500" />
                     Учить
@@ -209,14 +228,14 @@ const VocabularyList = ({ darkMode }) => {
                     <>
                       <Link
                         to={`/vocabulary/${vocabulary._id}/edit`}
-                        className={`flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                        className={`flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-50 text-gray-700'}`}
                       >
                         <Edit className="w-4 h-4 text-blue-500" />
                         Редактировать
                       </Link>
                       <button
                         onClick={() => handleDelete(vocabulary._id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-red-500 ${darkMode ? 'hover:bg-white/5' : 'hover:bg-gray-50'}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-red-500 ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                       >
                         <Trash2 className="w-4 h-4" />
                         Удалить
@@ -227,14 +246,14 @@ const VocabularyList = ({ darkMode }) => {
                     <>
                       <button
                         onClick={() => handleFork(vocabulary._id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-50 text-gray-700'}`}
                       >
                         <Copy className="w-4 h-4 text-purple-500" />
                         Копировать себе
                       </button>
                       <button
                         onClick={() => handleToggleFavorite(vocabulary._id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-700'}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${darkMode ? 'hover:bg-gray-700 text-gray-200' : 'hover:bg-gray-50 text-gray-700'}`}
                       >
                         <Heart className={`w-4 h-4 ${vocabulary.isFavorite ? 'fill-red-500 text-red-500' : 'text-red-500'}`} />
                         {vocabulary.isFavorite ? 'Убрать из избранного' : 'В избранное'}
@@ -269,7 +288,7 @@ const VocabularyList = ({ darkMode }) => {
           </div>
 
           {/* Progress Bar */}
-          <div className={`h-2 rounded-full overflow-hidden ${darkMode ? 'bg-white/10' : 'bg-gray-100'}`}>
+          <div className={`h-2 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
             <div
               className={`h-full bg-gradient-to-r ${COLORS[vocabulary.color] || COLORS.purple} transition-all duration-500`}
               style={{ width: `${progress}%` }}
@@ -280,7 +299,7 @@ const VocabularyList = ({ darkMode }) => {
           <div className="mt-3 flex items-center justify-between">
             <span className={`
               text-xs px-2 py-1 rounded-full
-              ${darkMode ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600'}
+              ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}
             `}>
               {CATEGORIES[vocabulary.category] || vocabulary.category}
             </span>
@@ -303,7 +322,7 @@ const VocabularyList = ({ darkMode }) => {
   };
 
   return (
-    <div className={`min-h-screen p-6 ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen p-4 sm:p-6 ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -329,7 +348,7 @@ const VocabularyList = ({ darkMode }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 mb-6">
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
           {[
             { id: 'my', label: 'Мои словари', icon: BookOpen },
             { id: 'public', label: 'Публичные', icon: Globe },
@@ -339,23 +358,23 @@ const VocabularyList = ({ darkMode }) => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all
+                flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all whitespace-nowrap
                 ${activeTab === tab.id
                   ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25'
                   : darkMode
-                    ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'text-gray-400 hover:text-white hover:bg-gray-800'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }
               `}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="relative flex-1">
             <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
             <input
@@ -366,7 +385,7 @@ const VocabularyList = ({ darkMode }) => {
               className={`
                 w-full pl-12 pr-4 py-3 rounded-xl border transition-all
                 ${darkMode 
-                  ? 'bg-white/5 border-white/10 text-white placeholder-gray-500 focus:border-purple-500' 
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-purple-500' 
                   : 'bg-white border-gray-200 focus:border-purple-500'
                 }
               `}
@@ -378,9 +397,9 @@ const VocabularyList = ({ darkMode }) => {
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className={`
-                appearance-none px-4 py-3 pr-10 rounded-xl border transition-all cursor-pointer
+                appearance-none w-full sm:w-auto px-4 py-3 pr-10 rounded-xl border transition-all cursor-pointer
                 ${darkMode 
-                  ? 'bg-white/5 border-white/10 text-white focus:border-purple-500' 
+                  ? 'bg-gray-800 border-gray-700 text-white focus:border-purple-500' 
                   : 'bg-white border-gray-200 focus:border-purple-500'
                 }
               `}
@@ -396,20 +415,20 @@ const VocabularyList = ({ darkMode }) => {
 
         {/* Content */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className={`h-64 rounded-2xl animate-pulse ${darkMode ? 'bg-white/5' : 'bg-gray-200'}`} />
+              <div key={i} className={`h-64 rounded-2xl animate-pulse ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`} />
             ))}
           </div>
         ) : filteredVocabularies.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredVocabularies.map(vocabulary => (
               <VocabularyCard key={vocabulary._id} vocabulary={vocabulary} />
             ))}
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+            <div className={`w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
               <Sparkles className={`w-12 h-12 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
             </div>
             <h3 className={`text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>

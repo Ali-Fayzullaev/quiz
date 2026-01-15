@@ -1,6 +1,7 @@
 // frontend/src/components/vocabulary/VocabularyDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import {
   Book,
   ArrowLeft,
@@ -48,11 +49,19 @@ const LANGUAGES = {
   other: { name: 'Другой', flag: '🌐' }
 };
 
-const VocabularyDetail = ({ darkMode }) => {
+const VocabularyDetail = () => {
+  const { darkMode } = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
   const [vocabulary, setVocabulary] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Получаем текущего пользователя
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUserId = currentUser.id || currentUser._id;
+  
+  // Проверяем, является ли текущий пользователь владельцем словаря
+  const isOwner = vocabulary?.owner?._id === currentUserId || vocabulary?.owner === currentUserId;
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all'); // all, learned, new
   const [editingWord, setEditingWord] = useState(null);
@@ -128,7 +137,7 @@ const VocabularyDetail = ({ darkMode }) => {
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
         <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
       </div>
     );
@@ -154,13 +163,13 @@ const VocabularyDetail = ({ darkMode }) => {
   });
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-[#0a0a0f]' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-950' : 'bg-gray-50'}`}>
       {/* Hero Header */}
       <div className={`bg-gradient-to-br ${colorClass} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         
-        <div className="relative max-w-7xl mx-auto px-6 py-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <button
             onClick={() => navigate('/vocabulary')}
             className="flex items-center gap-2 text-white/80 hover:text-white transition-colors mb-6"
@@ -181,7 +190,7 @@ const VocabularyDetail = ({ darkMode }) => {
                   <Lock className="w-5 h-5 text-white/70 ml-2" />
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
                 {vocabulary.title}
               </h1>
               {vocabulary.description && (
@@ -199,17 +208,19 @@ const VocabularyDetail = ({ darkMode }) => {
                 <Play className="w-5 h-5" />
                 Учить
               </Link>
-              <Link
-                to={`/vocabulary/${id}/edit`}
-                className="flex items-center gap-2 px-4 py-3 bg-white/20 text-white font-medium rounded-xl hover:bg-white/30 transition-all backdrop-blur-sm"
-              >
-                <Edit className="w-5 h-5" />
-              </Link>
+              {isOwner && (
+                <Link
+                  to={`/vocabulary/${id}/edit`}
+                  className="flex items-center gap-2 px-4 py-3 bg-white/20 text-white font-medium rounded-xl hover:bg-white/30 transition-all backdrop-blur-sm"
+                >
+                  <Edit className="w-5 h-5" />
+                </Link>
+              )}
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
               <BookOpen className="w-6 h-6 text-white/70 mb-2" />
               <p className="text-2xl font-bold text-white">{vocabulary.stats?.totalWords || 0}</p>
@@ -235,9 +246,9 @@ const VocabularyDetail = ({ darkMode }) => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex flex-col gap-4 mb-6">
           <div className="relative flex-1">
             <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
             <input
@@ -248,24 +259,24 @@ const VocabularyDetail = ({ darkMode }) => {
               className={`
                 w-full pl-12 pr-4 py-3 rounded-xl border transition-all
                 ${darkMode 
-                  ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' 
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
                   : 'bg-white border-gray-200'
                 }
               `}
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {['all', 'learned', 'new'].map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`
-                  px-4 py-2 rounded-xl font-medium transition-all
+                  px-4 py-2 rounded-xl font-medium transition-all text-sm
                   ${filter === f
                     ? `bg-gradient-to-r ${colorClass} text-white`
                     : darkMode
-                      ? 'bg-white/5 text-gray-400 hover:bg-white/10'
+                      ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }
                 `}
@@ -275,17 +286,19 @@ const VocabularyDetail = ({ darkMode }) => {
             ))}
           </div>
 
-          <button
-            onClick={() => setShowAddWord(true)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium bg-gradient-to-r ${colorClass} text-white hover:opacity-90 transition-all`}
-          >
-            <Plus className="w-5 h-5" />
-            Добавить
-          </button>
+          {isOwner && (
+            <button
+              onClick={() => setShowAddWord(true)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium bg-gradient-to-r ${colorClass} text-white hover:opacity-90 transition-all`}
+            >
+              <Plus className="w-5 h-5" />
+              Добавить
+            </button>
+          )}
 
           <button
             onClick={handleResetProgress}
-            className={`p-3 rounded-xl transition-colors ${darkMode ? 'bg-white/5 hover:bg-white/10 text-gray-400' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}
+            className={`p-3 rounded-xl transition-colors ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-400' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}
             title="Сбросить прогресс"
           >
             <RotateCcw className="w-5 h-5" />
@@ -294,38 +307,38 @@ const VocabularyDetail = ({ darkMode }) => {
 
         {/* Add Word Form */}
         {showAddWord && (
-          <div className={`mb-6 p-6 rounded-2xl ${darkMode ? 'bg-white/5' : 'bg-white border border-gray-200'}`}>
+          <div className={`mb-6 p-4 sm:p-6 rounded-2xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
             <h3 className={`text-lg font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               Добавить слово
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <input
                 type="text"
                 placeholder="Слово"
                 value={newWord.word}
                 onChange={(e) => setNewWord({ ...newWord, word: e.target.value })}
-                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
               />
               <input
                 type="text"
                 placeholder="Перевод"
                 value={newWord.translation}
                 onChange={(e) => setNewWord({ ...newWord, translation: e.target.value })}
-                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
               />
               <input
                 type="text"
                 placeholder="Транскрипция (опционально)"
                 value={newWord.transcription}
                 onChange={(e) => setNewWord({ ...newWord, transcription: e.target.value })}
-                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
               />
               <input
                 type="text"
                 placeholder="Пример (опционально)"
                 value={newWord.example}
                 onChange={(e) => setNewWord({ ...newWord, example: e.target.value })}
-                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                className={`px-4 py-3 rounded-xl border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
               />
             </div>
             <div className="flex gap-2">
@@ -337,7 +350,7 @@ const VocabularyDetail = ({ darkMode }) => {
               </button>
               <button
                 onClick={() => setShowAddWord(false)}
-                className={`px-6 py-2 rounded-xl font-medium ${darkMode ? 'bg-white/10 text-white' : 'bg-gray-100 text-gray-700'}`}
+                className={`px-6 py-2 rounded-xl font-medium ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-700'}`}
               >
                 Отмена
               </button>
@@ -352,24 +365,24 @@ const VocabularyDetail = ({ darkMode }) => {
               <div
                 key={word._id}
                 className={`
-                  group p-4 rounded-xl transition-all
-                  ${darkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-white hover:shadow-md border border-gray-100'}
+                  group p-3 sm:p-4 rounded-xl transition-all
+                  ${darkMode ? 'bg-gray-800 hover:bg-gray-750 border border-gray-700' : 'bg-white hover:shadow-md border border-gray-100'}
                 `}
               >
                 {editingWord?._id === word._id ? (
                   /* Edit Mode */
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
                     <input
                       type="text"
                       value={editingWord.word}
                       onChange={(e) => setEditingWord({ ...editingWord, word: e.target.value })}
-                      className={`flex-1 px-3 py-2 rounded-lg border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                      className={`flex-1 px-3 py-2 rounded-lg border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
                     />
                     <input
                       type="text"
                       value={editingWord.translation}
                       onChange={(e) => setEditingWord({ ...editingWord, translation: e.target.value })}
-                      className={`flex-1 px-3 py-2 rounded-lg border ${darkMode ? 'bg-white/5 border-white/10 text-white' : 'border-gray-200'}`}
+                      className={`flex-1 px-3 py-2 rounded-lg border ${darkMode ? 'bg-gray-900 border-gray-700 text-white' : 'border-gray-200'}`}
                     />
                     <button
                       onClick={() => handleUpdateWord(word._id)}
@@ -425,34 +438,36 @@ const VocabularyDetail = ({ darkMode }) => {
                     </div>
 
                     {/* Memory Level Indicator */}
-                    <div className="flex gap-1">
+                    <div className="hidden sm:flex gap-1">
                       {[1, 2, 3, 4, 5].map(level => (
                         <div
                           key={level}
                           className={`w-2 h-6 rounded-full ${
                             level <= word.memoryLevel
                               ? 'bg-green-500'
-                              : darkMode ? 'bg-white/10' : 'bg-gray-200'
+                              : darkMode ? 'bg-gray-700' : 'bg-gray-200'
                           }`}
                         />
                       ))}
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => setEditingWord({ ...word })}
-                        className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteWord(word._id)}
-                        className="p-2 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {/* Actions - только для владельца */}
+                    {isOwner && (
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => setEditingWord({ ...word })}
+                          className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-white/10 text-gray-400' : 'hover:bg-gray-100 text-gray-500'}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteWord(word._id)}
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -463,7 +478,7 @@ const VocabularyDetail = ({ darkMode }) => {
               <p className={`text-lg font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {searchQuery ? 'Слова не найдены' : 'В словаре пока нет слов'}
               </p>
-              {!searchQuery && (
+              {!searchQuery && isOwner && (
                 <button
                   onClick={() => setShowAddWord(true)}
                   className={`mt-4 px-6 py-2 rounded-xl font-medium bg-gradient-to-r ${colorClass} text-white`}

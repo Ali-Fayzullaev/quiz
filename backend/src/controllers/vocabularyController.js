@@ -7,10 +7,18 @@ exports.getMyVocabularies = async (req, res) => {
       .select('-words')
       .sort({ updatedAt: -1 });
     
+    // Добавляем поле isFavorite для текущего пользователя
+    const userId = req.user._id;
+    const vocabulariesWithFavorite = vocabularies.map(vocab => {
+      const vocabObj = vocab.toObject();
+      vocabObj.isFavorite = vocab.favorites?.some(id => id.toString() === userId.toString()) || false;
+      return vocabObj;
+    });
+    
     res.status(200).json({
       success: true,
       count: vocabularies.length,
-      data: vocabularies
+      data: vocabulariesWithFavorite
     });
   } catch (error) {
     res.status(500).json({
@@ -52,12 +60,20 @@ exports.getPublicVocabularies = async (req, res) => {
     
     const total = await Vocabulary.countDocuments(query);
     
+    // Добавляем поле isFavorite для текущего пользователя
+    const userId = req.user?._id;
+    const vocabulariesWithFavorite = vocabularies.map(vocab => {
+      const vocabObj = vocab.toObject();
+      vocabObj.isFavorite = userId ? vocab.favorites?.some(id => id.toString() === userId.toString()) : false;
+      return vocabObj;
+    });
+    
     res.status(200).json({
       success: true,
       count: vocabularies.length,
       total,
       pages: Math.ceil(total / limit),
-      data: vocabularies
+      data: vocabulariesWithFavorite
     });
   } catch (error) {
     res.status(500).json({
@@ -154,7 +170,7 @@ exports.updateVocabulary = async (req, res) => {
       });
     }
     
-    const { title, description, sourceLanguage, targetLanguage, category, color, icon, isPublic } = req.body;
+    const { title, description, sourceLanguage, targetLanguage, category, color, icon, isPublic, words } = req.body;
     
     vocabulary.title = title || vocabulary.title;
     vocabulary.description = description ?? vocabulary.description;
@@ -164,6 +180,51 @@ exports.updateVocabulary = async (req, res) => {
     vocabulary.color = color || vocabulary.color;
     vocabulary.icon = icon || vocabulary.icon;
     vocabulary.isPublic = isPublic ?? vocabulary.isPublic;
+    
+    // Обновляем слова, если они переданы
+    if (words !== undefined) {
+      // Создаём карту существующих слов с их прогрессом
+      const existingWordsMap = new Map();
+      vocabulary.words.forEach(w => {
+        // Используем комбинацию слово+перевод как ключ
+        const key = `${w.word.toLowerCase().trim()}|${w.translation.toLowerCase().trim()}`;
+        existingWordsMap.set(key, {
+          learned: w.learned,
+          correctCount: w.correctCount,
+          incorrectCount: w.incorrectCount,
+          lastReviewed: w.lastReviewed,
+          nextReview: w.nextReview,
+          memoryLevel: w.memoryLevel,
+          _id: w._id
+        });
+      });
+      
+      // Обновляем слова, сохраняя прогресс для существующих
+      vocabulary.words = words.map(newWord => {
+        const key = `${newWord.word.toLowerCase().trim()}|${newWord.translation.toLowerCase().trim()}`;
+        const existingProgress = existingWordsMap.get(key);
+        
+        if (existingProgress) {
+          // Сохраняем прогресс для существующего слова
+          return {
+            ...newWord,
+            learned: existingProgress.learned,
+            correctCount: existingProgress.correctCount,
+            incorrectCount: existingProgress.incorrectCount,
+            lastReviewed: existingProgress.lastReviewed,
+            nextReview: existingProgress.nextReview,
+            memoryLevel: existingProgress.memoryLevel
+          };
+        }
+        
+        // Новое слово - без прогресса
+        return newWord;
+      });
+      
+      // Обновляем статистику
+      vocabulary.stats.totalWords = vocabulary.words.length;
+      vocabulary.stats.learnedWords = vocabulary.words.filter(w => w.learned).length;
+    }
     
     await vocabulary.save();
     
@@ -706,10 +767,17 @@ exports.getFavorites = async (req, res) => {
       .populate('owner', 'username profile.avatar')
       .sort({ updatedAt: -1 });
     
+    // Все словари в избранном - помечаем isFavorite = true
+    const vocabulariesWithFavorite = vocabularies.map(vocab => {
+      const vocabObj = vocab.toObject();
+      vocabObj.isFavorite = true;
+      return vocabObj;
+    });
+    
     res.status(200).json({
       success: true,
       count: vocabularies.length,
-      data: vocabularies
+      data: vocabulariesWithFavorite
     });
   } catch (error) {
     res.status(500).json({
