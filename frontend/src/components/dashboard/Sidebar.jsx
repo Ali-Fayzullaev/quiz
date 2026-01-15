@@ -195,7 +195,8 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
         to={isDisabled ? "#" : item.path}
         onClick={handleClick}
         className={`
-          group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 relative
+          group flex items-center gap-3 px-3 py-2 sm:py-2.5 rounded-xl transition-all duration-200 relative
+          touch-manipulation active:scale-[0.98]
           ${isActive
             ? darkMode
               ? "bg-purple-500/20 text-purple-300"
@@ -258,30 +259,30 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
           ? "bg-gray-900 border-r border-gray-800"
           : "bg-white border-r border-gray-200 shadow-sm"
         }
-        ${isMobile ? "w-72" : collapsed ? "w-20" : "w-72"}
+        ${isMobile ? "w-[280px] sm:w-72" : collapsed ? "w-20" : "w-72"}
       `}
     >
       {/* Header */}
       <div
         className={`
-          flex items-center h-16 px-4 border-b
+          flex items-center h-14 sm:h-16 px-3 sm:px-4 border-b
           ${darkMode ? "border-gray-800" : "border-gray-200"}
           ${collapsed && !isMobile ? "justify-center" : "justify-between"}
         `}
       >
-        <div className={`flex items-center ${collapsed && !isMobile ? "" : "gap-3"}`}>
+        <div className={`flex items-center ${collapsed && !isMobile ? "" : "gap-2 sm:gap-3"}`}>
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-              <Sparkles className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div className={`absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 ${darkMode ? "border-gray-900" : "border-white"} animate-pulse`} />
+            <div className={`absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500 rounded-full border-2 ${darkMode ? "border-gray-900" : "border-white"} animate-pulse`} />
           </div>
           {(!collapsed || isMobile) && (
             <div>
-              <span className={`font-bold text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>
+              <span className={`font-bold text-base sm:text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>
                 QuizMaster
               </span>
-              <p className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+              <p className={`text-[10px] sm:text-xs ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
                 Платформа квизов
               </p>
             </div>
@@ -292,7 +293,7 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
         {isMobile && onClose && (
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors touch-manipulation active:scale-95 ${
               darkMode ? "hover:bg-gray-800 text-gray-400" : "hover:bg-gray-100 text-gray-600"
             }`}
           >
@@ -304,7 +305,7 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
       {/* User Card */}
       {(!collapsed || isMobile) && (
         <div
-          className={`mx-3 mt-4 rounded-2xl overflow-hidden ${
+          className={`mx-2 sm:mx-3 mt-3 sm:mt-4 rounded-xl sm:rounded-2xl overflow-hidden ${
             darkMode
               ? "bg-gray-800/50 border border-gray-700/50"
               : "bg-gray-50 border border-gray-100"
@@ -313,29 +314,29 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
           {/* XP Header */}
           <button
             onClick={() => setUserCardExpanded(!userCardExpanded)}
-            className={`w-full px-4 py-3 flex items-center justify-between transition-all ${
-              darkMode ? "hover:bg-gray-700/30" : "hover:bg-gray-100"
+            className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between transition-all touch-manipulation ${
+              darkMode ? "hover:bg-gray-700/30 active:bg-gray-700/40" : "hover:bg-gray-100 active:bg-gray-200"
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {user.profile?.avatar?.url ? (
                 <img
                   src={user.profile.avatar.url}
                   alt={user.username || "User avatar"}
-                  className="w-10 h-10 rounded-xl object-cover shadow-lg"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl object-cover shadow-lg"
                 />
               ) : (
                 <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br ${getAvatarColor(
                     user.username
-                  )} flex items-center justify-center shadow-lg text-white font-bold`}
+                  )} flex items-center justify-center shadow-lg text-white font-bold text-sm`}
                 >
                   {user.username?.charAt(0).toUpperCase() || "U"}
                 </div>
               )}
               <div className="text-left">
                 <p
-                  className={`text-lg font-bold transition-colors ${
+                  className={`text-base sm:text-lg font-bold transition-colors ${
                     animateXP
                       ? "text-purple-400"
                       : darkMode
@@ -344,19 +345,19 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
                   }`}
                 >
                   {totalPoints.toLocaleString()}{" "}
-                  <span className={`text-xs font-normal ${darkMode ? "text-purple-400" : "text-purple-600"}`}>
+                  <span className={`text-[10px] sm:text-xs font-normal ${darkMode ? "text-purple-400" : "text-purple-600"}`}>
                     XP
                   </span>
                 </p>
-                <div className="flex items-center gap-1.5">
-                  <LevelIcon className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-500"}`} />
-                  <span className={`text-xs font-medium ${darkMode ? "text-purple-400" : "text-purple-600"}`}>
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <LevelIcon className={`w-3 h-3 sm:w-4 sm:h-4 ${darkMode ? "text-purple-400" : "text-purple-500"}`} />
+                  <span className={`text-[10px] sm:text-xs font-medium ${darkMode ? "text-purple-400" : "text-purple-600"}`}>
                     {levelInfo.name}
                   </span>
                   {currentStreak > 0 && (
                     <div className="flex items-center gap-0.5 ml-1">
-                      <Flame className="w-3 h-3 text-orange-400" />
-                      <span className="text-xs font-bold text-orange-400">
+                      <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400" />
+                      <span className="text-[10px] sm:text-xs font-bold text-orange-400">
                         {currentStreak}
                       </span>
                     </div>
@@ -366,16 +367,16 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
             </div>
             <div className={`p-1 rounded-lg transition-all ${darkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
               {userCardExpanded ? (
-                <ChevronUp className={`w-5 h-5 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                <ChevronUp className={`w-4 h-4 sm:w-5 sm:h-5 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
               ) : (
-                <ChevronDown className={`w-5 h-5 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
               )}
             </div>
           </button>
 
           {/* Progress Bar */}
-          <div className="px-4 pb-3">
-            <div className={`h-2 rounded-full overflow-hidden ${darkMode ? "bg-gray-700" : "bg-gray-200"}`}>
+          <div className="px-3 sm:px-4 pb-2.5 sm:pb-3">
+            <div className={`h-1.5 sm:h-2 rounded-full overflow-hidden ${darkMode ? "bg-gray-700" : "bg-gray-200"}`}>
               <div
                 className={`h-full bg-gradient-to-r ${levelInfo.color} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
                 style={{ width: `${levelInfo.progress}%` }}
@@ -457,17 +458,17 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent">
+      <nav className="flex-1 px-2 sm:px-3 py-3 sm:py-4 space-y-4 sm:space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/20 scrollbar-track-transparent overscroll-contain">
         {/* Main */}
         <div>
           {(!collapsed || isMobile) && (
-            <p className={`px-3 mb-2 text-xs font-semibold uppercase tracking-wider ${
+            <p className={`px-3 mb-1.5 sm:mb-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
               darkMode ? "text-gray-500" : "text-gray-400"
             }`}>
               Главное
             </p>
           )}
-          <div className="space-y-1">
+          <div className="space-y-0.5 sm:space-y-1">
             {mainNavItems.map((item) => (
               <NavItem key={item.path} item={item} />
             ))}
@@ -477,13 +478,13 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
         {/* Play */}
         <div>
           {(!collapsed || isMobile) && (
-            <p className={`px-3 mb-2 text-xs font-semibold uppercase tracking-wider ${
+            <p className={`px-3 mb-1.5 sm:mb-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
               darkMode ? "text-gray-500" : "text-gray-400"
             }`}>
               Играть
             </p>
           )}
-          <div className="space-y-1">
+          <div className="space-y-0.5 sm:space-y-1">
             {playNavItems.map((item) => (
               <NavItem key={item.path} item={item} />
             ))}
@@ -493,13 +494,13 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
         {/* Account */}
         <div>
           {(!collapsed || isMobile) && (
-            <p className={`px-3 mb-2 text-xs font-semibold uppercase tracking-wider ${
+            <p className={`px-3 mb-1.5 sm:mb-2 text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
               darkMode ? "text-gray-500" : "text-gray-400"
             }`}>
               Аккаунт
             </p>
           )}
-          <div className="space-y-1">
+          <div className="space-y-0.5 sm:space-y-1">
             {accountNavItems.map((item) => (
               <NavItem key={item.path} item={item} />
             ))}
@@ -508,60 +509,31 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
       </nav>
 
       {/* Bottom Section */}
-      <div className={`p-3 border-t ${darkMode ? "border-gray-800" : "border-gray-200"}`}>
-        {/* Promo Card */}
-        {(!collapsed || isMobile) && (
-          <div className={`mb-3 p-4 rounded-xl relative overflow-hidden ${
-            darkMode
-              ? "bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/20"
-              : "bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200"
-          }`}>
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-xl" />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-2">
-                <Crown className="w-5 h-5 text-yellow-400" />
-                <span className={`font-semibold text-sm ${darkMode ? "text-white" : "text-gray-900"}`}>
-                  Стать PRO
-                </span>
-                <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${
-                  darkMode ? "bg-yellow-400/20 text-yellow-400" : "bg-yellow-100 text-yellow-600"
-                }`}>
-                  -50%
-                </span>
-              </div>
-              <p className={`text-xs mb-3 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                Безлимитные квизы, без рекламы
-              </p>
-              <button className="w-full py-2 px-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-all hover:shadow-lg hover:shadow-purple-500/25 active:scale-[0.98]">
-                Улучшить план
-              </button>
-            </div>
-          </div>
-        )}
+      <div className={`p-2 sm:p-3 border-t ${darkMode ? "border-gray-800" : "border-gray-200"}`}>
 
         {/* Toggle & Logout */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {!isMobile && (
             <button
               onClick={onToggle}
               className={`
-                flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all
+                flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2 sm:py-2.5 rounded-lg transition-all
                 ${darkMode
                   ? "text-gray-400 hover:text-white hover:bg-gray-800"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }
               `}
             >
-              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-              {!collapsed && <span className="text-sm">Свернуть</span>}
+              {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+              {!collapsed && <span className="text-xs sm:text-sm">Свернуть</span>}
             </button>
           )}
 
           <button
             onClick={handleLogout}
             className={`
-              ${isMobile ? "flex-1 flex items-center justify-center gap-2" : ""}
-              p-2.5 rounded-lg transition-all hover:scale-105 active:scale-95
+              ${isMobile ? "flex-1 flex items-center justify-center gap-1.5 sm:gap-2" : ""}
+              p-2 sm:p-2.5 rounded-lg transition-all hover:scale-105 active:scale-95 touch-manipulation
               ${darkMode
                 ? "text-red-400 hover:bg-red-500/10"
                 : "text-red-500 hover:bg-red-50"
@@ -569,8 +541,8 @@ const Sidebar = ({ darkMode, collapsed, onToggle, isMobile = false, onClose }) =
             `}
             title="Выйти"
           >
-            <LogOut size={20} />
-            {isMobile && <span className="text-sm font-medium">Выйти</span>}
+            <LogOut size={18} />
+            {isMobile && <span className="text-xs sm:text-sm font-medium">Выйти</span>}
           </button>
         </div>
       </div>

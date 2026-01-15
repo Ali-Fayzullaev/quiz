@@ -21,7 +21,8 @@ import {
   Star,
   CheckCheck,
   Trash2,
-  Loader2
+  Loader2,
+  Command
 } from 'lucide-react';
 
 // Иконки для типов уведомлений
@@ -56,12 +57,12 @@ const formatTime = (dateString) => {
   return date.toLocaleDateString('ru-RU');
 };
 
-
 const DashboardLayout = ({ children }) => {
   const { darkMode, toggleTheme } = useTheme();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -104,7 +105,7 @@ const DashboardLayout = ({ children }) => {
   // Загружаем при монтировании и периодически
   useEffect(() => {
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000); // каждые 30 сек
+    const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
@@ -120,6 +121,18 @@ const DashboardLayout = ({ children }) => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Горячие клавиши
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Отметить как прочитанное
   const handleMarkAsRead = async (notificationId, actionUrl) => {
     try {
@@ -129,7 +142,6 @@ const DashboardLayout = ({ children }) => {
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
       
-      // Переходим по ссылке если есть
       if (actionUrl) {
         setShowNotifications(false);
         navigate(actionUrl);
@@ -178,7 +190,6 @@ const DashboardLayout = ({ children }) => {
       'from-green-500 to-emerald-500',
       'from-orange-500 to-red-500',
       'from-indigo-500 to-purple-500',
-      'from-yellow-500 to-orange-500',
     ];
     const index = username ? username.charCodeAt(0) % colors.length : 0;
     return colors[index];
@@ -193,43 +204,40 @@ const DashboardLayout = ({ children }) => {
       <div 
         onClick={() => handleMarkAsRead(notification._id, notification.actionUrl)}
         className={`
-          p-4 border-b last:border-0 cursor-pointer transition-all duration-200 group
+          p-3 sm:p-4 cursor-pointer transition-all duration-200 group
           ${darkMode 
-            ? 'border-white/5 hover:bg-white/5' 
-            : 'border-gray-100 hover:bg-gray-50'
+            ? 'hover:bg-white/5' 
+            : 'hover:bg-gray-50'
           }
           ${!notification.read ? (darkMode ? 'bg-purple-500/10' : 'bg-purple-50') : ''}
         `}
       >
         <div className="flex items-start gap-3">
-          {/* Icon */}
-          <div className={`p-2 rounded-lg ${typeConfig.color}`}>
+          <div className={`p-2 rounded-xl flex-shrink-0 ${typeConfig.color}`}>
             <Icon className="w-4 h-4" />
           </div>
           
-          {/* Content */}
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+            <p className={`text-sm font-medium line-clamp-1 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
               {notification.title}
             </p>
-            <p className={`text-sm mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`text-sm mt-0.5 line-clamp-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               {notification.message}
             </p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1.5">
               <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                 {formatTime(notification.createdAt)}
               </span>
               {!notification.read && (
-                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
               )}
             </div>
           </div>
           
-          {/* Delete button */}
           <button
             onClick={(e) => handleDeleteNotification(e, notification._id)}
             className={`
-              p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all
+              p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all flex-shrink-0
               ${darkMode ? 'hover:bg-red-500/20 text-red-400' : 'hover:bg-red-50 text-red-500'}
             `}
           >
@@ -262,78 +270,123 @@ const DashboardLayout = ({ children }) => {
         />
       )}
 
-      {/* Sidebar */}
-      <div className={`
+      {/* Sidebar - Desktop */}
+      <aside className={`
         fixed top-0 left-0 h-full z-50
-        transition-transform duration-300 lg:translate-x-0
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        hidden lg:block
+        transition-all duration-300
       `}>
         <Sidebar 
           darkMode={darkMode} 
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-          isMobile={mobileMenuOpen}
+          isMobile={false}
+        />
+      </aside>
+
+      {/* Sidebar - Mobile */}
+      <div className={`
+        fixed top-0 left-0 h-full z-50
+        lg:hidden
+        transition-transform duration-300
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <Sidebar 
+          darkMode={darkMode} 
+          collapsed={false}
+          isMobile={true}
           onClose={() => setMobileMenuOpen(false)}
         />
       </div>
 
       {/* Main Content */}
       <div className={`
+        min-h-screen
         transition-all duration-300
-        ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}
+        ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}
       `}>
         {/* Top Header */}
         <header className={`
-          sticky top-0 z-30 px-4 lg:px-12 py-4
-          backdrop-blur-xl border-b
+          sticky top-0 z-30
+          px-3 sm:px-4 lg:px-6 xl:px-8
+          py-3 sm:py-4
+          backdrop-blur-xl
+          border-b
           ${darkMode 
-            ? 'bg-gray-950/80 border-gray-800' 
-            : 'bg-white/80 border-gray-200'
+            ? 'bg-gray-950/90 border-gray-800/50' 
+            : 'bg-white/90 border-gray-200/50'
           }
         `}>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`
-                lg:hidden p-2 rounded-lg transition-colors
+                lg:hidden p-2 sm:p-2.5 rounded-xl transition-all active:scale-95
                 ${darkMode 
-                  ? 'hover:bg-white/10 text-white' 
-                  : 'hover:bg-gray-100 text-gray-700'
+                  ? 'hover:bg-white/10 text-white bg-white/5' 
+                  : 'hover:bg-gray-100 text-gray-700 bg-gray-50'
                 }
               `}
             >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              <Menu size={22} />
             </button>
 
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-xl">
+            <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
               <div className={`
-                relative flex items-center rounded-xl overflow-hidden
-                ${darkMode ? 'bg-white/5' : 'bg-gray-100'}
+                relative flex items-center rounded-xl sm:rounded-2xl overflow-hidden
+                transition-all duration-300
+                ${searchFocused 
+                  ? darkMode 
+                    ? 'bg-white/10 ring-2 ring-purple-500/50' 
+                    : 'bg-white ring-2 ring-purple-500/50 shadow-lg'
+                  : darkMode 
+                    ? 'bg-white/5' 
+                    : 'bg-gray-100'
+                }
               `}>
-                <Search className={`absolute left-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} size={18} />
+                <Search className={`
+                  absolute left-3 sm:left-4 w-4 h-4 sm:w-5 sm:h-5 transition-colors
+                  ${searchFocused 
+                    ? darkMode ? 'text-purple-400' : 'text-purple-500'
+                    : darkMode ? 'text-gray-500' : 'text-gray-400'
+                  }
+                `} />
                 <input
+                  id="search-input"
                   type="text"
-                  placeholder="Поиск квизов, пользователей..."
+                  placeholder="Поиск квизов..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  onBlur={() => setSearchFocused(false)}
                   className={`
-                    w-full py-3 pl-12 pr-4 bg-transparent outline-none
+                    w-full py-2.5 sm:py-3 pl-10 sm:pl-12 pr-4 sm:pr-24 bg-transparent outline-none
+                    text-sm sm:text-base
                     placeholder:text-gray-500
                     ${darkMode ? 'text-white' : 'text-gray-900'}
                   `}
                 />
+                {/* Keyboard shortcut hint - Desktop only */}
+                <div className={`
+                  hidden sm:flex absolute right-3 items-center gap-1
+                  px-2 py-1 rounded-lg text-xs font-medium
+                  ${darkMode ? 'bg-white/10 text-gray-400' : 'bg-gray-200 text-gray-500'}
+                `}>
+                  <Command className="w-3 h-3" />
+                  <span>K</span>
+                </div>
               </div>
             </form>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2 lg:gap-4">
+            <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3">
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
                 className={`
-                  p-2.5 rounded-xl transition-all duration-300
+                  p-2 sm:p-2.5 rounded-xl transition-all duration-300 active:scale-95
                   ${darkMode 
                     ? 'bg-white/5 hover:bg-white/10 text-yellow-400' 
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
@@ -344,21 +397,21 @@ const DashboardLayout = ({ children }) => {
               </button>
 
               {/* Notifications */}
-              <div className="relative z-30">
+              <div className="relative">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
                   className={`
-                    p-2.5 rounded-xl transition-all duration-300 relative
+                    p-2 sm:p-2.5 rounded-xl transition-all duration-300 relative active:scale-95
                     ${darkMode 
                       ? 'bg-white/5 hover:bg-white/10 text-white' 
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }
-                    ${showNotifications ? (darkMode ? 'bg-white/10' : 'bg-gray-200') : ''}
+                    ${showNotifications ? (darkMode ? 'bg-white/10 ring-2 ring-purple-500/50' : 'bg-gray-200 ring-2 ring-purple-500/50') : ''}
                   `}
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-medium animate-pulse">
+                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full text-xs flex items-center justify-center text-white font-bold shadow-lg shadow-red-500/30">
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
@@ -367,21 +420,28 @@ const DashboardLayout = ({ children }) => {
                 {/* Notifications Dropdown */}
                 {showNotifications && (
                   <div className={`
-                    absolute right-0 top-full mt-2 w-96 rounded-2xl overflow-hidden shadow-2xl
+                    absolute top-full mt-2
+                    w-[calc(100vw-24px)] sm:w-96
+                    max-w-[400px]
+                    right-0 sm:right-0
+                    rounded-2xl overflow-hidden shadow-2xl
                     ${darkMode 
-                      ? 'bg-gray-900 border border-gray-700' 
+                      ? 'bg-gray-900 border border-gray-700/50' 
                       : 'bg-white border border-gray-200'
                     }
                   `}>
                     {/* Header */}
-                    <div className={`p-4 border-b flex items-center justify-between ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className={`
+                      p-3 sm:p-4 border-b flex items-center justify-between
+                      ${darkMode ? 'border-gray-700/50' : 'border-gray-100'}
+                    `}>
                       <div className="flex items-center gap-2">
-                        <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        <h3 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           Уведомления
                         </h3>
                         {unreadCount > 0 && (
-                          <span className="px-2 py-0.5 text-xs font-medium bg-purple-500 text-white rounded-full">
-                            {unreadCount} новых
+                          <span className="px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full">
+                            {unreadCount}
                           </span>
                         )}
                       </div>
@@ -390,7 +450,7 @@ const DashboardLayout = ({ children }) => {
                           onClick={handleMarkAllAsRead}
                           disabled={markingRead}
                           className={`
-                            text-sm flex items-center gap-1 transition-colors
+                            text-xs sm:text-sm flex items-center gap-1 font-medium transition-colors
                             ${darkMode ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-700'}
                           `}
                         >
@@ -399,21 +459,24 @@ const DashboardLayout = ({ children }) => {
                           ) : (
                             <CheckCheck className="w-4 h-4" />
                           )}
-                          Прочитать все
+                          <span className="hidden sm:inline">Прочитать все</span>
                         </button>
                       )}
                     </div>
                     
                     {/* Notifications List */}
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-[60vh] sm:max-h-96 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800/50">
                       {loadingNotifications ? (
-                        <div className="flex items-center justify-center py-10">
+                        <div className="flex items-center justify-center py-12">
                           <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
                         </div>
                       ) : notifications.length === 0 ? (
-                        <div className={`text-center py-10 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                          <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                          <p>Нет уведомлений</p>
+                        <div className={`text-center py-12 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                          <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+                            <Bell className="w-8 h-8 opacity-50" />
+                          </div>
+                          <p className="font-medium">Нет уведомлений</p>
+                          <p className="text-sm mt-1 opacity-75">Здесь появятся ваши уведомления</p>
                         </div>
                       ) : (
                         notifications.map((notif) => (
@@ -421,24 +484,6 @@ const DashboardLayout = ({ children }) => {
                         ))
                       )}
                     </div>
-                    
-                    {/* Footer */}
-                    {notifications.length > 0 && (
-                      <div className={`p-3 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                        <button 
-                          onClick={() => setShowNotifications(false)}
-                          className={`
-                            w-full text-center text-sm font-medium py-2 rounded-lg transition-colors
-                            ${darkMode 
-                              ? 'text-purple-400 hover:bg-purple-500/10' 
-                              : 'text-purple-600 hover:bg-purple-50'
-                            }
-                          `}
-                        >
-                          Все уведомления
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -446,27 +491,30 @@ const DashboardLayout = ({ children }) => {
               {/* User Avatar */}
               <button 
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-3"
+                className={`
+                  flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-xl transition-all active:scale-95
+                  ${darkMode ? 'hover:bg-white/5' : 'hover:bg-gray-50'}
+                `}
               >
-                {user?.profile.avatar?.url ? (
+                {user?.profile?.avatar?.url ? (
                   <img 
                     src={user.profile.avatar.url} 
                     alt={user.username}
-                    className="w-10 h-10 rounded-xl object-cover ring-2 ring-purple-500/50"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-cover ring-2 ring-purple-500/30"
                   />
                 ) : (
                   <div className={`
-                    w-10 h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(user.username)}
-                    flex items-center justify-center text-white font-bold ring-2 ring-purple-500/50
+                    w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${getAvatarColor(user.username)}
+                    flex items-center justify-center text-white font-bold text-sm sm:text-base ring-2 ring-purple-500/30
                   `}>
                     {user.username?.charAt(0).toUpperCase() || 'U'}
                   </div>
                 )}
-                <div className="hidden lg:block text-left">
-                  <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                <div className="hidden xl:block text-left">
+                  <p className={`text-sm font-semibold line-clamp-1 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {user.username || 'Пользователь'}
                   </p>
-                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-xs line-clamp-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {user.email || ''}
                   </p>
                 </div>
@@ -476,7 +524,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-12">
+        <main className="p-3 sm:p-4 lg:p-6 xl:p-8">
           {children}
         </main>
       </div>

@@ -422,7 +422,7 @@ router.put('/password', protect, async (req, res) => {
     }
     
     // Проверяем текущий пароль
-    const isMatch = await user.comparePassword(currentPassword);
+    const isMatch = await user.checkPassword(currentPassword);
     
     if (!isMatch) {
       return res.status(400).json({

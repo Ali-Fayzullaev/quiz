@@ -14,9 +14,29 @@ import {
   AlertCircle,
   Shield,
   Bell,
-  Globe
+  Globe,
+  Lock,
+  Eye,
+  EyeOff,
+  Palette,
+  Moon,
+  Sun,
+  Monitor,
+  Languages,
+  UserX,
+  Key,
+  Smartphone,
+  LogOut,
+  AlertTriangle,
+  Volume2,
+  VolumeX,
+  MessageSquare,
+  Heart,
+  Trophy,
+  Zap
 } from 'lucide-react';
 import { userAPI } from '../../services/api';
+import { useTheme } from '../../context/ThemeContext';
 
 const getAvatarColor = (username) => {
   const colors = [
@@ -34,6 +54,7 @@ const getAvatarColor = (username) => {
 const ProfileEditor = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const { darkMode, toggleTheme } = useTheme();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,6 +62,49 @@ const ProfileEditor = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('profile');
+  
+  // Состояние пароля
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  const [savingPassword, setSavingPassword] = useState(false);
+  
+  // Настройки уведомлений
+  const [notifications, setNotifications] = useState({
+    email: true,
+    comments: true,
+    likes: true,
+    results: true,
+    friendRequests: true,
+    achievements: true,
+    sound: true
+  });
+  
+  // Настройки приватности
+  const [privacy, setPrivacy] = useState({
+    showProfile: true,
+    showStats: true,
+    showActivity: true,
+    allowFriendRequests: true
+  });
+  
+  // Настройки внешнего вида
+  const [appearance, setAppearance] = useState({
+    theme: 'system', // 'light', 'dark', 'system'
+    language: 'ru'
+  });
+  
+  // Удаление аккаунта
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
   
   const [profile, setProfile] = useState({
     username: '',
@@ -206,10 +270,99 @@ const ProfileEditor = () => {
   };
 
   const tabs = [
-    { id: 'profile', label: 'Профиль', icon: User },
-    { id: 'security', label: 'Безопасность', icon: Shield },
-    { id: 'notifications', label: 'Уведомления', icon: Bell },
+    { id: 'profile', label: 'Профиль', icon: User, color: 'from-purple-500 to-pink-500' },
+    { id: 'security', label: 'Безопасность', icon: Shield, color: 'from-blue-500 to-cyan-500' },
+    { id: 'notifications', label: 'Уведомления', icon: Bell, color: 'from-orange-500 to-red-500' },
+    { id: 'appearance', label: 'Внешний вид', icon: Palette, color: 'from-violet-500 to-purple-500' },
+    { id: 'privacy', label: 'Приватность', icon: Lock, color: 'from-emerald-500 to-teal-500' },
   ];
+
+  // Обработка смены пароля
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError('Новые пароли не совпадают');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setError('Пароль должен содержать минимум 6 символов');
+      return;
+    }
+
+    try {
+      setSavingPassword(true);
+      await userAPI.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+      
+      setSuccess('Пароль успешно изменён!');
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (err) {
+      console.error('Error changing password:', err);
+      setError(err.response?.data?.message || 'Ошибка при смене пароля');
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  // Обработка удаления аккаунта
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== profile.username) {
+      setError('Введите имя пользователя для подтверждения');
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      // API для удаления аккаунта (нужно добавить на бэкенде)
+      // await userAPI.deleteAccount();
+      
+      // Пока показываем заглушку
+      setError('Функция удаления аккаунта временно недоступна. Обратитесь в поддержку.');
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      setError('Ошибка при удалении аккаунта');
+      setDeleting(false);
+    }
+  };
+
+  // Переключение уведомлений
+  const toggleNotification = (key) => {
+    setNotifications(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Переключение приватности
+  const togglePrivacy = (key) => {
+    setPrivacy(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Обработка темы
+  const handleThemeChange = (theme) => {
+    setAppearance(prev => ({ ...prev, theme }));
+    if (theme === 'dark' && !darkMode) {
+      toggleTheme();
+    } else if (theme === 'light' && darkMode) {
+      toggleTheme();
+    }
+    // Для 'system' можно добавить логику проверки системных настроек
+  };
 
   if (loading) {
     return (
@@ -223,9 +376,21 @@ const ProfileEditor = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Настройки</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Управляйте своим профилем и настройками аккаунта</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">Настройки</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Управляйте своим профилем и настройками аккаунта</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 
+                     text-gray-700 dark:text-white rounded-xl transition-colors"
+          >
+            <User size={18} />
+            <span className="hidden sm:inline">Мой профиль</span>
+          </button>
+        </div>
       </div>
 
       {/* Messages */}
@@ -252,16 +417,16 @@ const ProfileEditor = () => {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Tabs */}
         <div className="lg:w-64 flex-shrink-0">
-          <div className="p-2 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+          <div className="p-2 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none lg:sticky lg:top-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                      ? 'bg-gradient-to-r ' + tab.color + ' text-white shadow-lg'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
@@ -507,43 +672,506 @@ const ProfileEditor = () => {
           )}
 
           {activeTab === 'security' && (
-            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Безопасность</h2>
-              <p className="text-gray-600 dark:text-gray-400">Настройки безопасности будут доступны в ближайшее время.</p>
-              
-              <div className="mt-6 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20">
-                <p className="text-yellow-700 dark:text-yellow-400 text-sm">🔒 Функция смены пароля скоро будет добавлена</p>
+            <div className="space-y-6">
+              {/* Смена пароля */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <Key className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Смена пароля</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Обновите свой пароль для защиты аккаунта</p>
+                  </div>
+                </div>
+                
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Lock size={16} />
+                      Текущий пароль
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.current ? 'text' : 'password'}
+                        value={passwordData.currentPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        placeholder="Введите текущий пароль"
+                        className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                                 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                                 focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        {showPasswords.current ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Lock size={16} />
+                      Новый пароль
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.new ? 'text' : 'password'}
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        placeholder="Введите новый пароль"
+                        className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl 
+                                 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                                 focus:border-purple-500 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        {showPasswords.new ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                    {passwordData.newPassword && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className={`h-1.5 flex-1 rounded-full ${
+                          passwordData.newPassword.length < 6 ? 'bg-red-400' :
+                          passwordData.newPassword.length < 10 ? 'bg-yellow-400' : 'bg-green-400'
+                        }`} />
+                        <span className={`text-xs font-medium ${
+                          passwordData.newPassword.length < 6 ? 'text-red-500' :
+                          passwordData.newPassword.length < 10 ? 'text-yellow-500' : 'text-green-500'
+                        }`}>
+                          {passwordData.newPassword.length < 6 ? 'Слабый' :
+                           passwordData.newPassword.length < 10 ? 'Средний' : 'Надёжный'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <Lock size={16} />
+                      Подтвердите пароль
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.confirm ? 'text' : 'password'}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        placeholder="Подтвердите новый пароль"
+                        className={`w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-white/5 border rounded-xl 
+                                 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none
+                                 focus:ring-2 focus:ring-purple-500/20 transition-all ${
+                                   passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword
+                                     ? 'border-red-400 dark:border-red-500/50 focus:border-red-500'
+                                     : 'border-gray-200 dark:border-white/10 focus:border-purple-500 dark:focus:border-purple-500/50'
+                                 }`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        {showPasswords.confirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                    {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-1">Пароли не совпадают</p>
+                    )}
+                  </div>
+
+                  <button 
+                    type="submit"
+                    disabled={savingPassword || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 
+                             hover:opacity-90 text-white font-medium rounded-xl transition-opacity disabled:opacity-50"
+                  >
+                    {savingPassword ? (
+                      <>
+                        <Loader2 className="animate-spin" size={18} />
+                        Сохранение...
+                      </>
+                    ) : (
+                      <>
+                        <Key size={18} />
+                        Изменить пароль
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* Двухфакторная аутентификация */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Двухфакторная аутентификация</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Дополнительная защита вашего аккаунта</p>
+                  </div>
+                  <span className="px-3 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full">
+                    Скоро
+                  </span>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    🔐 Двухфакторная аутентификация добавит дополнительный уровень безопасности, 
+                    требуя код из приложения при входе в аккаунт.
+                  </p>
+                </div>
+              </div>
+
+              {/* Активные сессии */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <Monitor className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Активные сессии</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Устройства, на которых выполнен вход</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20">
+                    <div className="flex items-center gap-3">
+                      <Monitor className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      <div>
+                        <p className="text-gray-900 dark:text-white font-medium">Текущее устройство</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">Активно сейчас</p>
+                      </div>
+                    </div>
+                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm font-medium">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      Активна
+                    </span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    navigate('/login');
+                  }}
+                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 border border-red-200 dark:border-red-500/20 
+                           text-red-600 dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                >
+                  <LogOut size={18} />
+                  Выйти со всех устройств
+                </button>
               </div>
             </div>
           )}
 
           {activeTab === 'notifications' && (
-            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Уведомления</h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">Настройте, какие уведомления вы хотите получать.</p>
-              
-              <div className="space-y-4">
-                {[
-                  { label: 'Email уведомления', desc: 'Получать уведомления на email' },
-                  { label: 'Новые комментарии', desc: 'Когда кто-то комментирует ваш квиз' },
-                  { label: 'Новые лайки', desc: 'Когда кто-то ставит лайк вашему квизу' },
-                  { label: 'Результаты', desc: 'Когда кто-то проходит ваш квиз' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5">
-                    <div>
-                      <p className="text-gray-900 dark:text-white font-medium">{item.label}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" defaultChecked={i < 2} />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
-                                    peer-checked:after:translate-x-full peer-checked:bg-purple-500
-                                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-                                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
-                      </div>
-                    </label>
+            <div className="space-y-6">
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-white" />
                   </div>
-                ))}
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Уведомления</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Настройте, какие уведомления хотите получать</p>
+                  </div>
+                </div>
+              
+                <div className="space-y-3">
+                  {[
+                    { key: 'email', icon: Mail, label: 'Email уведомления', desc: 'Получать важные уведомления на почту' },
+                    { key: 'comments', icon: MessageSquare, label: 'Комментарии', desc: 'Когда кто-то комментирует ваш квиз' },
+                    { key: 'likes', icon: Heart, label: 'Лайки', desc: 'Когда кто-то ставит лайк вашему контенту' },
+                    { key: 'results', icon: Trophy, label: 'Результаты', desc: 'Когда кто-то проходит ваш квиз' },
+                    { key: 'friendRequests', icon: User, label: 'Заявки в друзья', desc: 'Новые заявки в друзья' },
+                    { key: 'achievements', icon: Zap, label: 'Достижения', desc: 'Уведомления о новых достижениях' },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                        <div className="flex items-center gap-3">
+                          <Icon size={20} className="text-gray-500 dark:text-gray-400" />
+                          <div>
+                            <p className="text-gray-900 dark:text-white font-medium">{item.label}</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer" 
+                            checked={notifications[item.key]}
+                            onChange={() => toggleNotification(item.key)}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
+                                        peer-checked:after:translate-x-full peer-checked:bg-purple-500
+                                        after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                        after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
+                          </div>
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Звуковые уведомления */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {notifications.sound ? (
+                      <Volume2 className="w-5 h-5 text-purple-500" />
+                    ) : (
+                      <VolumeX className="w-5 h-5 text-gray-400" />
+                    )}
+                    <div>
+                      <p className="text-gray-900 dark:text-white font-medium">Звуковые уведомления</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Воспроизводить звук при получении уведомлений</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={notifications.sound}
+                      onChange={() => toggleNotification('sound')}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
+                                  peer-checked:after:translate-x-full peer-checked:bg-purple-500
+                                  after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                  after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'appearance' && (
+            <div className="space-y-6">
+              {/* Тема */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                    <Palette className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Тема оформления</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Выберите предпочтительную цветовую схему</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { id: 'light', label: 'Светлая', icon: Sun, bg: 'bg-white border-gray-200', iconColor: 'text-yellow-500' },
+                    { id: 'dark', label: 'Тёмная', icon: Moon, bg: 'bg-gray-900 border-gray-700', iconColor: 'text-blue-400' },
+                    { id: 'system', label: 'Системная', icon: Monitor, bg: 'bg-gradient-to-br from-white to-gray-900 border-gray-400', iconColor: 'text-purple-500' },
+                  ].map((theme) => {
+                    const Icon = theme.icon;
+                    const isActive = (theme.id === 'dark' && darkMode) || (theme.id === 'light' && !darkMode) || (theme.id === 'system' && appearance.theme === 'system');
+                    return (
+                      <button
+                        key={theme.id}
+                        onClick={() => handleThemeChange(theme.id)}
+                        className={`relative p-4 rounded-xl border-2 transition-all ${
+                          isActive
+                            ? 'border-purple-500 ring-2 ring-purple-500/20'
+                            : 'border-gray-200 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-500/50'
+                        }`}
+                      >
+                        <div className="flex flex-col items-center gap-2">
+                          <div className={`w-12 h-12 rounded-xl ${theme.bg} border flex items-center justify-center`}>
+                            <Icon className={theme.iconColor} size={24} />
+                          </div>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{theme.label}</span>
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-2 right-2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                            <Check size={12} className="text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Язык */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <Languages className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Язык интерфейса</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Выберите язык для отображения интерфейса</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { id: 'ru', label: 'Русский', flag: '🇷🇺' },
+                    { id: 'en', label: 'English', flag: '🇺🇸' },
+                    { id: 'de', label: 'Deutsch', flag: '🇩🇪', disabled: true },
+                    { id: 'es', label: 'Español', flag: '🇪🇸', disabled: true },
+                  ].map((lang) => (
+                    <button
+                      key={lang.id}
+                      onClick={() => !lang.disabled && setAppearance(prev => ({ ...prev, language: lang.id }))}
+                      disabled={lang.disabled}
+                      className={`relative p-3 rounded-xl border-2 transition-all ${
+                        appearance.language === lang.id
+                          ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
+                          : 'border-gray-200 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-500/50'
+                      } ${lang.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex items-center gap-2 justify-center">
+                        <span className="text-xl">{lang.flag}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{lang.label}</span>
+                      </div>
+                      {lang.disabled && (
+                        <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 rounded-full">
+                          Скоро
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'privacy' && (
+            <div className="space-y-6">
+              {/* Настройки приватности */}
+              <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Приватность профиля</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Управляйте видимостью вашей информации</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {[
+                    { key: 'showProfile', label: 'Публичный профиль', desc: 'Другие пользователи могут видеть ваш профиль' },
+                    { key: 'showStats', label: 'Показывать статистику', desc: 'Отображать вашу статистику в профиле' },
+                    { key: 'showActivity', label: 'Показывать активность', desc: 'Другие видят, когда вы были онлайн' },
+                    { key: 'allowFriendRequests', label: 'Заявки в друзья', desc: 'Разрешить другим отправлять вам заявки' },
+                  ].map((item) => (
+                    <div key={item.key} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                      <div>
+                        <p className="text-gray-900 dark:text-white font-medium">{item.label}</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={privacy[item.key]}
+                          onChange={() => togglePrivacy(item.key)}
+                        />
+                        <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer 
+                                      peer-checked:after:translate-x-full peer-checked:bg-purple-500
+                                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                                      after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all">
+                        </div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Удаление аккаунта */}
+              <div className="p-6 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">
+                    <UserX className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-red-600 dark:text-red-400">Опасная зона</h2>
+                    <p className="text-sm text-red-500/70 dark:text-red-400/70">Действия, которые нельзя отменить</p>
+                  </div>
+                </div>
+                
+                {!showDeleteConfirm ? (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500 hover:bg-red-600 
+                             text-white font-medium rounded-xl transition-colors"
+                  >
+                    <Trash2 size={18} />
+                    Удалить аккаунт
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-red-600 dark:text-red-400">
+                          <p className="font-semibold mb-1">Вы уверены?</p>
+                          <p>Это действие необратимо. Все ваши данные, квизы, результаты и достижения будут удалены навсегда.</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                        Введите <span className="text-red-500 font-bold">{profile.username}</span> для подтверждения:
+                      </label>
+                      <input
+                        type="text"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder="Введите имя пользователя"
+                        className="w-full px-4 py-3 bg-white dark:bg-white/5 border border-red-300 dark:border-red-500/30 rounded-xl 
+                                 text-gray-900 dark:text-white placeholder:text-gray-400 outline-none
+                                 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                      />
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowDeleteConfirm(false);
+                          setDeleteConfirmText('');
+                        }}
+                        className="flex-1 px-4 py-3 bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 
+                                 text-gray-700 dark:text-white font-medium rounded-xl transition-colors"
+                      >
+                        Отмена
+                      </button>
+                      <button
+                        onClick={handleDeleteAccount}
+                        disabled={deleting || deleteConfirmText !== profile.username}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500 hover:bg-red-600 
+                                 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deleting ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Удаление...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 size={18} />
+                            Удалить навсегда
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

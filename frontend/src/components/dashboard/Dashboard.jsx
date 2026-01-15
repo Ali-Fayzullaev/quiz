@@ -258,58 +258,58 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 pb-4 sm:pb-6 lg:pb-8">
       {/* Welcome Header */}
-      <div className={`relative overflow-hidden rounded-3xl p-8 ${
+      <div className={`relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 ${
         darkMode 
           ? 'bg-gradient-to-br from-purple-900/50 via-pink-900/30 to-blue-900/50 border border-white/10' 
           : 'bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 border border-purple-200/50'
       }`}>
         {/* Background Effects */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500 rounded-full blur-3xl opacity-20" />
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-pink-500 rounded-full blur-3xl opacity-20" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-10" />
+          <div className="absolute -top-24 -right-24 w-48 sm:w-64 h-48 sm:h-64 bg-purple-500 rounded-full blur-3xl opacity-20" />
+          <div className="absolute -bottom-24 -left-24 w-48 sm:w-64 h-48 sm:h-64 bg-pink-500 rounded-full blur-3xl opacity-20" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-96 h-64 sm:h-96 bg-blue-500 rounded-full blur-3xl opacity-10" />
         </div>
 
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
+        <div className="relative flex flex-col sm:flex-row items-center sm:items-start md:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5">
             {/* Avatar with Level Ring */}
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-full blur opacity-75 animate-pulse" />
-              <div className={`relative w-20 h-20 rounded-full overflow-hidden border-4 ${
+              <div className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 ${
                 darkMode ? 'border-gray-800' : 'border-white'
               }`}>
                 {avatar ? (
                   <img src={avatar} alt={displayName} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
                     {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white dark:border-gray-800 shadow-lg">
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-[10px] sm:text-xs font-bold border-2 border-white dark:border-gray-800 shadow-lg">
                 {level}
               </div>
             </div>
 
-            <div>
-              <p className={`text-sm font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+            <div className="text-center sm:text-left">
+              <p className={`text-xs sm:text-sm font-medium ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
                 Добро пожаловать! 👋
               </p>
-              <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 {displayName}
               </h1>
-              <div className="flex items-center gap-4 mt-2">
-                <div className="flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4 mt-2">
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
+                  <span className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {currentStreak} дней подряд
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Trophy className="w-4 h-4 text-amber-500" />
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
+                  <span className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     Лучшая серия: {bestStreak}
                   </span>
                 </div>
@@ -318,18 +318,18 @@ const Dashboard = () => {
           </div>
 
           {/* XP Progress */}
-          <div className={`w-full md:w-72 p-4 rounded-2xl backdrop-blur-sm ${
+          <div className={`w-full sm:w-auto sm:min-w-[250px] md:w-72 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm ${
             darkMode ? 'bg-white/5 border border-white/10' : 'bg-white/70 border border-white'
           }`}>
             <div className="flex items-center justify-between mb-2">
-              <span className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Прогресс уровня
               </span>
-              <span className={`text-sm font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+              <span className={`text-xs sm:text-sm font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
                 {experience} / 1000 XP
               </span>
             </div>
-            <div className={`h-3 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+            <div className={`h-2 sm:h-3 rounded-full overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
               <div 
                 className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-full transition-all duration-500 relative overflow-hidden"
                 style={{ width: `${(experience / 1000) * 100}%` }}
@@ -345,13 +345,13 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {statsCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <div
               key={index}
-              className={`group relative overflow-hidden rounded-2xl p-5 transition-all duration-500 hover:scale-[1.02] cursor-pointer ${
+              className={`group relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-5 transition-all duration-500 hover:scale-[1.02] cursor-pointer ${
                 darkMode 
                   ? 'bg-white/5 border border-white/10 hover:border-white/20' 
                   : 'bg-white border border-gray-200 hover:shadow-xl hover:shadow-gray-200/50'
@@ -361,11 +361,11 @@ const Dashboard = () => {
               <div className={`absolute -top-12 -right-12 w-24 h-24 ${stat.bgGlow} rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
               
               <div className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                    <Icon className="w-5 h-5 text-white" />
+                <div className="flex items-start justify-between mb-2 sm:mb-4">
+                  <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <div className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
+                  <div className={`hidden sm:flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
                     stat.positive 
                       ? darkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600' 
                       : darkMode ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600'
@@ -375,10 +375,10 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <h3 className={`text-xl sm:text-2xl lg:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {stat.value}
                   </h3>
-                  <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-xs sm:text-sm mt-0.5 sm:mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {stat.label}
                   </p>
                 </div>
@@ -389,25 +389,25 @@ const Dashboard = () => {
       </div>
 
       {/* Main Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Performance Chart */}
-        <div className={`xl:col-span-2 rounded-3xl p-6 ${
+        <div className={`xl:col-span-2 rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
           darkMode 
             ? 'bg-white/5 border border-white/10' 
             : 'bg-white border border-gray-200 shadow-sm'
         }`}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div>
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className={`text-lg sm:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Аналитика
               </h3>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Ваши результаты и прогресс
               </p>
             </div>
             
             {/* Tabs */}
-            <div className={`flex rounded-xl p-1 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
+            <div className={`flex rounded-lg sm:rounded-xl p-1 ${darkMode ? 'bg-white/5' : 'bg-gray-100'}`}>
               {[
                 { id: 'performance', label: 'Результаты', icon: Activity },
                 { id: 'categories', label: 'Категории', icon: PieChartIcon },
@@ -415,7 +415,7 @@ const Dashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveChartTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${
+                  className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-md sm:rounded-lg transition-all ${
                     activeChartTab === tab.id
                       ? darkMode 
                         ? 'bg-purple-500/20 text-purple-400 shadow-lg shadow-purple-500/10' 
@@ -425,8 +425,8 @@ const Dashboard = () => {
                         : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
+                  <tab.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -434,7 +434,7 @@ const Dashboard = () => {
 
           {/* Period Filter */}
           {activeChartTab === 'performance' && (
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto pb-1">
               {[
                 { id: 'week', label: 'Неделя' },
                 { id: 'month', label: 'Месяц' },
@@ -443,7 +443,7 @@ const Dashboard = () => {
                 <button
                   key={period.id}
                   onClick={() => setChartPeriod(period.id)}
-                  className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all ${
+                  className={`px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all whitespace-nowrap ${
                     chartPeriod === period.id
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25'
                       : darkMode 
@@ -458,7 +458,7 @@ const Dashboard = () => {
           )}
 
           {/* Chart */}
-          <div className="h-80">
+          <div className="h-60 sm:h-72 lg:h-80">
             {activeChartTab === 'performance' ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
@@ -511,9 +511,9 @@ const Dashboard = () => {
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center h-full gap-8">
+              <div className="flex flex-col lg:flex-row items-center h-full gap-4 lg:gap-8">
                 {/* Pie Chart */}
-                <div className="w-1/2 h-full">
+                <div className="w-full lg:w-1/2 h-48 lg:h-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <defs>
@@ -528,8 +528,8 @@ const Dashboard = () => {
                         data={categoryData.length ? categoryData : [{ name: 'Нет данных', value: 1 }]}
                         cx="50%"
                         cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
+                        innerRadius={50}
+                        outerRadius={80}
                         paddingAngle={3}
                         dataKey="value"
                         stroke="none"
@@ -548,31 +548,31 @@ const Dashboard = () => {
                 </div>
                 
                 {/* Legend */}
-                <div className="w-1/2 space-y-3">
-                  <h4 className={`text-sm font-semibold mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <div className="w-full lg:w-1/2 space-y-2 lg:space-y-3">
+                  <h4 className={`text-xs sm:text-sm font-semibold mb-2 lg:mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     Распределение по категориям
                   </h4>
                   {(categoryData.length ? categoryData : [{ name: 'general', value: 0 }]).slice(0, 6).map((item, index) => (
                     <div 
                       key={item.name} 
-                      className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
+                      className={`flex items-center justify-between p-2 sm:p-3 rounded-lg sm:rounded-xl transition-colors ${
                         darkMode ? 'hover:bg-white/5' : 'hover:bg-gray-50'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 sm:gap-3">
                         <div 
-                          className="w-4 h-4 rounded-lg shadow-lg"
+                          className="w-3 h-3 sm:w-4 sm:h-4 rounded-md sm:rounded-lg shadow-lg"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
-                        <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <span className={`text-xs sm:text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           {categoryNames[item.name] || item.name}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className={`text-sm sm:text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                           {item.value}
                         </span>
-                        <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        <span className={`text-[10px] sm:text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                           квизов
                         </span>
                       </div>
@@ -585,28 +585,28 @@ const Dashboard = () => {
         </div>
 
         {/* Skills Radar / Progress */}
-        <div className={`rounded-3xl p-6 ${
+        <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
           darkMode 
             ? 'bg-white/5 border border-white/10' 
             : 'bg-white border border-gray-200 shadow-sm'
         }`}>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className={`text-lg sm:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Навыки
               </h3>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Ваш профиль умений
               </p>
             </div>
-            <button className={`p-2 rounded-xl transition-colors ${
+            <button className={`p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-colors ${
               darkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'
             }`}>
-              <MoreHorizontal className={darkMode ? 'text-gray-400' : 'text-gray-500'} size={20} />
+              <MoreHorizontal className={darkMode ? 'text-gray-400' : 'text-gray-500'} size={18} />
             </button>
           </div>
 
-          <div className="h-64">
+          <div className="h-48 sm:h-56 lg:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart 
                 cx="50%" 
@@ -630,23 +630,23 @@ const Dashboard = () => {
           </div>
 
           {/* Skills Legend */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-3 sm:mt-4">
             {skillsData.map((skill, index) => (
               <div 
                 key={skill.name}
-                className={`flex items-center gap-2 p-2 rounded-xl ${
+                className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-lg sm:rounded-xl ${
                   darkMode ? 'bg-white/5' : 'bg-gray-50'
                 }`}
               >
                 <div 
-                  className="w-3 h-3 rounded-full"
+                  className="w-2 h-2 sm:w-3 sm:h-3 rounded-full"
                   style={{ backgroundColor: skill.fill }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-[10px] sm:text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {skill.name}
                   </p>
-                  <p className={`text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <p className={`text-xs sm:text-sm font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {skill.value}%
                   </p>
                 </div>
@@ -657,96 +657,96 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
         {/* Recent Activity */}
-        <div className={`xl:col-span-2 rounded-3xl p-6 ${
+        <div className={`xl:col-span-2 rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
           darkMode 
             ? 'bg-white/5 border border-white/10' 
             : 'bg-white border border-gray-200 shadow-sm'
         }`}>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
             <div>
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              <h3 className={`text-lg sm:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                 Недавняя активность
               </h3>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Последние пройденные квизы
               </p>
             </div>
             <button 
               onClick={() => navigate('/stats')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                 darkMode 
                   ? 'bg-white/5 text-gray-300 hover:bg-white/10' 
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               Все результаты
-              <ChevronRight size={16} />
+              <ChevronRight size={14} />
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {recentResults.slice(0, 5).length > 0 ? (
               recentResults.slice(0, 5).map((result, index) => (
                 <div 
                   key={result._id || index}
-                  className={`flex items-center gap-4 p-4 rounded-2xl transition-all hover:scale-[1.01] cursor-pointer ${
+                  className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all hover:scale-[1.01] cursor-pointer ${
                     darkMode 
                       ? 'bg-white/5 hover:bg-white/10' 
                       : 'bg-gray-50 hover:bg-gray-100'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 ${
                     (result.percentage || 0) >= 80 
                       ? 'bg-gradient-to-br from-emerald-500 to-teal-500' 
                       : (result.percentage || 0) >= 50 
                         ? 'bg-gradient-to-br from-amber-500 to-orange-500' 
                         : 'bg-gradient-to-br from-red-500 to-pink-500'
                   }`}>
-                    <span className="text-white font-bold">{result.percentage || 0}%</span>
+                    <span className="text-white font-bold text-xs sm:text-sm">{result.percentage || 0}%</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className={`font-semibold truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h4 className={`font-semibold text-sm sm:text-base truncate ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {result.quiz?.title || 'Квиз'}
                     </h4>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className={`text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <Target size={12} />
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-0.5 sm:mt-1">
+                      <span className={`text-[10px] sm:text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Target size={10} className="sm:w-3 sm:h-3" />
                         {result.correctAnswers || 0}/{result.totalQuestions || 0}
                       </span>
-                      <span className={`text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span className={`hidden sm:flex text-xs items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         <Clock size={12} />
                         {Math.round((result.timeSpent || 0) / 60)} мин
                       </span>
-                      <span className={`text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                        <Calendar size={12} />
+                      <span className={`text-[10px] sm:text-xs flex items-center gap-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <Calendar size={10} className="sm:w-3 sm:h-3" />
                         {new Date(result.completedAt || result.createdAt).toLocaleDateString('ru-RU')}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${
                       darkMode ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600'
                     }`}>
                       +{result.pointsEarned || Math.round((result.percentage || 0) * 10)} XP
                     </div>
-                    <ChevronRight className={darkMode ? 'text-gray-600' : 'text-gray-400'} size={20} />
+                    <ChevronRight className={`hidden sm:block ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} size={20} />
                   </div>
                 </div>
               ))
             ) : (
-              <div className={`text-center py-12 rounded-2xl ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                <Brain className={`w-16 h-16 mx-auto mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
-                <p className={`font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <div className={`text-center py-8 sm:py-12 rounded-xl sm:rounded-2xl ${darkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                <Brain className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                <p className={`font-medium text-sm sm:text-base ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Пока нет активности
                 </p>
-                <p className={`text-sm mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                <p className={`text-xs sm:text-sm mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                   Начните проходить квизы, чтобы увидеть статистику
                 </p>
                 <button
                   onClick={() => navigate('/quick-play')}
-                  className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-xl hover:opacity-90 transition-opacity"
+                  className="mt-3 sm:mt-4 px-4 sm:px-6 py-1.5 sm:py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg sm:rounded-xl hover:opacity-90 transition-opacity text-sm"
                 >
                   Начать игру
                 </button>
@@ -756,16 +756,16 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className={`rounded-3xl p-6 ${
+        <div className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 ${
           darkMode 
             ? 'bg-white/5 border border-white/10' 
             : 'bg-white border border-gray-200 shadow-sm'
         }`}>
-          <h3 className={`text-xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          <h3 className={`text-lg sm:text-xl font-bold mb-4 sm:mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             Быстрые действия
           </h3>
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {[
               { 
                 icon: Play, 
@@ -808,24 +808,24 @@ const Dashboard = () => {
                 <button
                   key={index}
                   onClick={() => navigate(action.path)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all hover:scale-[1.02] ${
+                  className={`w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl transition-all hover:scale-[1.02] ${
                     darkMode 
                       ? 'bg-white/5 hover:bg-white/10' 
                       : 'bg-gray-50 hover:bg-gray-100'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg`}>
-                    <Icon className="w-5 h-5 text-white" />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <div className="flex-1 text-left">
-                    <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <div className="flex-1 text-left min-w-0">
+                    <h4 className={`font-semibold text-sm sm:text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                       {action.label}
                     </h4>
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <p className={`text-[10px] sm:text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {action.desc}
                     </p>
                   </div>
-                  <ArrowUpRight className={`${darkMode ? 'text-gray-600' : 'text-gray-400'}`} size={18} />
+                  <ArrowUpRight className={`flex-shrink-0 w-4 h-4 sm:w-[18px] sm:h-[18px] ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
                 </button>
               );
             })}
