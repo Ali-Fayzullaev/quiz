@@ -5,6 +5,7 @@ const { createResponse, asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../config/logger');
 const { uploadImage, deleteImage } = require('../utils/cloudinary');
 const mongoose = require('mongoose');
+const notificationController = require('./notificationController');
 
 // @desc    Получить список викторин с фильтрацией и пагинацией
 // @route   GET /api/quizzes
@@ -467,6 +468,16 @@ const toggleQuizLike = asyncHandler(async (req, res) => {
         // Добавляем лайк
         quiz.social.likes.push({ user: userId, createdAt: new Date() });
         isLiked = true;
+        
+        // Отправляем уведомление владельцу квиза
+        if (quiz.creator.toString() !== userId) {
+            notificationController.createQuizLikeNotification(
+                userId,
+                quiz.creator,
+                quiz._id,
+                quiz.title
+            );
+        }
     }
 
     await quiz.save();

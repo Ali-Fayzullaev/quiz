@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const Vocabulary = require('../models/Vocabulary');
 const Result = require('../models/Result');
+const notificationController = require('./notificationController');
 
 // Получить всех пользователей (лидерборд)
 exports.getLeaderboard = async (req, res) => {
@@ -308,6 +309,9 @@ exports.sendFriendRequest = async (req, res) => {
     });
     await currentUser.save();
 
+    // Создаём уведомление
+    await notificationController.createFriendRequestNotification(req.user._id, userId);
+
     res.json({
       success: true,
       message: 'Заявка отправлена',
@@ -369,6 +373,9 @@ exports.acceptFriendRequest = async (req, res) => {
       });
     }
     await currentUser.save();
+
+    // Создаём уведомление о принятии заявки
+    await notificationController.createFriendAcceptedNotification(req.user._id, userId);
 
     res.json({
       success: true,

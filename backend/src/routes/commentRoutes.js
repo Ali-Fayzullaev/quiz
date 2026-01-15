@@ -7,6 +7,7 @@ const Result = require('../models/Result');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, createResponse } = require('../middleware/errorHandler');
 const logger = require('../config/logger');
+const notificationController = require('../controllers/notificationController');
 
 // @route   GET /api/quizzes/:quizId/comments
 // @desc    Получить комментарии к квизу
@@ -107,6 +108,30 @@ router.post('/:quizId/comments', authenticate, asyncHandler(async (req, res) => 
 
     await comment.save();
     await comment.populate('user', 'username profile.avatar profile.firstName profile.lastName');
+
+    // Отправляем уведомления
+    if (parentComment) {
+        // Уведомление автору родительского комментария
+        const parent = await Comment.findById(parentComment);
+        if (parent && parent.user.toString() !== req.user.id) {
+            notificationController.createCommentReplyNotification(
+                req.user.id,
+                parent.user,
+                quizId,
+                quiz.title
+            );
+        }
+    } else {
+        // Уведомление владельцу квиза
+        if (quiz.creator.toString() !== req.user.id) {
+            notificationController.createCommentNotification(
+                req.user.id,
+                quiz.creator,
+                quizId,
+                quiz.title
+            );
+        }
+    }
 
     logger.info(`Новый комментарий к квизу ${quizId} от пользователя ${req.user.username}`);
 

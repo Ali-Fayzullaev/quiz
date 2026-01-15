@@ -190,4 +190,25 @@ export const friendsAPI = {
   cancelFriendRequest: (userId) => api.delete(`/friends/cancel/${userId}`),
 };
 
+// Notifications API
+export const notificationAPI = {
+  // Получить уведомления
+  getNotifications: (params = {}) => api.get('/notifications', { params }),
+  
+  // Получить количество непрочитанных
+  getUnreadCount: () => api.get('/notifications/unread-count'),
+  
+  // Отметить как прочитанное
+  markAsRead: (notificationId) => api.put(`/notifications/${notificationId}/read`),
+  
+  // Отметить все как прочитанные
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  
+  // Удалить уведомление
+  deleteNotification: (notificationId) => api.delete(`/notifications/${notificationId}`),
+  
+  // Удалить все прочитанные
+  deleteAllRead: () => api.delete('/notifications/read'),
+};
+
 export default api;
